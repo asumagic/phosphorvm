@@ -11,10 +11,10 @@ struct Chunk
 	std::string name;
 	std::int32_t length;
 
-	void read_header(Reader& reader, std::string_view expected = "");
+	void read_header(Reader& reader);
 };
 
-inline void Chunk::read_header(Reader& reader, std::string_view expected)
+inline void Chunk::read_header(Reader& reader)
 {
 	name = reader.read_string(4);
 	length = reader.read_pod<std::int32_t>();
@@ -28,11 +28,6 @@ inline void Chunk::read_header(Reader& reader, std::string_view expected)
 	{
 		for(;;);
 		throw DecoderError{fmt::format("Chunk has negative size '{}' - corrupt file or bug", length)};
-	}
-
-	if (!expected.empty() && name != expected)
-	{
-		throw DecoderError(fmt::format("Expected chunk name '{}', got '{}'", expected, name));
 	}
 }
 

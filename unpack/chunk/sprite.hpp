@@ -26,7 +26,7 @@ inline void read(Sprite& spr, Reader& reader)
 
 inline void read(Sprt& sprt, Reader& reader)
 {
-	chunk_handler(sprt, reader, [&]{
+	chunk_handler(sprt, reader, [&] {
 		reader.read_into(sprt.sprites);
 	});
 }

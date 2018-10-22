@@ -9,6 +9,7 @@ void print_disassembly(Form& form, const std::vector<char>& program)
 
 	while (std::size_t(offset) < program.size())
 	{
-		fmt::print("{:0x8}: {:0x2}\n", offset, program[offset]);
+		fmt::print("0x{:08x}: {:02x}\n", offset, static_cast<unsigned char>(program[offset]));
+		offset += 1;
 	}
 }

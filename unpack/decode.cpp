@@ -12,22 +12,24 @@ void read(ScriptDefinition& def, Reader& reader)
 	fmt::print("\t\tScript #{:5<} '{}'\n", def.id, def.name);
 }
 
-void read(Script& scr, Reader& reader)
-{
-	scr.name = reader.read_string_reference();
-	auto bytes = reader.read_pod<std::int32_t>();
-	scr.data = reader.read_pod_container<std::vector<char>, char>(bytes);
-}
-
 void read(Form& f, Reader& reader)
 {
-	f.read_header(reader, "FORM");
+	f.read_header(reader);
+	if (f.name != "FORM")
+	{
+		throw DecoderError{"Expected chunk FORM to begin the program"};
+	}
+
+	Chunk c;
+
+	f.gen8 = c;/*
 
 	read_into_all(
 		reader,
 		f.gen8,
 		f.optn,
 		f.extn,
+		f.optn,
 		f.sond,
 		f.agrp,
 		f.sprt,
@@ -47,5 +49,5 @@ void read(Form& f, Reader& reader)
 		f.strg,
 		f.txtr,
 		f.audo
-	);
+	);*/
 }

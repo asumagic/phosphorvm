@@ -2,6 +2,7 @@
 #define DECODE_HPP
 
 #include "chunk/background.hpp"
+#include "chunk/code.hpp"
 #include "chunk/sprite.hpp"
 
 struct Gen8 : Chunk {};
@@ -9,7 +10,6 @@ struct Optn : Chunk {};
 struct Extn : Chunk {};
 struct Sond : Chunk {};
 struct Agrp : Chunk {};
-
 struct Path : Chunk {};
 
 struct ScriptDefinition
@@ -30,18 +30,6 @@ struct Objt : Chunk {};
 struct Room : Chunk {};
 struct Dafl : Chunk {};
 struct Tpag : Chunk {};
-
-struct Script
-{
-	std::string name;
-	std::vector<char> data;
-};
-
-struct Code : Chunk
-{
-	List<Script> scripts;
-};
-
 struct Vari : Chunk {};
 struct Func : Chunk {};
 struct Strg : Chunk {};
@@ -78,13 +66,6 @@ void read(Chunk& chunk, Reader& reader);
 
 void read(std::string& string, Reader& reader);
 
-void read(Sprite& spr, Reader& reader);
-
-void read(Background& bg, Reader& reader);
-
-void read(ScriptDefinition& def, Reader& reader);
-
-void read(Script& scr, Reader& reader);
 
 void read(Form& f, Reader& reader);
 
