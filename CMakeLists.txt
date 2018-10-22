@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 project(phosphorvm)
 add_executable(${PROJECT_NAME}
 	"bytecode/disasm.cpp"
-	"unpack/chunk/chunk.cpp"
 	"unpack/decode.cpp"
 	"unpack/mmap.cpp"
 	"main.cpp"

@@ -4,10 +4,12 @@
 #include <algorithm>
 #include <cstring>
 #include <string>
+#include <fmt/core.h>
 
 struct Reader
 {
-	const char* pos;
+	const char* begin;
+	const char* pos = begin;
 
 	void skip(std::size_t n)
 	{
@@ -23,10 +25,10 @@ struct Reader
 		return ret;
 	}
 
-	std::string read_string()
+	std::string read_string_reference()
 	{
-		std::string ret{pos};
-		pos += ret.size();
+		auto address = read_pod<std::int32_t>();
+		std::string ret{begin + address};
 		return ret;
 	}
 

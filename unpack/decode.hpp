@@ -1,43 +1,14 @@
 #ifndef DECODE_HPP
 #define DECODE_HPP
 
-#include "chunk/chunk.hpp"
-#include "chunk/list.hpp"
-#include "helper.hpp"
-
-#include <fmt/core.h>
-#include <string_view>
-#include <unordered_map>
-#include <vector>
+#include "chunk/background.hpp"
+#include "chunk/sprite.hpp"
 
 struct Gen8 : Chunk {};
 struct Optn : Chunk {};
 struct Extn : Chunk {};
 struct Sond : Chunk {};
 struct Agrp : Chunk {};
-
-struct Sprite
-{
-	std::string name;
-	std::int32_t width, height;
-	std::int32_t texture_count;
-};
-
-struct Sprt : Chunk
-{
-	List<Sprite> sprites;
-};
-
-struct Background
-{
-	std::string name;
-	std::int32_t texture_address;
-};
-
-struct Bgnd : Chunk
-{
-	List<Background> backgrounds;
-};
 
 struct Path : Chunk {};
 
@@ -102,15 +73,6 @@ struct Form : Chunk
 	Txtr txtr;
 	Audo audo;
 };
-
-template<class T, class... Ts>
-void read_into_all(Reader& reader, T& current, Ts&... to_read)
-{
-	reader.read_into(current);
-	read_into_all(reader, to_read...);
-}
-
-inline void read_into_all(Reader&) {}
 
 void read(Chunk& chunk, Reader& reader);
 
