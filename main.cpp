@@ -1,5 +1,6 @@
 #include <fmt/core.h>
 #include "unpack/decode.hpp"
+#include "bytecode/disasm.hpp"
 
 int main()
 {
@@ -14,4 +15,9 @@ int main()
 	WinFileSection main_section{file};
 	Form main_form;
 	main_form.read(main_section);
+
+	for (auto& script : main_form.code.scripts.elements)
+	{
+		print_disassembly(main_form, script.data);
+	}
 }

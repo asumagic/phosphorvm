@@ -19,6 +19,8 @@ struct List
 		std::int32_t address_count;
 		file(address_count);
 
+		auto reader = file;
+
 		for (std::int32_t i = 0; i < address_count; ++i)
 		{
 			std::int32_t element_address;
@@ -27,10 +29,12 @@ struct List
 			fmt::print("    Element {:>6}/{:<6} at #{:<08x}: todo\n", i, address_count, element_address);
 
 			T value;
-			auto reader = file.read_at(element_address);
+			reader = file.read_at(element_address);
 			value.read(reader);
 			elements.push_back(value);
 		}
+
+		file = reader;
 	}
 };
 
