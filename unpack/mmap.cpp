@@ -33,7 +33,7 @@ ReadMappedFile::~ReadMappedFile()
 			fmt::print("munmap() failed... silently failing: {}\n", strerror(errno));
 		}
 
-		if (!fclose(_file))
+		if (fclose(_file) == EOF)
 		{
 			fmt::print("close() failed... silently failing: {}\n", strerror(errno));
 		}
