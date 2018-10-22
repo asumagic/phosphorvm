@@ -35,7 +35,7 @@ ReadMappedFile::~ReadMappedFile()
 
 		if (fclose(_file) == EOF)
 		{
-			fmt::print("close() failed... silently failing: {}\n", strerror(errno));
+			fmt::print("fclose() failed... silently failing: {}\n", strerror(errno));
 		}
 	}
 }
