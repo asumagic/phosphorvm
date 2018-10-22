@@ -2,9 +2,10 @@
 #include "../except.hpp"
 #include "../../config.hpp"
 
-std::string& Chunk::read_header(WinFileSection& file)
+std::string& Chunk::read_header(Reader& reader, std::string_view expected)
 {
-	file(name, 4)(length);
+	name = reader.read_string(4);
+	length = reader.read_pod<std::int32_t>();
 
 	if (debug_mode)
 	{
@@ -16,13 +17,10 @@ std::string& Chunk::read_header(WinFileSection& file)
 		throw DecoderError{fmt::format("Chunk has negative size '{}' - corrupt file or bug", length)};
 	}
 
-	return name;
-}
-
-void Chunk::sanitize_name(std::string_view expected)
-{
-	if (name != expected)
+	if (!expected.empty() && name != expected)
 	{
 		throw DecoderError(fmt::format("Expected chunk name '{}', got '{}'", expected, name));
 	}
+
+	return name;
 }

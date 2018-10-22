@@ -3,251 +3,78 @@
 #include <fmt/format.h>
 #include "../config.hpp"
 
-WinFileSection& skip_chunk(WinFileSection& section, const Chunk& chunk)
+void read(Chunk& chunk, Reader& reader)
 {
-	section.skip(chunk.length);
-	return section;
+	fmt::print("Using placeholder chunk reader\n");
+	chunk.read_header(reader);
+	reader.skip(chunk.length);
 }
 
-void Gen8::read(WinFileSection& file)
+void read(std::string& string, Reader& reader)
 {
-	read_header(file);
-	sanitize_name("GEN8");
-
-	skip_chunk(file, *this);
+	string = reader.read_string();
 }
 
-void Optn::read(WinFileSection& file)
+void read(Sprite& spr, Reader& reader)
 {
-	read_header(file);
-	sanitize_name("OPTN");
+	spr.name = reader.read_string();
+	spr.width = reader.read_pod<std::int32_t>();
+	spr.height = reader.read_pod<std::int32_t>();
 
-	skip_chunk(file, *this);
+	fmt::print("\t\tSprite '{}': {}x{}\n", spr.name, spr.width, spr.height);
 }
 
-void Extn::read(WinFileSection& file)
+void read(Background& bg, Reader& reader)
 {
-	read_header(file);
-	sanitize_name("EXTN");
+	bg.name = reader.read_string();
+	reader.skip(3 * 4);
+	bg.texture_address = reader.read_pod<std::int32_t>();
 
-	skip_chunk(file, *this);
+	fmt::print("\t\tBackground '{}'", bg.name);
 }
 
-void Sond::read(WinFileSection& file)
+void read(ScriptDefinition& def, Reader& reader)
 {
-	read_header(file);
-	sanitize_name("SOND");
+	def.name = reader.read_string();
+	def.id = reader.read_pod<std::int32_t>();
 
-	skip_chunk(file, *this);
+	fmt::print("\t\tScript #{:5<} '{}'\n", def.id, def.name);
 }
 
-void Agrp::read(WinFileSection& file)
+void read(Script& scr, Reader& reader)
 {
-	read_header(file);
-	sanitize_name("AGRP");
-
-	skip_chunk(file, *this);
+	scr.name = reader.read_string();
+	auto bytes = reader.read_pod<std::int32_t>();
+	scr.data = reader.read_pod_container<std::vector<char>, char>(bytes);
 }
 
-void Sprite::read(WinFileSection& file)
+void read(Form& f, Reader& reader)
 {
-	name.read(file);
-	file(width)(height);
-	file.skip(56);
+	f.read_header(reader, "FORM");
 
-	fmt::print("        Sprite '{}': {}x{}\n", name.str, width, height);
-}
-
-void Sprt::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("SPRT");
-
-	auto fileback = file;
-
-	sprites.read(file);
-
-	file = fileback;
-	skip_chunk(file, *this);
-}
-
-void Background::read(WinFileSection& file)
-{
-	name.read(file);
-	file(unknown1)(unknown2)(unknown3)(texture_address);
-
-	fmt::print("        Background '{}': {} {} {} {}\n", name.str, unknown1, unknown2, unknown3, texture_address);
-}
-
-void Bgnd::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("BGND");
-
-	auto fileback = file;
-
-	backgrounds.read(file);
-
-	file = fileback;
-	skip_chunk(file, *this);
-}
-
-void ScriptDefinition::read(WinFileSection& file)
-{
-	name.read(file);
-	file(id);
-
-	fmt::print("        Script #{:5<} '{}'\n", id, name.str);
-}
-
-void Path::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("PATH");
-
-	skip_chunk(file, *this);
-}
-
-void Scpt::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("SCPT");
-
-	auto fileback = file;
-
-	definitions.read(file);
-
-	file = fileback;
-	skip_chunk(file, *this);
-}
-
-void Shdr::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("SHDR");
-
-	skip_chunk(file, *this);
-}
-
-void Font::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("FONT");
-
-	skip_chunk(file, *this);
-}
-
-void Tmln::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("TMLN");
-
-	skip_chunk(file, *this);
-}
-
-void Objt::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("OBJT");
-
-	skip_chunk(file, *this);
-}
-
-void Room::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("ROOM");
-
-	skip_chunk(file, *this);
-}
-
-void Dafl::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("DAFL");
-
-	skip_chunk(file, *this);
-}
-
-void Tpag::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("TPAG");
-
-	skip_chunk(file, *this);
-}
-
-void Script::read(WinFileSection& file)
-{
-	name.read(file);
-
-	std::int32_t bytes;
-	file(bytes);
-
-	data.resize(bytes);
-	file(data.data(), bytes);
-
-	fmt::print("        Bytecode for '{}': {} bytes\n", name.str, bytes);
-}
-
-void Code::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("CODE");
-
-	scripts.read(file);
-
-	skip_chunk(file, *this);
-}
-
-void Vari::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("VARI");
-
-	skip_chunk(file, *this);
-}
-
-void Func::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("FUNC");
-
-	skip_chunk(file, *this);
-}
-
-void Strg::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("STRG");
-
-	skip_chunk(file, *this);
-}
-
-void Txtr::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("TXTR");
-
-	skip_chunk(file, *this);
-}
-
-void Audo::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("AUDO");
-
-	skip_chunk(file, *this);
-}
-
-void Form::read(WinFileSection& file)
-{
-	read_header(file);
-	sanitize_name("FORM");
-
-	read_all(
-		file,
-		gen8, optn, extn, sond, agrp, sprt, bgnd, path, scpt, shdr, font, tmln, objt, room, dafl, tpag, code, vari, func, strg,
-		txtr, audo
-	);
+	read_into_all(
+				reader,
+				f.gen8,
+				f.optn,
+				f.extn,
+				f.sond,
+				f.agrp,
+				f.sprt,
+				f.bgnd,
+				f.path,
+				f.scpt,
+				f.shdr,
+				f.font,
+				f.tmln,
+				f.objt,
+				f.room,
+				f.dafl,
+				f.tpag,
+				f.code,
+				f.vari,
+				f.func,
+				f.strg,
+				f.txtr,
+				f.audo
+				);
 }

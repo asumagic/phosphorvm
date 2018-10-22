@@ -5,7 +5,7 @@ add_executable(${PROJECT_NAME}
 	"bytecode/disasm.cpp"
 	"unpack/chunk/chunk.cpp"
 	"unpack/decode.cpp"
-	"unpack/winfile.cpp"
+	"unpack/mmap.cpp"
 	"main.cpp"
 )
 
