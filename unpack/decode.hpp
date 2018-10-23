@@ -5,12 +5,12 @@
 #include "chunk/code.hpp"
 #include "chunk/sprite.hpp"
 
-struct Gen8 : Chunk {};
-struct Optn : Chunk {};
-struct Extn : Chunk {};
-struct Sond : Chunk {};
-struct Agrp : Chunk {};
-struct Path : Chunk {};
+struct Gen8 {};
+struct Optn {};
+struct Extn {};
+struct Sond {};
+struct Agrp {};
+struct Path {};
 
 struct ScriptDefinition
 {
@@ -18,25 +18,22 @@ struct ScriptDefinition
 	std::int32_t id;
 };
 
-struct Scpt : Chunk
-{
-	List<ScriptDefinition> definitions;
-};
+using Scpt = List<ScriptDefinition>;
 
-struct Shdr : Chunk {};
-struct Font : Chunk {};
-struct Tmln : Chunk {};
-struct Objt : Chunk {};
-struct Room : Chunk {};
-struct Dafl : Chunk {};
-struct Tpag : Chunk {};
-struct Vari : Chunk {};
-struct Func : Chunk {};
-struct Strg : Chunk {};
-struct Txtr : Chunk {};
-struct Audo : Chunk {};
+struct Shdr {};
+struct Font {};
+struct Tmln {};
+struct Objt {};
+struct Room {};
+struct Dafl {};
+struct Tpag {};
+struct Vari {};
+struct Func {};
+struct Strg {};
+struct Txtr {};
+struct Audo {};
 
-struct Form : Chunk
+struct Form
 {
 	Gen8 gen8;
 	Optn optn;
@@ -62,10 +59,7 @@ struct Form : Chunk
 	Audo audo;
 };
 
-void read(Chunk& chunk, Reader& reader);
-
 void read(std::string& string, Reader& reader);
-
 
 void read(Form& f, Reader& reader);
 

@@ -10,7 +10,7 @@ struct Sprite
 	std::int32_t texture_count;
 };
 
-struct Sprt : Chunk
+struct Sprt
 {
 	List<Sprite> sprites;
 };
@@ -21,14 +21,12 @@ inline void read(Sprite& spr, Reader& reader)
 	spr.width = reader.read_pod<std::int32_t>();
 	spr.height = reader.read_pod<std::int32_t>();
 
-	fmt::print("\t\tSprite '{}': {}x{}\n", spr.name, spr.width, spr.height);
+	fmt::print("\tSprite '{}': {}x{}\n", spr.name, spr.width, spr.height);
 }
 
 inline void read(Sprt& sprt, Reader& reader)
 {
-	chunk_handler(sprt, reader, [&] {
-		reader.read_into(sprt.sprites);
-	});
+	reader.read_into(sprt.sprites);
 }
 
 #endif // SPRITE_HPP

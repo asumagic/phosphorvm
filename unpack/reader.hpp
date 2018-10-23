@@ -11,7 +11,8 @@ struct Reader
 	const char* begin;
 	const char* pos = begin;
 
-	void skip(std::size_t n)
+	//! Skip n bytes. Negative offsets are allowed.
+	void skip(std::ptrdiff_t n)
 	{
 		pos += n;
 	}
@@ -58,9 +59,14 @@ struct Reader
 		return ret;
 	}
 
-	std::ptrdiff_t distance_with(Reader other)
+	std::ptrdiff_t distance_with(Reader other) const
 	{
 		return pos - other.pos;
+	}
+
+	std::size_t offset() const
+	{
+		return std::size_t(pos - begin);
 	}
 };
 

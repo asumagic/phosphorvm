@@ -17,8 +17,8 @@ int main()
 	Form main_form;
 	Reader{file.data()}.read_into(main_form);
 
-	for (auto& script : main_form.code.scripts.elements)
+	for (auto& script : main_form.code.elements)
 	{
-		print_disassembly(main_form, script.data);
+		print_disassembly(main_form, script);
 	}
 }

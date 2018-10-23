@@ -4,6 +4,6 @@
 #include "../unpack/decode.hpp"
 #include <vector>
 
-void print_disassembly(Form& form, const std::vector<char>& program);
+void print_disassembly(Form& form, const Script& script);
 
 #endif // DISASM_HPP

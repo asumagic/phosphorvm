@@ -9,45 +9,39 @@ void read(ScriptDefinition& def, Reader& reader)
 	def.name = reader.read_string_reference();
 	def.id = reader.read_pod<std::int32_t>();
 
-	fmt::print("\t\tScript #{:5<} '{}'\n", def.id, def.name);
+	fmt::print("\tScript #{:5<} '{}'\n", def.id, def.name);
 }
 
 void read(Form& f, Reader& reader)
 {
-	f.read_header(reader);
-	if (f.name != "FORM")
+	auto orig_reader = reader;
+
+	ChunkHeader form_header{reader};
+	if (form_header.name != "FORM")
 	{
 		throw DecoderError{"Expected chunk FORM to begin the program"};
 	}
 
-	Chunk c;
+	for(;;)
+	{
+		ChunkHeader header{reader};
+		auto next_reader = reader;
+		next_reader.skip(header.length);
 
-	f.gen8 = c;/*
+		if (next_reader.distance_with(orig_reader) >= form_header.length + 4)
+		{
+			fmt::print("Finished reading main FORM\n");
+			break;
+		}
 
-	read_into_all(
-		reader,
-		f.gen8,
-		f.optn,
-		f.extn,
-		f.optn,
-		f.sond,
-		f.agrp,
-		f.sprt,
-		f.bgnd,
-		f.path,
-		f.scpt,
-		f.shdr,
-		f.font,
-		f.tmln,
-		f.objt,
-		f.room,
-		f.dafl,
-		f.tpag,
-		f.code,
-		f.vari,
-		f.func,
-		f.strg,
-		f.txtr,
-		f.audo
-	);*/
+		switch (chunk_id(header.name))
+		{
+			case chunk_id("SCPT"): reader.read_into(f.scpt); break;
+			case chunk_id("CODE"): reader.read_into(f.code); break;
+			default:
+				fmt::print("Unhandled chunk: {}\n", header.name);
+				break;
+		}
+		reader = next_reader;
+	}
 }

@@ -6,15 +6,22 @@
 #include "../except.hpp"
 #include "../../config.hpp"
 
-struct Chunk
+struct ChunkHeader
 {
 	std::string name;
 	std::int32_t length;
 
-	void read_header(Reader& reader);
+	ChunkHeader(Reader& reader);
 };
 
-inline void Chunk::read_header(Reader& reader)
+//! Returns an ID that calculated from the name, useful to handle the chunk type in a switch
+//! @param v assumed to be .size() == 4
+inline constexpr std::uint32_t chunk_id(std::string_view v)
+{
+	return v[0] | (v[1] << 8) | (v[2] << 16) | (v[3] << 24);
+}
+
+inline ChunkHeader::ChunkHeader(Reader& reader)
 {
 	name = reader.read_string(4);
 	length = reader.read_pod<std::int32_t>();
@@ -29,28 +36,6 @@ inline void Chunk::read_header(Reader& reader)
 		for(;;);
 		throw DecoderError{fmt::format("Chunk has negative size '{}' - corrupt file or bug", length)};
 	}
-}
-
-//! This helper function has two purposes:
-//! - It reads the header for a chunk.
-//! - It simplifies writing chunk readers when you cannot deduce the size of a chunk without its header.
-//!   For example, when reading a list the elements may have a variable size. You'd need to always entirely
-//!   read elements, which is inconvenient during development.
-template<class Func>
-void chunk_handler(Chunk& chunk, Reader& reader, const Func& func)
-{
-	chunk.read_header(reader);
-	auto old_reader = reader;
-	func();
-	reader = old_reader;
-	reader.skip(chunk.length);
-}
-
-inline void read(Chunk& chunk, Reader& reader)
-{
-	fmt::print("Using placeholder chunk reader\n");
-	chunk.read_header(reader);
-	reader.skip(chunk.length);
 }
 
 #endif // CHUNK_HPP
