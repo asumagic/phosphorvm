@@ -103,8 +103,6 @@ void print_disassembly(Form&, const Script& script)
 			fmt::print("pop{}{} {}", type_suffix(t1), type_suffix(t2), resolve_variable(a));
 		} break;
 
-		case 0x86: break;
-
 		case 0x9D: break;
 
 		case 0x9E: break;
@@ -116,14 +114,12 @@ void print_disassembly(Form&, const Script& script)
 		case 0xBA: break;
 		case 0xBB: break;
 
-		case 0xC0: {
-			fmt::print("push{} {}", type_suffix(t1), read_pushed_value(t1));
-		} break;
+		case 0xC0: fmt::print("push{} {}", type_suffix(t1), read_pushed_value(t1)); break;
 
 		case 0xC1: break;
 		case 0xC2: break;
 		case 0xC3: break;
-		case 0x84: break;
+		case 0x84: fmt::print("pushi.e ${:04x}", block & 0xFFFF); break;
 
 		case 0xD9: break;
 
