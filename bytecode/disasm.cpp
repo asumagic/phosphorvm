@@ -10,6 +10,7 @@ const char* type_suffix(std::int8_t type)
 	case 0x2: return ".i";
 	case 0x3: return ".l";
 	case 0x5: return ".v";
+	case 0x6: return ".s";
 	case 0xF: return ".i.e";
 	}
 
@@ -33,14 +34,14 @@ const char* instance_suffix(std::int8_t type)
 const char* resolve_variable(std::int32_t)
 {
 	// TODO
-	return "<unimplemented>";
+	return "<unimpl>";
 }
 
 void print_disassembly(Form&, const Script& script)
 {
 	auto& program = script.data;
 
-	fmt::print(fmt::color::orange, "Disassembly of '{}': {} bytes (~{} KiB)\n", script.name, program.size(), program.size() / 1024);
+	fmt::print(fmt::color::orange, "\nDisassembly of '{}': {} bytes (~{} KiB)\n", script.name, program.size(), program.size() / 1024);
 
 	Reader reader{program.data()};
 
@@ -49,7 +50,6 @@ void print_disassembly(Form&, const Script& script)
 		auto block = reader.read_pod<std::uint32_t>();
 
 		auto op  = (block >> 24) & 0xFF;
-		auto ins = (block >> 0)  & 0xFF;
 
 		// Type pairs
 		auto t1 = (block >> 16) & 0xF;
@@ -57,8 +57,12 @@ void print_disassembly(Form&, const Script& script)
 
 		fmt::print(fmt::color::light_gray, "0x{:08x}: ", reader.offset(), block);
 
+		std::string mnemonic = "<unimpl>";
+		std::string params = "";
+		std::string comment;
+
 		auto generic_2t = [&](auto name) {
-			fmt::print("{}{}{}\n", name, type_suffix(t1), type_suffix(t2));
+			mnemonic = fmt::format("{}{}{}", name, type_suffix(t1), type_suffix(t2));
 		};
 
 		auto read_pushed_value = [&](auto type) -> std::string {
@@ -78,7 +82,7 @@ void print_disassembly(Form&, const Script& script)
 
 		switch (op)
 		{
-		case 0x07: fmt::print("conv{}{}", type_suffix(t1), type_suffix(t2)); break;
+		case 0x07: generic_2t("conv"); break;
 
 		case 0x08: generic_2t("mul"); break;
 		case 0x09: generic_2t("div"); break;
@@ -100,7 +104,8 @@ void print_disassembly(Form&, const Script& script)
 
 		case 0x45: {
 			auto a = reader.read_pod<std::uint32_t>();
-			fmt::print("pop{}{} {}", type_suffix(t1), type_suffix(t2), resolve_variable(a));
+			mnemonic = fmt::format("pop{}{}", type_suffix(t1), type_suffix(t2));
+			params = resolve_variable(a);
 		} break;
 
 		case 0x9D: break;
@@ -114,23 +119,60 @@ void print_disassembly(Form&, const Script& script)
 		case 0xBA: break;
 		case 0xBB: break;
 
-		case 0xC0: fmt::print("push{} {}", type_suffix(t1), read_pushed_value(t1)); break;
+		case 0xC0: {
+			mnemonic = fmt::format("push{}", type_suffix(t1));
+			params = read_pushed_value(t1);
+		} break;
 
 		case 0xC1: break;
 		case 0xC2: break;
 		case 0xC3: break;
-		case 0x84: fmt::print("pushi.e ${:04x}", block & 0xFFFF); break;
+		case 0x84: {
+			mnemonic = "pushi.e";
+			params = fmt::to_string(block & 0xFFFF);
+		} break;
 
 		case 0xD9: break;
 
-		default: fmt::print(fmt::color::gray,
-							"\n; Unknown instruction (first block 0x{:08x}, opcode 0x{:02x}) at this point!\n"
-							"; Phosphor might have incorrectly disassembled a past instruction, or the file may be corrupt.\n"
-							"; Further instructions in this code block may be invalid\n",
-							block,
-							op);
+		default: {
+			mnemonic = "<bad>";
+			comment = fmt::format(
+				"\n; Unknown instruction (first block 0x{:08x}, opcode 0x{:02x}) at this point!\n"
+				"; Phosphor might have incorrectly disassembled a past instruction, or the file may be corrupt.\n"
+				"; Further instructions in this code block may be invalid",
+				block,
+				op
+			);
 		}
 
-		fmt::print(fmt::color::gray, " ; main block '0x{:08x}'\n", block);
+		};
+
+		if ((mnemonic == "<unimpl>" || params == "<unimpl>") && comment.empty())
+		{
+			comment = fmt::format(" ; ${:08x}", block);
+		}
+
+		bool mnemonic_warning = !mnemonic.empty() && mnemonic[0] == '<';
+		bool params_warning = !params.empty() && params[0] == '<';
+
+		if (mnemonic_warning)
+		{
+			fmt::print(fmt::color::brown, "{:13}", mnemonic);
+		}
+		else
+		{
+			fmt::print("{:13}", mnemonic);
+		}
+
+		if (params_warning)
+		{
+			fmt::print(fmt::color::brown, "{:20}", params);
+		}
+		else
+		{
+			fmt::print("{:20}", params);
+		}
+
+		fmt::print(fmt::color::gray, "{}\n", comment);
 	}
 }
