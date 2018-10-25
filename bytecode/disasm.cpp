@@ -55,8 +55,6 @@ void print_disassembly(Form& form, const Script& script)
 
 	while (reader.offset() < program.size())
 	{
-		std::vector<std::uint32_t>
-
 		auto block = reader.read_pod<std::uint32_t>();
 
 		auto op = (block >> 24) & 0xFF;
