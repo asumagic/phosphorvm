@@ -10,10 +10,7 @@ struct Sprite
 	std::int32_t texture_count;
 };
 
-struct Sprt
-{
-	List<Sprite> sprites;
-};
+struct Sprt : List<Sprite> {};
 
 inline void read(Sprite& spr, Reader& reader)
 {
@@ -22,11 +19,6 @@ inline void read(Sprite& spr, Reader& reader)
 	spr.height = reader.read_pod<std::int32_t>();
 
 	fmt::print("\tSprite '{}': {}x{}\n", spr.name, spr.width, spr.height);
-}
-
-inline void read(Sprt& sprt, Reader& reader)
-{
-	reader.read_into(sprt.sprites);
 }
 
 #endif // SPRITE_HPP

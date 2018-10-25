@@ -36,8 +36,10 @@ void read(Form& f, Reader& reader)
 
 		switch (chunk_id(header.name))
 		{
+			case chunk_id("SPRT"): reader.read_into(f.sprt); break;
 			case chunk_id("SCPT"): reader.read_into(f.scpt); break;
 			case chunk_id("CODE"): reader.read_into(f.code); break;
+			case chunk_id("STRG"): reader.read_into(f.strg); break;
 			default:
 				fmt::print("Unhandled chunk: {}\n", header.name);
 				break;

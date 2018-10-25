@@ -4,6 +4,7 @@
 #include "chunk/background.hpp"
 #include "chunk/code.hpp"
 #include "chunk/sprite.hpp"
+#include "chunk/strings.hpp"
 
 struct Gen8 {};
 struct Optn {};
@@ -29,7 +30,6 @@ struct Dafl {};
 struct Tpag {};
 struct Vari {};
 struct Func {};
-struct Strg {};
 struct Txtr {};
 struct Audo {};
 
