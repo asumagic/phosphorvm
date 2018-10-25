@@ -1,14 +1,15 @@
 #include "../unpack/reader.hpp"
 #include "disasm.hpp"
+#include "types.hpp"
 #include <fmt/core.h>
 #include <fmt/color.h>
 
-const std::string& get_string(std::int32_t id, Form& form)
+const std::string& get_string(s32 id, Form& form)
 {
 	return form.strg.elements[id].value;
 }
 
-std::string type_suffix(std::int8_t type)
+std::string type_suffix(s8 type)
 {
 	switch (type)
 	{
@@ -25,7 +26,7 @@ std::string type_suffix(std::int8_t type)
 	return ".???";
 }
 
-std::string instance_name(std::int16_t id)
+std::string instance_name(InstId id)
 {
 	if (id > 0)
 	{
@@ -55,7 +56,7 @@ void print_disassembly(Form& form, const Script& script)
 
 	while (reader.offset() < program.size())
 	{
-		auto block = reader.read_pod<std::uint32_t>();
+		auto block = reader.read_pod<Block>();
 
 		auto op = (block >> 24) & 0xFF;
 
@@ -71,14 +72,14 @@ void print_disassembly(Form& form, const Script& script)
 			mnemonic = fmt::format("{}.{}.{}", name, type_suffix(t1), type_suffix(t2));
 		};
 
-		auto read_pushed_value = [&](auto type) -> std::string {
+		auto push_param = [&](auto type) -> std::string {
 			switch (type)
 			{
-			case 0x0: return fmt::to_string(reader.read_pod<double>());
-			case 0x1: return fmt::to_string(reader.read_pod<float>());
-			case 0x2: return fmt::to_string(reader.read_pod<std::uint32_t>());
-			case 0x3: return fmt::to_string(reader.read_pod<std::uint64_t>());
-			case 0x6: return fmt::format("\"{}\"", get_string(reader.read_pod<std::int32_t>(), form));
+			case 0x0: return fmt::to_string(reader.read_pod<f64>());
+			case 0x1: return fmt::to_string(reader.read_pod<f32>());
+			case 0x2: return fmt::to_string(reader.read_pod<s32>());
+			case 0x3: return fmt::to_string(reader.read_pod<s64>());
+			case 0x6: return fmt::format("\"{}\"", get_string(reader.read_pod<s32>(), form));
 			case 0xF: return fmt::to_string(block & 0xffff);
 			}
 
@@ -108,7 +109,7 @@ void print_disassembly(Form& form, const Script& script)
 		case 0x15: break;
 
 		case 0x45: {
-			auto a = reader.read_pod<std::uint32_t>();
+			auto a = reader.read_pod<Block>();
 			mnemonic = fmt::format("pop.{}.{}", type_suffix(t1), type_suffix(t2));
 			params = instance_name(a);
 		} break;
@@ -126,7 +127,7 @@ void print_disassembly(Form& form, const Script& script)
 
 		case 0xC0: {
 			mnemonic = fmt::format("pushcst.{}", type_suffix(t1));
-			params = read_pushed_value(t1);
+			params = push_param(t1);
 		} break;
 
 		case 0xC1: break;
@@ -134,7 +135,7 @@ void print_disassembly(Form& form, const Script& script)
 
 		case 0xC3: {
 			mnemonic = fmt::format("pushvar.{}", type_suffix(t1));
-			params = read_pushed_value(t1);
+			params = push_param(t1);
 		} break;
 
 		case 0x84: {
@@ -146,13 +147,7 @@ void print_disassembly(Form& form, const Script& script)
 
 		default: {
 			mnemonic = "<bad>";
-			comment = fmt::format(
-				"\n; Unknown instruction (first block 0x{:08x}, opcode 0x{:02x}) at this point!\n"
-				"; Phosphor might have incorrectly disassembled a past instruction, or the file may be corrupt.\n"
-				"; Further instructions in this code block may be invalid",
-				block,
-				op
-			);
+			comment = " !!! This may indicate corruption";
 		}
 
 		};
@@ -160,10 +155,7 @@ void print_disassembly(Form& form, const Script& script)
 		bool mnemonic_warning = !mnemonic.empty() && mnemonic[0] == '<';
 		bool params_warning = !params.empty() && params[0] == '<';
 
-		if (comment.empty())
-		{
-			comment = fmt::format(" ; ${:08x}", block);
-		}
+		comment += fmt::format(" ${:08x}", block);
 
 		if (mnemonic_warning)
 		{
@@ -183,6 +175,6 @@ void print_disassembly(Form& form, const Script& script)
 			fmt::print("{:20}", params);
 		}
 
-		fmt::print(fmt::color::gray, "{}\n", comment);
+		fmt::print(fmt::color::gray, ";{}\n", comment);
 	}
 }
