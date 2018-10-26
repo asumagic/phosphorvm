@@ -24,7 +24,7 @@ inline void read(Script& scr, Reader& reader)
 	reader.read_pod<s32>(); // unknown
 
 	bytecode_reader.skip(offset);
-	scr.data = bytecode_reader.read_pod_container<std::vector<Block>, Block>(bytes / 4);
+	scr.data = bytecode_reader.read_pod_container<std::vector<Block>>(bytes / 4);
 
 	fmt::print("\tCode entry for '{}'\n", scr.name);
 }

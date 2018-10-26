@@ -9,7 +9,7 @@
 struct ChunkHeader
 {
 	std::string name;
-	std::int32_t length;
+	s32 length;
 
 	ChunkHeader(Reader& reader);
 };
@@ -24,7 +24,7 @@ inline constexpr std::uint32_t chunk_id(std::string_view v)
 inline ChunkHeader::ChunkHeader(Reader& reader)
 {
 	name = reader.read_string(4);
-	length = reader.read_pod<std::int32_t>();
+	length = reader.read_pod<s32>();
 
 	if (debug_mode)
 	{
@@ -33,7 +33,7 @@ inline ChunkHeader::ChunkHeader(Reader& reader)
 
 	if (length < 0)
 	{
-		throw DecoderError{fmt::format("Chunk has negative size '{}' - corrupt file or bug", length)};
+		throw DecoderError{fmt::format("Chunk has negative size '{:08x}' - corrupt file or bug", unsigned(length))};
 	}
 }
 

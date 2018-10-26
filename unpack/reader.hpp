@@ -6,11 +6,11 @@
 #include <string>
 #include <fmt/core.h>
 
-template<class Ptr>
+template<class T>
 struct GenericReader
 {
-	Ptr begin;
-	Ptr pos = begin;
+	const T* begin;
+	const T* pos = begin;
 
 	//! Skip n bytes. Negative offsets are allowed.
 	void skip(std::ptrdiff_t n)
@@ -18,29 +18,29 @@ struct GenericReader
 		pos += n;
 	}
 
-	template<class T>
-	T read_pod()
+	template<class Ret>
+	Ret read_pod()
 	{
-		T ret{};
-		std::memcpy(&ret, pos, sizeof(T) / sizeof(Ptr));
-		pos += sizeof(T) / sizeof(Ptr);
+		Ret ret{};
+		std::memcpy(&ret, pos, sizeof(Ret));
+		pos += sizeof(Ret) / sizeof(T);
 		return ret;
 	}
 
-	template<class C, class T>
-	C read_pod_container(std::size_t count)
+	template<class Ret>
+	Ret read_pod_container(std::size_t count)
 	{
-		C ret;
+		Ret ret;
 		ret.resize(count);
 
 		std::generate(ret.begin(), ret.end(), [&] {
-			return read_pod<T>();
+			return read_pod<typename Ret::value_type>();
 		});
 
 		return ret;
 	}
 
-	std::ptrdiff_t distance_with(const GenericReader<Ptr>& other) const
+	std::ptrdiff_t distance_with(const GenericReader<T>& other) const
 	{
 		return pos - other.pos;
 	}
@@ -49,9 +49,14 @@ struct GenericReader
 	{
 		return std::size_t(pos - begin);
 	}
+
+	std::size_t bytes() const
+	{
+		return offset() * sizeof(T);
+	}
 };
 
-struct Reader : GenericReader<const char*>
+struct Reader : GenericReader<char>
 {
 	std::string read_string_reference()
 	{
