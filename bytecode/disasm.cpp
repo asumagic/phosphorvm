@@ -50,21 +50,20 @@ void print_disassembly(Form& form, const Script& script)
 {
 	auto& program = script.data;
 
-	fmt::print(fmt::color::orange, "\nDisassembly of '{}': {} bytes (~{} KiB)\n", script.name, program.size(), program.size() / 1024);
+	fmt::print(fmt::color::orange, "\nDisassembly of '{}': {} blocks ({} bytes)\n", script.name, program.size(), program.size() * 4);
 
-	Reader reader{program.data()};
-
-	while (reader.offset() < program.size())
+	for (auto it = program.begin(); it != program.end(); ++it)
 	{
-		auto block = reader.read_pod<Block>();
+		auto main_it = it;
+		auto& main_block = *it;
 
-		auto op = (block >> 24) & 0xFF;
+		auto op = (main_block >> 24) & 0xFF;
 
 		// Type pairs
-		auto t1 = (block >> 16) & 0xF;
-		auto t2 = (block >> 20) & 0xF;
+		auto t1 = (main_block >> 16) & 0xF;
+		auto t2 = (main_block >> 20) & 0xF;
 
-		fmt::print(fmt::color::light_gray, "0x{:08x}: ", reader.offset(), block);
+		fmt::print(fmt::color::light_gray, "0x{:08x}: ", u32(std::distance(program.begin(), it) * 4), main_block);
 
 		std::string mnemonic = "<unimpl>", params, comment;
 
@@ -75,12 +74,12 @@ void print_disassembly(Form& form, const Script& script)
 		auto push_param = [&](auto type) -> std::string {
 			switch (type)
 			{
-			case 0x0: return fmt::to_string(reader.read_pod<f64>());
+			/*case 0x0: return fmt::to_string(reader.read_pod<f64>());
 			case 0x1: return fmt::to_string(reader.read_pod<f32>());
 			case 0x2: return fmt::to_string(reader.read_pod<s32>());
 			case 0x3: return fmt::to_string(reader.read_pod<s64>());
 			case 0x6: return fmt::format("\"{}\"", get_string(reader.read_pod<s32>(), form));
-			case 0xF: return fmt::to_string(block & 0xffff);
+			case 0xF: return fmt::to_string(main_block & 0xffff);*/
 			}
 
 			return "<unknown>";
@@ -109,7 +108,7 @@ void print_disassembly(Form& form, const Script& script)
 		case 0x15: break;
 
 		case 0x45: {
-			auto a = reader.read_pod<Block>();
+			auto a = *(++it);
 			mnemonic = fmt::format("pop.{}.{}", type_suffix(t1), type_suffix(t2));
 			params = instance_name(a);
 		} break;
@@ -140,7 +139,7 @@ void print_disassembly(Form& form, const Script& script)
 
 		case 0x84: {
 			mnemonic = "push.i16";
-			params = fmt::to_string(block & 0xFFFF);
+			params = fmt::to_string(main_block & 0xFFFF);
 		} break;
 
 		case 0xD9: break;
@@ -155,7 +154,7 @@ void print_disassembly(Form& form, const Script& script)
 		bool mnemonic_warning = !mnemonic.empty() && mnemonic[0] == '<';
 		bool params_warning = !params.empty() && params[0] == '<';
 
-		comment += fmt::format(" ${:08x}", block);
+		comment += fmt::format(" ${:08x}", fmt::join(std::vector<Block>(main_it, it + 1), "'"));
 
 		if (mnemonic_warning)
 		{

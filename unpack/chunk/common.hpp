@@ -2,6 +2,7 @@
 #define COMMON_HPP
 
 #include "../../config.hpp"
+#include "../../bytecode/types.hpp"
 #include "../reader.hpp"
 #include "../except.hpp"
 #include "generic.hpp"
