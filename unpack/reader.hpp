@@ -6,10 +6,11 @@
 #include <string>
 #include <fmt/core.h>
 
-struct Reader
+template<class Ptr>
+struct GenericReader
 {
-	const char* begin;
-	const char* pos = begin;
+	Ptr begin;
+	Ptr pos = begin;
 
 	//! Skip n bytes. Negative offsets are allowed.
 	void skip(std::ptrdiff_t n)
@@ -20,12 +21,38 @@ struct Reader
 	template<class T>
 	T read_pod()
 	{
-		T ret;
-		std::memcpy(&ret, pos, sizeof(T));
-		pos += sizeof(T);
+		T ret{};
+		std::memcpy(&ret, pos, sizeof(T) / sizeof(Ptr));
+		pos += sizeof(T) / sizeof(Ptr);
 		return ret;
 	}
 
+	template<class C, class T>
+	C read_pod_container(std::size_t count)
+	{
+		C ret;
+		ret.resize(count);
+
+		std::generate(ret.begin(), ret.end(), [&] {
+			return read_pod<T>();
+		});
+
+		return ret;
+	}
+
+	std::ptrdiff_t distance_with(const GenericReader<Ptr>& other) const
+	{
+		return pos - other.pos;
+	}
+
+	std::size_t offset() const
+	{
+		return std::size_t(pos - begin);
+	}
+};
+
+struct Reader : GenericReader<const char*>
+{
 	std::string read_string_reference()
 	{
 		auto address = read_pod<std::int32_t>();
@@ -44,29 +71,6 @@ struct Reader
 	void read_into(T& t)
 	{
 		read(t, *this);
-	}
-
-	template<class C, class T>
-	C read_pod_container(std::size_t count)
-	{
-		C ret;
-		ret.resize(count);
-
-		std::generate(ret.begin(), ret.end(), [&] {
-			return read_pod<T>();
-		});
-
-		return ret;
-	}
-
-	std::ptrdiff_t distance_with(Reader other) const
-	{
-		return pos - other.pos;
-	}
-
-	std::size_t offset() const
-	{
-		return std::size_t(pos - begin);
 	}
 };
 

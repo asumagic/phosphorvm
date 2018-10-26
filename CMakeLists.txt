@@ -13,6 +13,7 @@ target_compile_options(${PROJECT_NAME} PUBLIC
 	"-Wall"
 	"-Wextra"
 	"-Wpedantic"
+	"-Wno-missing-braces"
 	"-ggdb"
 )
 
