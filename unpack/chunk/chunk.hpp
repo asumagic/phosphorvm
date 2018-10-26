@@ -33,7 +33,6 @@ inline ChunkHeader::ChunkHeader(Reader& reader)
 
 	if (length < 0)
 	{
-		for(;;);
 		throw DecoderError{fmt::format("Chunk has negative size '{}' - corrupt file or bug", length)};
 	}
 }
