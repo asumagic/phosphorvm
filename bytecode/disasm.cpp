@@ -82,6 +82,7 @@ void print_disassembly(Form& form, const Script& script)
 			case 0x2: return fmt::to_string(reader.read_pod<s32>());
 			case 0x3: return fmt::to_string(reader.read_pod<s64>());
 			case 0x4: return fmt::to_string(bool(reader.read_pod<Block>()));
+			//case 0x5: return fmt::to_string(reader.read_pod<u32>());
 			case 0x6: return fmt::format("\"{}\"", get_string(reader.read_pod<s32>(), form));
 			case 0xF: return fmt::to_string(main_block & 0xffff);
 			}
@@ -137,7 +138,7 @@ void print_disassembly(Form& form, const Script& script)
 		case 0xC2: break;
 
 		case 0xC3: {
-			mnemonic = fmt::format("pushvar.{}", type_suffix(t1));
+			mnemonic = fmt::format("pushvar", type_suffix(t1));
 			params = push_param(t1);
 		} break;
 
@@ -158,7 +159,7 @@ void print_disassembly(Form& form, const Script& script)
 		bool mnemonic_warning = !mnemonic.empty() && mnemonic[0] == '<';
 		bool params_warning = !params.empty() && params[0] == '<';
 
-		comment += fmt::format(" ${:08x}", fmt::join(std::vector(old_reader.pos, reader.pos + 1), "'"));
+		comment += fmt::format(" ${:08x}", fmt::join(std::vector(old_reader.pos, reader.pos), "'"));
 
 		if (mnemonic_warning)
 		{
