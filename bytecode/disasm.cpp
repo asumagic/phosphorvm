@@ -151,7 +151,7 @@ void print_disassembly(Form& form, const Script& script)
 
 		default: {
 			mnemonic = "<bad>";
-			comment = " !!! This may indicate corruption";
+			comment = "!!! This may indicate corruption";
 		}
 
 		};
@@ -159,7 +159,10 @@ void print_disassembly(Form& form, const Script& script)
 		bool mnemonic_warning = !mnemonic.empty() && mnemonic[0] == '<';
 		bool params_warning = !params.empty() && params[0] == '<';
 
-		comment += fmt::format(" ${:08x}", fmt::join(std::vector(old_reader.pos, reader.pos), "'"));
+		comment = fmt::format(
+			"${:08x} ",
+			fmt::join(std::vector(old_reader.pos, reader.pos), "'")
+		) + comment;
 
 		if (mnemonic_warning)
 		{
@@ -179,6 +182,6 @@ void print_disassembly(Form& form, const Script& script)
 			fmt::print("{:20}", params);
 		}
 
-		fmt::print(fmt::color::gray, ";{}\n", comment);
+		fmt::print(fmt::color::gray, "; {}\n", comment);
 	}
 }
