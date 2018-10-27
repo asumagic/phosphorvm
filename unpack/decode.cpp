@@ -36,8 +36,11 @@ void read(Form& f, Reader& reader)
 
 		switch (chunk_id(header.name))
 		{
+			case chunk_id("GEN8"): reader.read_into(f.gen8); break;
+			case chunk_id("BGND"): reader.read_into(f.bgnd); break;
 			case chunk_id("SPRT"): reader.read_into(f.sprt); break;
 			case chunk_id("SCPT"): reader.read_into(f.scpt); break;
+			case chunk_id("VARI"): reader.read_into(f.vari); break;
 			case chunk_id("CODE"): reader.read_into(f.code); break;
 			case chunk_id("STRG"): reader.read_into(f.strg); break;
 			default:

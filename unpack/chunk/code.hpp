@@ -9,7 +9,7 @@ struct Script
 	std::vector<Block> data;
 };
 
-struct Code : List<Script> {};
+using Code = List<Script>;
 
 inline void read(Script& scr, Reader& reader)
 {

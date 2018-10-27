@@ -10,7 +10,7 @@ struct Sprite
 	std::int32_t texture_count;
 };
 
-struct Sprt : List<Sprite> {};
+using Sprt = List<Sprite>;
 
 inline void read(Sprite& spr, Reader& reader)
 {

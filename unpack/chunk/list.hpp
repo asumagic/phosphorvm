@@ -4,6 +4,9 @@
 #include "../reader.hpp"
 #include <vector>
 
+#include <chrono>
+#include <thread>
+
 template<class T>
 struct List
 {
@@ -16,9 +19,12 @@ void read(List<T>& list, Reader& reader)
 	auto address_count = reader.read_pod<std::int32_t>();
 	auto element_reader = reader;
 
+	fmt::print("count: {}\n", address_count);
+
 	for (std::int32_t i = 0; i < address_count; ++i)
 	{
 		auto element_address = reader.read_pod<std::int32_t>();
+
 		T val;
 		element_reader = {reader.begin, reader.begin + element_address};
 		element_reader.read_into(val);

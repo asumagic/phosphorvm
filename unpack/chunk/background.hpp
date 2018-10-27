@@ -9,10 +9,7 @@ struct Background
 	std::int32_t texture_address;
 };
 
-struct Bgnd
-{
-	List<Background> backgrounds;
-};
+using Bgnd = List<Background>;
 
 inline void read(Background& bg, Reader& reader)
 {
@@ -21,11 +18,6 @@ inline void read(Background& bg, Reader& reader)
 	bg.texture_address = reader.read_pod<std::int32_t>();
 
 	fmt::print("\tBackground '{}'\n", bg.name);
-}
-
-inline void read(Bgnd& bg, Reader& reader)
-{
-	reader.read_into(bg.backgrounds);
 }
 
 #endif // BACKGROUND_HPP

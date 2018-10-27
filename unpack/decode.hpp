@@ -3,10 +3,11 @@
 
 #include "chunk/background.hpp"
 #include "chunk/code.hpp"
+#include "chunk/metadata.hpp"
 #include "chunk/sprite.hpp"
 #include "chunk/strings.hpp"
+#include "chunk/variable.hpp"
 
-struct Gen8 {};
 struct Optn {};
 struct Extn {};
 struct Sond {};
@@ -28,7 +29,6 @@ struct Objt {};
 struct Room {};
 struct Dafl {};
 struct Tpag {};
-struct Vari {};
 struct Func {};
 struct Txtr {};
 struct Audo {};

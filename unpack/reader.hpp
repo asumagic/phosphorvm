@@ -60,9 +60,7 @@ struct Reader : GenericReader<char>
 {
 	std::string read_string_reference()
 	{
-		auto address = read_pod<std::int32_t>();
-		std::string ret{begin + address};
-		return ret;
+		return {begin + read_pod<std::uint32_t>()};
 	}
 
 	std::string read_string(std::size_t count)
