@@ -26,7 +26,7 @@ struct VariableDefinition
 	The format for this is somewhat awkward - it doesn't look like a List<VariableDefinition>.
 	I suppose GM:S 1.4 is bytecode version 0xF (I haven't found where that actual version number is...)
 	However:
-	- https://gitlab.com/snippets/14943 : No mention of a change for this change (but it does mention
+	- https://gitlab.com/snippets/14943 : No mention of a change for this (but it does mention
 	  the VariableDefinition change)
 	- https://pcy.ulyssis.be/undertale/unpacking-corrected indicates that this should be a
 	  List<VariableDefintion> - but it isn't.
