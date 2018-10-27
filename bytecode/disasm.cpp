@@ -46,6 +46,18 @@ std::string instance_name(InstId id)
 	return "<bad>";
 }
 
+std::string resolve_variable_name(s32 variable_id, Form& form)
+{
+	auto& vars = form.vari.definitions;
+
+	if (variable_id < 0 || size_t(variable_id) >= vars.size())
+	{
+		return "<unexisting>";
+	}
+
+	return vars[variable_id].name;
+}
+
 void print_disassembly(Form& form, const Script& script)
 {
 	auto& program = script.data;
@@ -82,7 +94,7 @@ void print_disassembly(Form& form, const Script& script)
 			case 0x2: return fmt::to_string(reader.read_pod<s32>());
 			case 0x3: return fmt::to_string(reader.read_pod<s64>());
 			case 0x4: return fmt::to_string(bool(reader.read_pod<Block>()));
-			//case 0x5: return fmt::to_string(reader.read_pod<u32>());
+			case 0x5: return fmt::to_string(resolve_variable_name(reader.read_pod<u32>() & 0xFFFFFF, form));
 			case 0x6: return fmt::format("\"{}\"", get_string(reader.read_pod<s32>(), form));
 			case 0xF: return fmt::to_string(main_block & 0xffff);
 			}
@@ -138,7 +150,7 @@ void print_disassembly(Form& form, const Script& script)
 		case 0xC2: break;
 
 		case 0xC3: {
-			mnemonic = fmt::format("pushvar", type_suffix(t1));
+			mnemonic = fmt::format("pushvar.{}", type_suffix(t2));
 			params = push_param(t1);
 		} break;
 

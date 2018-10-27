@@ -15,10 +15,10 @@ struct VariableDefinition
 	//! Seems to be some sort of id, within an instance perhaps?
 	u32 unknown;
 
+	//! Amount of occurrences.
 	u32 occurrences;
 
-	//! Address of the first occurence of this variable.
-	//! It appears that when there is no occurence, this address will be 0xFFFFFFFF.
+	//! File offset to the first instruction referring to this variable. We don't really need it here.
 	u32 first_address;
 };
 
@@ -35,7 +35,7 @@ struct VariableDefinition
 	Here is how it looks:
 	Vari
 	|- Count : UInt32
-	|- unknown : Uint32 // seems to mirror the value of Count
+	|- unknown : Uint32 // seems to mirror the value of Count?
 	|- unknown : Uint32 // 0x00000001
 	|- Definition : VariableDefinition[Count]
 */
@@ -52,12 +52,13 @@ inline void read(VariableDefinition& def, Reader& reader)
 	def.occurrences = reader.read_pod<u32>();
 	def.first_address = reader.read_pod<u32>();
 
+	// Ignore the rest: we don't really care about occurrences for now.
+
 	fmt::print(
-		"\tVariable {:20}, {:4} appearances, first addr {:04x}, instance type {}\n",
+		"\tVariable {:20}, instance type {} (unknown={:04x}).\n",
 		def.name,
-		def.occurrences,
-		def.first_address,
-		def.instance_type
+		def.instance_type,
+		def.unknown
 	);
 }
 
