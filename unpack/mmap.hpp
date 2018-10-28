@@ -6,7 +6,7 @@
 class ReadMappedFile
 {
 	FILE* _file;
-	std::size_t _size;
+	long _size;
 	char* _address = nullptr;
 
 public:
@@ -18,7 +18,6 @@ public:
 	operator bool() const;
 
 	char* data();
-	const char* data() const;
 };
 
 inline ReadMappedFile::operator bool() const
@@ -27,11 +26,6 @@ inline ReadMappedFile::operator bool() const
 }
 
 inline char* ReadMappedFile::data()
-{
-	return _address;
-}
-
-inline const char* ReadMappedFile::data() const
 {
 	return _address;
 }

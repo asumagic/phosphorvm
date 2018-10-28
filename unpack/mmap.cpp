@@ -17,7 +17,7 @@ ReadMappedFile::ReadMappedFile(const std::string& name)
 	fseek(_file, 0, SEEK_END);
 	_size = ftell(_file);
 
-	_address = static_cast<char*>(mmap(0, _size, PROT_READ, MAP_PRIVATE, fileno(_file), 0));
+	_address = static_cast<char*>(mmap(nullptr, _size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fileno(_file), 0));
 	if (_address == MAP_FAILED)
 	{
 		throw std::runtime_error{fmt::format("mmap() for '{}' failed: {}", name, strerror(errno))};
