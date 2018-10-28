@@ -64,7 +64,7 @@ void print_disassembly(Form& form, const Script& script)
 
 	fmt::print(fmt::color::orange, "\nDisassembly of '{}': {} blocks ({} bytes)\n", script.name, program.size(), program.size() * 4);
 
-	GenericReader<Block> reader{program.data()};
+	GenericReader<Block> reader{program.data(), program.size()};
 
 	while (reader.offset() < program.size())
 	{
@@ -173,7 +173,7 @@ void print_disassembly(Form& form, const Script& script)
 
 		comment = fmt::format(
 			"${:08x} ",
-			fmt::join(std::vector(old_reader.pos, reader.pos), "'")
+			fmt::join(old_reader.read_pod_container<std::vector<Block>>(reader.distance_with(old_reader)), "'")
 		) + comment;
 
 		if (mnemonic_warning)

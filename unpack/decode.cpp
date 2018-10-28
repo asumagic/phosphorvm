@@ -15,8 +15,6 @@ void read(ScriptDefinition& def, Reader& reader)
 
 void read(Form& f, Reader& reader)
 {
-	auto orig_reader = reader;
-
 	ChunkHeader form_header{reader};
 	if (form_header.name != "FORM")
 	{
@@ -29,15 +27,15 @@ void read(Form& f, Reader& reader)
 		auto next_reader = reader;
 		next_reader.skip(header.length);
 
-		if (next_reader.distance_with(orig_reader) >= form_header.length + 4)
+		if (next_reader.done())
 		{
 			fmt::print("Finished reading main FORM\n");
 			break;
 		}
 
-		if (chunk_id(header.name) == chunk_id("CODE") && f.vari.definitions.empty())
+		if (chunk_id(header.name) == chunk_id("VARI") && f.code.elements.empty())
 		{
-			fmt::print(fmt::color::red, "Error: VARI must appear before CODE in order to resolve variable names!\n");
+			fmt::print(fmt::color::red, "Error: CODE must appear before VARI in order to resolve variable names!\n");
 		}
 
 		switch (chunk_id(header.name))
@@ -53,6 +51,7 @@ void read(Form& f, Reader& reader)
 				fmt::print("Unhandled chunk: {}\n", header.name);
 				break;
 		}
+
 		reader = next_reader;
 	}
 }

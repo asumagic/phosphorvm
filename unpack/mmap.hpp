@@ -17,6 +17,8 @@ public:
 
 	operator bool() const;
 
+	std::size_t size() const;
+
 	char* data();
 };
 

@@ -24,7 +24,7 @@ void read(List<T>& list, Reader& reader)
 		auto element_address = reader.read_pod<std::int32_t>();
 
 		T val;
-		element_reader = {reader.begin, reader.begin + element_address};
+		element_reader = {reader, element_address};
 		element_reader.read_into(val);
 		list.elements.push_back(val);
 	}

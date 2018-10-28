@@ -39,3 +39,8 @@ ReadMappedFile::~ReadMappedFile()
 		}
 	}
 }
+
+std::size_t ReadMappedFile::size() const
+{
+	return std::size_t(_size);
+}
