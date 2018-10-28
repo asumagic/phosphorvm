@@ -1,6 +1,7 @@
 #include "decode.hpp"
 
-#include <fmt/format.h>
+#include <fmt/core.h>
+#include <fmt/color.h>
 #include "../config.hpp"
 #include "chunk/generic.hpp"
 
@@ -32,6 +33,11 @@ void read(Form& f, Reader& reader)
 		{
 			fmt::print("Finished reading main FORM\n");
 			break;
+		}
+
+		if (chunk_id(header.name) == chunk_id("CODE") && f.vari.definitions.empty())
+		{
+			fmt::print(fmt::color::red, "Error: VARI must appear before CODE in order to resolve variable names!\n");
 		}
 
 		switch (chunk_id(header.name))
