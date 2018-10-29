@@ -25,11 +25,12 @@ void Form::process_bytecode()
 
 		auto address = var.first_address;
 
-		if (debug_mode)
+		if (debug_mode && var.occurrences != 0)
 		{
 			fmt::print(
-				"Processing variable {} ({} occurrences)\n",
+				"Processing variable '{}' (id {}, {} occurrences)\n",
 				var.name,
+				i,
 				var.occurrences
 			);
 		}
@@ -56,7 +57,7 @@ void Form::process_bytecode()
 			if (debug_mode)
 			{
 				fmt::print(
-					"\tOverriden block in script '{}' with variable id {}\n",
+					"\tOverriden in '{}'\n",
 					script->name,
 					i
 				);
