@@ -6,64 +6,69 @@
 
 void Form::process_bytecode()
 {
-	for (s32 i = 0; std::size_t(i) < vari.definitions.size(); ++i)
-	{
-		auto find_code_from_address = [this](auto address) -> Script* {
-			for (auto& script : code.elements)
-			{
-				if (address >= script.file_offset
-				 && address < script.file_offset + script.data.size() * 4)
+	auto process_references_for = [&](auto& chunk) {
+		for (s32 i = 0; std::size_t(i) < chunk.definitions.size(); ++i)
+		{
+			auto find_code_from_address = [this](auto address) -> Script* {
+				for (auto& script : code.elements)
 				{
-					return &script;
+					if (address >= script.file_offset
+					 && address < script.file_offset + script.data.size() * 4)
+					{
+						return &script;
+					}
+				}
+
+				return nullptr;
+			};
+
+			auto& def = chunk.definitions[i];
+
+			auto address = def.first_address;
+
+			if (debug_mode && def.occurrences != 0)
+			{
+				fmt::print(
+					"Processing reference '{}' (id {}, {} occurrences)\n",
+					def.name,
+					i,
+					def.occurrences
+				);
+			}
+
+			for (unsigned j = 0; j < def.occurrences; ++j)
+			{
+				Script* script = find_code_from_address(address);
+
+				if (script == nullptr)
+				{
+					fmt::print(
+						fmt::color::yellow,
+						"\tCould not find reference occurrence for '{}'\n",
+						def.name
+					);
+					break;
+				}
+
+				Block* block = &script->data[(address - script->file_offset) / 4];
+
+				address += (block[1] & 0x00FFFFFF);
+				block[1] = (block[1] & 0xFF000000) | i;
+
+				if (debug_mode)
+				{
+					fmt::print(
+						"\tOverriden in '{}'\n",
+						script->name,
+						i
+					);
 				}
 			}
-
-			return nullptr;
-		};
-
-		auto& var = vari.definitions[i];
-
-		auto address = var.first_address;
-
-		if (debug_mode && var.occurrences != 0)
-		{
-			fmt::print(
-				"Processing variable '{}' (id {}, {} occurrences)\n",
-				var.name,
-				i,
-				var.occurrences
-			);
 		}
+	};
 
-		for (unsigned j = 0; j < var.occurrences; ++j)
-		{
-			Script* script = find_code_from_address(address);
-
-			if (script == nullptr)
-			{
-				fmt::print(
-					fmt::color::yellow,
-					"\tCould not find variable occurrence for '{}'\n",
-					var.name
-				);
-				break;
-			}
-
-			Block* block = &script->data[(address - script->file_offset) / 4];
-
-			address += (block[1] & 0x00FFFFFF);
-			block[1] = (block[1] & 0xFF000000) | i;
-
-			if (debug_mode)
-			{
-				fmt::print(
-					"\tOverriden in '{}'\n",
-					script->name,
-					i
-				);
-			}
-		}
-	}
+	process_references_for(vari);
+	process_references_for(func);
 }
 
 void user_reader(Form& form, Reader& reader)
