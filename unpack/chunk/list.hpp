@@ -1,35 +1,40 @@
 #ifndef LIST_HPP
 #define LIST_HPP
 
-#include "../reader.hpp"
+#include "chunk.hpp"
+#include "../gmreader.hpp"
 #include <vector>
-
-#include <chrono>
-#include <thread>
 
 template<class T>
 struct List
 {
 	std::vector<T> elements;
+
+	void debug_print() const
+	{
+		for (auto& element : elements)
+		{
+			element.debug_print();
+		}
+	}
 };
 
 template<class T>
-void read(List<T>& list, Reader& reader)
+struct ListChunk : Chunk, List<T> {};
+
+template<class T>
+void user_reader(List<T>& list, Reader& reader)
 {
-	auto address_count = reader.read_pod<std::int32_t>();
-	auto element_reader = reader;
+	s32 address_count = reader();
 
-	for (std::int32_t i = 0; i < address_count; ++i)
+	for (s32 i = 0; i < address_count; ++i)
 	{
-		auto element_address = reader.read_pod<std::int32_t>();
+		s32 address = reader();
 
-		T val;
-		element_reader = {reader, element_address};
-		element_reader.read_into(val);
-		list.elements.push_back(val);
+		auto element_reader = reader;
+		element_reader.seek(address);
+		list.elements.push_back(element_reader());
 	}
-
-	reader = element_reader;
 }
 
 #endif // LIST_HPP

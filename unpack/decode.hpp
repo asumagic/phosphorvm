@@ -4,6 +4,7 @@
 #include "chunk/background.hpp"
 #include "chunk/code.hpp"
 #include "chunk/metadata.hpp"
+#include "chunk/script.hpp"
 #include "chunk/sprite.hpp"
 #include "chunk/strings.hpp"
 #include "chunk/variable.hpp"
@@ -13,15 +14,6 @@ struct Extn {};
 struct Sond {};
 struct Agrp {};
 struct Path {};
-
-struct ScriptDefinition
-{
-	std::string name;
-	std::int32_t id;
-};
-
-using Scpt = List<ScriptDefinition>;
-
 struct Shdr {};
 struct Font {};
 struct Tmln {};
@@ -57,10 +49,10 @@ struct Form
 	Strg strg;
 	Txtr txtr;
 	Audo audo;
+
+	void process_bytecode();
 };
 
-void read(std::string& string, Reader& reader);
-
-void read(Form& f, Reader& reader);
+void user_reader(Form& form, Reader& reader);
 
 #endif // DECODE_HPP

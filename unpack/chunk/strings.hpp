@@ -6,16 +6,21 @@
 struct StringDefinition
 {
 	std::string value;
+
+	void debug_print() const
+	{
+		fmt::print("\tString '{}'\n", value);
+	}
 };
 
-struct Strg : List<StringDefinition> {};
+struct Strg : ListChunk<StringDefinition> {};
 
-inline void read(StringDefinition& str, Reader& reader)
+inline void user_reader(StringDefinition& def, Reader& reader)
 {
-	auto size = reader.read_pod<u32>();
-	str.value = reader.read_pod_container<std::string>(size);
-
-	fmt::print("\tString '{}'\n", str.value);
+	u32 size;
+	reader
+		>> size
+		>> container(def.value, size);
 }
 
 #endif // STRINGS_HPP

@@ -3,55 +3,97 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include "../config.hpp"
-#include "chunk/generic.hpp"
 
-void read(ScriptDefinition& def, Reader& reader)
+void Form::process_bytecode()
 {
-	def.name = reader.read_string_reference();
-	def.id = reader.read_pod<std::int32_t>();
+	for (s32 i = 0; std::size_t(i) < vari.definitions.size(); ++i)
+	{
+		auto find_code_from_address = [this](auto address) -> Script* {
+			for (auto& script : code.elements)
+			{
+				if (address >= script.file_offset
+				 && address < script.file_offset + script.data.size() * 4)
+				{
+					return &script;
+				}
+			}
 
-	fmt::print("\tScript #{:5<} '{}'\n", def.id, def.name);
+			return nullptr;
+		};
+
+		auto& var = vari.definitions[i];
+
+		auto address = var.first_address;
+
+		fmt::print("Processing variable {} ({} occurrences)\n", var.name, var.occurrences);
+
+		for (unsigned j = 0; j < var.occurrences; ++j)
+		{
+			Script* script = find_code_from_address(address);
+
+			if (script == nullptr)
+			{
+				fmt::print(
+					fmt::color::yellow,
+					"\tCould not find variable occurrence for '{}'\n",
+					var.name
+				);
+				break;
+			}
+
+			Block* block = &script->data[(address - script->file_offset) / 4];
+
+			address += (block[1] & 0x00FFFFFF);
+			block[1] = (block[1] & 0xFF000000) | i;
+
+			fmt::print(
+				"\tOverriden block in script '{}' with variable id {}\n",
+				script->name,
+				i
+			);
+		}
+	}
 }
 
-void read(Form& f, Reader& reader)
+void user_reader(Form& form, Reader& reader)
 {
-	ChunkHeader form_header{reader};
+	const ChunkHeader form_header = reader();
+
 	if (form_header.name != "FORM")
 	{
-		throw DecoderError{"Expected chunk FORM to begin the program"};
+		throw DecoderError{"Bad file: Missing FORM main chunk"};
 	}
 
-	for(;;)
+	while (reader.pos != reader.end)
 	{
-		ChunkHeader header{reader};
+		const ChunkHeader header = reader();
+		header.debug_print();
+
 		auto next_reader = reader;
-		next_reader.skip(header.length);
+		next_reader >> skip(header.length);
 
-		if (next_reader.done())
-		{
-			fmt::print("Finished reading main FORM\n");
-			break;
-		}
-
-		if (chunk_id(header.name) == chunk_id("VARI") && f.code.elements.empty())
-		{
-			fmt::print(fmt::color::red, "Error: CODE must appear before VARI in order to resolve variable names!\n");
-		}
+		auto rd = [&](auto& field) {
+			field.header = header;
+			reader >> field;
+			field.debug_print();
+		};
 
 		switch (chunk_id(header.name))
 		{
-			case chunk_id("GEN8"): reader.read_into(f.gen8); break;
-			case chunk_id("BGND"): reader.read_into(f.bgnd); break;
-			case chunk_id("SPRT"): reader.read_into(f.sprt); break;
-			case chunk_id("SCPT"): reader.read_into(f.scpt); break;
-			case chunk_id("VARI"): reader.read_into(f.vari); break;
-			case chunk_id("CODE"): reader.read_into(f.code); break;
-			case chunk_id("STRG"): reader.read_into(f.strg); break;
-			default:
-				fmt::print("Unhandled chunk: {}\n", header.name);
-				break;
+		case chunk_id("GEN8"): rd(form.gen8); break;
+		case chunk_id("BGND"): rd(form.bgnd); break;
+		case chunk_id("SPRT"): rd(form.sprt); break;
+		case chunk_id("SCPT"): rd(form.scpt); break;
+		case chunk_id("VARI"): rd(form.vari); break;
+		case chunk_id("CODE"): rd(form.code); break;
+		case chunk_id("STRG"): rd(form.strg); break;
+		default:
+			fmt::print("Unhandled chunk: {}\n", header.name);
+			break;
 		}
 
 		reader = next_reader;
 	}
+
+	form.process_bytecode();
 }

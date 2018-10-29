@@ -8,17 +8,21 @@ struct Sprite
 	std::string name;
 	std::int32_t width, height;
 	std::int32_t texture_count;
+
+	void debug_print() const
+	{
+		fmt::print("\tSprite '{}': {}x{}\n", name, width, height);
+	}
 };
 
-using Sprt = List<Sprite>;
+using Sprt = ListChunk<Sprite>;
 
-inline void read(Sprite& spr, Reader& reader)
+inline void user_reader(Sprite& sprite, Reader& reader)
 {
-	spr.name = reader.read_string_reference();
-	spr.width = reader.read_pod<std::int32_t>();
-	spr.height = reader.read_pod<std::int32_t>();
-
-	fmt::print("\tSprite '{}': {}x{}\n", spr.name, spr.width, spr.height);
+	reader
+		>> string_reference(sprite.name)
+		>> sprite.width
+		>> sprite.height;
 }
 
 #endif // SPRITE_HPP

@@ -7,17 +7,21 @@ struct Background
 {
 	std::string name;
 	std::int32_t texture_address;
+
+	void debug_print() const
+	{
+		fmt::print("\tBackground '{}'\n", name);
+	}
 };
 
-using Bgnd = List<Background>;
+using Bgnd = ListChunk<Background>;
 
-inline void read(Background& bg, Reader& reader)
+inline void user_reader(Background& bg, Reader& reader)
 {
-	bg.name = reader.read_string_reference();
-	reader.skip(3 * 4);
-	bg.texture_address = reader.read_pod<std::int32_t>();
-
-	fmt::print("\tBackground '{}'\n", bg.name);
+	reader
+		>> string_reference(bg.name)
+		>> skip(3 * 4)
+		>> bg.texture_address;
 }
 
 #endif // BACKGROUND_HPP

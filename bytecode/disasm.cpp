@@ -9,7 +9,7 @@ const std::string& get_string(s32 id, Form& form)
 	return form.strg.elements[id].value;
 }
 
-std::string type_suffix(s8 type)
+std::string type_suffix(u32 type)
 {
 	switch (type)
 	{
@@ -48,6 +48,8 @@ std::string instance_name(InstId id)
 
 std::string resolve_variable_name(s32 variable_id, Form& form)
 {
+	variable_id &= 0x00FFFFFF;
+
 	auto& vars = form.vari.definitions;
 
 	if (variable_id < 0 || size_t(variable_id) >= vars.size())
@@ -64,13 +66,12 @@ void print_disassembly(Form& form, const Script& script)
 
 	fmt::print(fmt::color::orange, "\nDisassembly of '{}': {} blocks ({} bytes)\n", script.name, program.size(), program.size() * 4);
 
-	GenericReader<Block> reader{program.data(), program.size()};
+	const Block* block_ptr = script.data.data();
 
-	while (reader.offset() < program.size())
+	while (block_ptr != &(*script.data.end()))
 	{
-		GenericReader old_reader = reader;
-
-		auto main_block = reader.read_pod<Block>();
+		const Block* main_block_ptr = block_ptr++;
+		auto main_block = *main_block_ptr;
 
 		auto op = (main_block >> 24) & 0xFF;
 
@@ -78,7 +79,12 @@ void print_disassembly(Form& form, const Script& script)
 		auto t1 = (main_block >> 16) & 0xF;
 		auto t2 = (main_block >> 20) & 0xF;
 
-		fmt::print(fmt::color::light_gray, "0x{:08x}: ", reader.bytes(), main_block);
+		fmt::print(
+			fmt::color::light_gray,
+			"0x{:08x}: ",
+			std::distance(script.data.data(), main_block_ptr),
+			main_block
+		);
 
 		std::string mnemonic = "<unimpl>", params, comment;
 
@@ -86,16 +92,22 @@ void print_disassembly(Form& form, const Script& script)
 			mnemonic = fmt::format("{}.{}.{}", name, type_suffix(t1), type_suffix(t2));
 		};
 
+		auto read_block_operand = [&](auto& into) {
+			std::memcpy(&into, block_ptr, sizeof(decltype(into)));
+			block_ptr += sizeof(decltype(into)) / sizeof(Block);
+			return into;
+		};
+
 		auto push_param = [&](auto type) -> std::string {
 			switch (type)
 			{
-			case 0x0: return fmt::to_string(reader.read_pod<f64>());
-			case 0x1: return fmt::to_string(reader.read_pod<f32>());
-			case 0x2: return fmt::to_string(reader.read_pod<s32>());
-			case 0x3: return fmt::to_string(reader.read_pod<s64>());
-			case 0x4: return fmt::to_string(bool(reader.read_pod<Block>()));
-			case 0x5: return fmt::to_string(resolve_variable_name(reader.read_pod<u32>() & 0xFFFFFF, form));
-			case 0x6: return fmt::format("\"{}\"", get_string(reader.read_pod<s32>(), form));
+			case 0x0: { f32 v; return fmt::to_string(read_block_operand(v)); }
+			case 0x1: { f64 v; return fmt::to_string(read_block_operand(v)); }
+			case 0x2: { s32 v; return fmt::to_string(read_block_operand(v)); }
+			case 0x3: { s64 v; return fmt::to_string(read_block_operand(v)); }
+			case 0x4: { s32 v; return fmt::to_string(bool(read_block_operand(v))); }
+			case 0x5: { u32 v; return fmt::to_string(resolve_variable_name(read_block_operand(v) & 0xFFFFFF, form)); }
+			case 0x6: { s32 v; return fmt::format("\"{}\"", get_string(read_block_operand(v), form)); }
 			case 0xF: return fmt::to_string(main_block & 0xffff);
 			}
 
@@ -125,10 +137,13 @@ void print_disassembly(Form& form, const Script& script)
 		case 0x15: break;
 
 		case 0x45: {
-			auto a = reader.read_pod<Block>();
 			mnemonic = fmt::format("pop.{}.{}", type_suffix(t1), type_suffix(t2));
-			params = instance_name(a);
+			params = resolve_variable_name(*(block_ptr++), form);
 		} break;
+
+		case 0x9C: {
+			mnemonic = fmt::format("ret.{}", type_suffix(t1));
+		}
 
 		case 0x9D: break;
 
@@ -146,7 +161,11 @@ void print_disassembly(Form& form, const Script& script)
 			params = push_param(t1);
 		} break;
 
-		case 0xC1: break;
+		case 0xC1: {
+			mnemonic = fmt::format("pushloc.{}", type_suffix(t1));
+			params = push_param(t1);
+		} break;
+
 		case 0xC2: break;
 
 		case 0xC3: {
@@ -171,10 +190,10 @@ void print_disassembly(Form& form, const Script& script)
 		bool mnemonic_warning = !mnemonic.empty() && mnemonic[0] == '<';
 		bool params_warning = !params.empty() && params[0] == '<';
 
-		comment = fmt::format(
+		comment.insert(0, fmt::format(
 			"${:08x} ",
-			fmt::join(old_reader.read_pod_container<std::vector<Block>>(reader.distance_with(old_reader)), "'")
-		) + comment;
+			fmt::join(std::vector<Block>(main_block_ptr, block_ptr), "'")
+		));
 
 		if (mnemonic_warning)
 		{

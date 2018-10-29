@@ -3,9 +3,8 @@
 
 #include "../../config.hpp"
 #include "../../bytecode/types.hpp"
-#include "../reader.hpp"
+#include "../gmreader.hpp"
 #include "../except.hpp"
-#include "generic.hpp"
 #include "chunk.hpp"
 #include "list.hpp"
 

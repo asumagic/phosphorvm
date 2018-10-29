@@ -3,30 +3,40 @@
 
 #include "common.hpp"
 
+//! Script code entry, which contains bytecode data and related metadata.
 struct Script
 {
 	std::string name;
+	std::size_t file_offset;
 	std::vector<Block> data;
+
+	void debug_print() const
+	{
+		fmt::print("\tCode entry for '{}'\n", name);
+	}
 };
 
-using Code = List<Script>;
+using Code = ListChunk<Script>;
 
-inline void read(Script& scr, Reader& reader)
+inline void user_reader(Script& script, Reader& reader)
 {
-	scr.name = reader.read_string_reference();
-	auto bytes = reader.read_pod<s32>();
-
-	reader.read_pod<s32>(); // unknown
+	s32 bytes, offset;
+	reader
+		>> string_reference(script.name)
+		>> bytes
+		>> skip(4);
 
 	auto bytecode_reader = reader;
-	auto offset = reader.read_pod<s32>();
 
-	reader.read_pod<s32>(); // unknown
+	reader
+		>> offset
+		>> skip(4);
 
-	bytecode_reader.skip(offset);
-	scr.data = bytecode_reader.read_pod_container<std::vector<Block>>(bytes / 4);
+	script.file_offset = std::distance(bytecode_reader.begin, bytecode_reader.pos) + offset;
 
-	fmt::print("\tCode entry for '{}'\n", scr.name);
+	bytecode_reader
+		>> skip(offset)
+		>> container(script.data, bytes / 4);
 }
 
 #endif // CODE_HPP

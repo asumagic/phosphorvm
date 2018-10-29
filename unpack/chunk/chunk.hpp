@@ -2,16 +2,25 @@
 #define CHUNK_HPP
 
 #include <fmt/core.h>
-#include "../reader.hpp"
+#include "../gmreader.hpp"
 #include "../except.hpp"
 #include "../../config.hpp"
+#include "../../bytecode/types.hpp"
 
 struct ChunkHeader
 {
 	std::string name;
 	s32 length;
 
-	ChunkHeader(Reader& reader);
+	void debug_print() const
+	{
+		fmt::print("Chunk {}: {:<10} bytes (~{:<7} KiB)\n", name, length, length / 1024);
+	}
+};
+
+struct Chunk
+{
+	ChunkHeader header;
 };
 
 //! Returns an ID that calculated from the name, useful to handle the chunk type in a switch
@@ -21,19 +30,20 @@ inline constexpr std::uint32_t chunk_id(std::string_view v)
 	return v[0] | (v[1] << 8) | (v[2] << 16) | (v[3] << 24);
 }
 
-inline ChunkHeader::ChunkHeader(Reader& reader)
+inline void user_reader(ChunkHeader& header, Reader& reader)
 {
-	name = reader.read_string(4);
-	length = reader.read_pod<s32>();
+	reader
+		>> container(header.name, 4)
+		>> header.length;
 
-	if (debug_mode)
+	if (header.length < 0)
 	{
-		fmt::print("Chunk {}: {:<10} bytes (~{:<7} KiB)\n", name, length, length / 1024);
-	}
-
-	if (length < 0)
-	{
-		throw DecoderError{fmt::format("Chunk has negative size '{:08x}' - corrupt file or bug", unsigned(length))};
+		throw DecoderError{
+			fmt::format(
+				"Chunk has negative size '{:08x}' - corrupt file or bug",
+				unsigned(header.length)
+			)
+		};
 	}
 }
 

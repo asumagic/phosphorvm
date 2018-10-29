@@ -10,7 +10,7 @@ struct VariableDefinition
 	//! This is a 16-bit value within the bytecode but seems to be 32-bit here for a unknown reason.
 	//! This should be tested with other values (especially positive) to see if the upper bits become
 	//! zero of if they stay 0xFFFF (in which case it would be another value, or padding)
-	s16 instance_type;
+	s32 instance_type;
 
 	//! Seems to be some sort of id, within an instance perhaps?
 	u32 unknown;
@@ -20,6 +20,16 @@ struct VariableDefinition
 
 	//! File offset to the first instruction referring to this variable. We don't really need it here.
 	u32 first_address;
+
+	void debug_print() const
+	{
+		fmt::print(
+			"\tVariable {:20}, instance type {} (unknown={:04x}).\n",
+			name,
+			instance_type,
+			unknown
+		);
+	}
 };
 
 /*
@@ -34,45 +44,39 @@ struct VariableDefinition
 
 	Here is how it looks:
 	Vari
-	|- Count : UInt32
-	|- unknown : Uint32 // seems to mirror the value of Count?
-	|- unknown : Uint32 // 0x00000001
+	|- unknown1 : UInt32
+	|- unknown2 : Uint32 // seems to mirror the value of unknown1
+	|- unknown3 : Uint32 // 0x00000001
 	|- Definition : VariableDefinition[Count]
 */
-struct Vari
+struct Vari : Chunk
 {
 	std::vector<VariableDefinition> definitions;
+
+	void debug_print() const
+	{
+		for (auto& def : definitions)
+		{
+			def.debug_print();
+		}
+	}
 };
 
-inline void read(VariableDefinition& def, Reader& reader)
+inline void user_reader(VariableDefinition& def, Reader& reader)
 {
-	def.name = reader.read_string_reference();
-	def.instance_type = reader.read_pod<s32>();
-	def.unknown = reader.read_pod<u32>();
-	def.occurrences = reader.read_pod<u32>();
-	def.first_address = reader.read_pod<u32>();
-
-	// Ignore the rest: we don't really care about occurrences for now.
-
-	fmt::print(
-		"\tVariable {:20}, instance type {} (unknown={:04x}).\n",
-		def.name,
-		def.instance_type,
-		def.unknown
-	);
+	reader
+		>> string_reference(def.name)
+		>> def.instance_type
+		>> def.unknown
+		>> def.occurrences
+		>> def.first_address;
 }
 
-inline void read(Vari& vari, Reader& reader)
+inline void user_reader(Vari& vari, Reader& reader)
 {
-	u32 count = reader.read_pod<u32>();
-	reader.skip(2 * 4); // unknown
-	// first u32 seems to mirror count?
-	// next byte is 1 in this data.win
-
-	for (u32 i = 0; i < count; ++i)
-	{
-		read(vari.definitions.emplace_back(), reader);
-	}
+	reader
+		>> skip(3 * 4)
+		>> container(vari.definitions, (vari.header.length - (3 * 4)) / 20);
 }
 
 #endif // VARIABLE_HPP

@@ -14,6 +14,7 @@ target_compile_options(${PROJECT_NAME} PUBLIC
 	"-Wextra"
 	"-Wpedantic"
 	"-Wno-missing-braces"
+	"-Wno-c99-extensions" # C++20 { .a = thingy } syntax
 	"-ggdb"
 )
 

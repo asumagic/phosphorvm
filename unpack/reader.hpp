@@ -2,125 +2,119 @@
 #define HELPER_HPP
 
 #include <algorithm>
-#include <cstring>
-#include <string>
 #include <fmt/core.h>
+#include <fmt/ostream.h>
 
-template<class T>
-class GenericReader
+struct Reader;
+
+struct ReadWrapper
 {
-protected:
-	using size_type = std::size_t;
-	using offset_type = std::ptrdiff_t;
+	Reader& reader;
 
-	// Container information
-	const T *_begin;
-	size_type _size;
-
-	// Reader position
-	offset_type _offset = 0;
-
-	void sanitize_read(offset_type read_size)
+	template<class T>
+	operator T()
 	{
-		if (read_size < 0 || (_offset + read_size) > offset_type(_size))
-		{
-			throw std::out_of_range(fmt::format("GenericReader: Read of {} is invalid from {} (max read {})", read_size, _offset, _size - _offset));
-		}
-	}
-
-public:
-	GenericReader(const T* begin, std::size_t size) :
-		_begin{begin},
-		_size{size}
-	{}
-
-	//! Initialize a GenericReader with the same boundaries as another one.
-	GenericReader(const GenericReader& base_reader, offset_type offset) :
-		_begin{base_reader._begin},
-		_size{base_reader._size},
-		_offset{offset}
-	{}
-
-	//! Skip n bytes. Negative offsets are allowed.
-	void skip(std::ptrdiff_t n)
-	{
-		_offset += n;
-	}
-
-	void seek(std::ptrdiff_t offset)
-	{
-		_offset = offset;
-	}
-
-	bool done() const
-	{
-		return _offset >= offset_type(_size);
-	}
-
-	template<class Ret>
-	Ret read_pod()
-	{
-		sanitize_read(sizeof(Ret) / sizeof(T));
-
-		Ret ret{};
-		std::memcpy(&ret, _begin + _offset, sizeof(Ret));
-		_offset += sizeof(Ret) / sizeof(T);
-
+		T ret;
+		reader >> ret;
 		return ret;
-	}
-
-	template<class Ret>
-	Ret read_pod_container(std::size_t count)
-	{
-		Ret ret(count, {});
-
-		sanitize_read(count);
-		std::memcpy(ret.data(), _begin + _offset, (sizeof(typename Ret::value_type) / sizeof(T)) * count);
-
-		return ret;
-	}
-
-	std::ptrdiff_t distance_with(const GenericReader<T>& other) const
-	{
-		return _offset - other._offset;
-	}
-
-	std::size_t offset() const
-	{
-		return _offset;
-	}
-
-	std::size_t bytes() const
-	{
-		return _offset * sizeof(T);
 	}
 };
 
-class Reader : public GenericReader<char>
+struct Reader
 {
-public:
-	using GenericReader<char>::GenericReader;
+	const char *begin, *end, *pos;
 
-	std::string read_string(offset_type count)
+	Reader(const char* p_begin, const char* p_end) :
+		begin{p_begin},
+		end{p_end},
+		pos{p_begin}
+	{}
+
+	void sanitize_read(std::ptrdiff_t bytes)
 	{
-		sanitize_read(count);
-		std::string ret{_begin + _offset, _begin + _offset + count};
-		_offset += count;
-		return ret;
+		if (begin && std::distance(pos, end) < bytes)
+		{
+			throw std::out_of_range{
+				fmt::format(
+					"Reader<T>: tried to read {} bytes but {} bytes left.\n"
+					"begin={}, end={}, pos={}",
+					bytes,
+					std::distance(pos, end),
+					fmt::ptr(begin),
+					fmt::ptr(end),
+					fmt::ptr(pos)
+				)
+			};
+		}
+		else if (pos < begin)
+		{
+			throw std::out_of_range{
+				fmt::format(
+					"Reader<T>: corrupted pos is before begin.\n"
+					"begin={}, end={}, pos={}",
+					fmt::ptr(begin),
+					fmt::ptr(end),
+					fmt::ptr(pos)
+				)
+			};
+		}
 	}
 
-	std::string read_string_reference()
+	void unsafe_mode()
 	{
-		// TODO: sanitize
-		auto location = offset_type(read_pod<std::uint32_t>());
-		return {_begin + location};
+		begin = end = nullptr;
 	}
 
-	template<class T>
-	void read_into(T& t)
+	void seek(std::size_t offset)
 	{
-		read(t, *this);
+		pos = begin + offset;
 	}
+
+	ReadWrapper operator()()
+	{
+		return {*this};
+	}
+};
+
+template<class T>
+Reader& operator>>(Reader& reader, T& target)
+{
+	if constexpr (std::is_fundamental_v<T>)
+	{
+		reader.sanitize_read(sizeof(T));
+		std::memcpy(&target, reader.pos, sizeof(T));
+		reader.pos += sizeof(T);
+
+		return reader;
+	}
+	else
+	{
+		user_reader(target, reader);
+		return reader;
+	}
+}
+
+//! Overload of stream reading for POD only
+template<class T>
+Reader& operator>>(Reader& reader, T&& target)
+{
+	target(reader);
+	return reader;
+}
+
+constexpr auto skip = [] (std::size_t count) {
+	return [count] (auto& reader) {
+		reader.seek(std::distance(reader.begin, reader.pos) + count);
+	};
+};
+
+constexpr auto container = [] (auto& target, std::size_t count) {
+	return [&target, count] (auto& reader) {
+		for (std::size_t i = 0; i < count; ++i)
+		{
+			target.push_back(reader());
+		}
+	};
 };
 
 #endif // HELPER_HPP
