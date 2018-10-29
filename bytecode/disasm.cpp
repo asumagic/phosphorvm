@@ -180,6 +180,11 @@ void print_disassembly(Form& form, const Script& script)
 
 		case 0xD9: break;
 
+		case 0xFF: {
+			mnemonic = "break";
+			params = fmt::to_string(static_cast<s16>(main_block & 0xFFFF));
+		} break;
+
 		default: {
 			mnemonic = "<bad>";
 			comment = "!!! This may indicate corruption";
