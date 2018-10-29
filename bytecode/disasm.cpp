@@ -71,6 +71,21 @@ std::string resolve_function_name(s32 func_id, Form& form)
 	return form.func.definitions[func_id].name;
 }
 
+std::string cmp_name(u8 func)
+{
+	switch (func)
+	{
+	case 0x1: return "<";
+	case 0x2: return "<=";
+	case 0x3: return "==";
+	case 0x4: return "!=";
+	case 0x5: return ">=";
+	case 0x6: return ">";
+	}
+
+	return "<bad>";
+}
+
 void print_disassembly(Form& form, const Script& script)
 {
 	auto& program = script.data;
@@ -145,7 +160,10 @@ void print_disassembly(Form& form, const Script& script)
 		case 0x13: generic_2t("shl"); break;
 		case 0x14: generic_2t("shr"); break;
 
-		case 0x15: break;
+		case 0x15: {
+			mnemonic = fmt::format("cmp.{}.{}", type_suffix(t1), type_suffix(t2));
+			params = cmp_name(u8((main_block >> 8) & 0xFF));
+		} break;
 
 		case 0x45: {
 			mnemonic = fmt::format("pop.{}.{}", type_suffix(t1), type_suffix(t2));
