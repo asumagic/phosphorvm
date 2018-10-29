@@ -154,9 +154,11 @@ void print_disassembly(Form& form, const Script& script)
 
 		case 0x9C: {
 			mnemonic = fmt::format("ret.{}", type_suffix(t1));
-		}
+		} break;
 
-		case 0x9D: break;
+		case 0x9D: {
+			mnemonic = "exit";
+		} break;
 
 		case 0x9E: break;
 
