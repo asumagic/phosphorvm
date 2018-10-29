@@ -3,6 +3,7 @@
 
 #include "chunk/background.hpp"
 #include "chunk/code.hpp"
+#include "chunk/function.hpp"
 #include "chunk/metadata.hpp"
 #include "chunk/script.hpp"
 #include "chunk/sprite.hpp"
@@ -21,7 +22,6 @@ struct Objt {};
 struct Room {};
 struct Dafl {};
 struct Tpag {};
-struct Func {};
 struct Txtr {};
 struct Audo {};
 

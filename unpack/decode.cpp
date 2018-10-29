@@ -98,6 +98,7 @@ void user_reader(Form& form, Reader& reader)
 
 		switch (chunk_id(header.name))
 		{
+		case chunk_id("FUNC"): rd(form.func); break;
 		case chunk_id("GEN8"): rd(form.gen8); break;
 		case chunk_id("BGND"): rd(form.bgnd); break;
 		case chunk_id("SPRT"): rd(form.sprt); break;
