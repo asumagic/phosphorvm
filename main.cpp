@@ -1,4 +1,3 @@
-
 #include <fmt/core.h>
 #include "unpack/decode.hpp"
 #include "unpack/mmap.hpp"
@@ -18,8 +17,11 @@ int main()
 	Reader reader{file.data(), file.data() + file.size()};
 	reader >> main_form;
 
-	for (auto& script : main_form.code.elements)
+	if (debug_mode)
 	{
-		print_disassembly(main_form, script);
+		for (auto& script : main_form.code.elements)
+		{
+			print_disassembly(main_form, script);
+		}
 	}
 }

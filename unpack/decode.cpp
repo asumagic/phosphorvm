@@ -25,7 +25,14 @@ void Form::process_bytecode()
 
 		auto address = var.first_address;
 
-		fmt::print("Processing variable {} ({} occurrences)\n", var.name, var.occurrences);
+		if (debug_mode)
+		{
+			fmt::print(
+				"Processing variable {} ({} occurrences)\n",
+				var.name,
+				var.occurrences
+			);
+		}
 
 		for (unsigned j = 0; j < var.occurrences; ++j)
 		{
@@ -46,11 +53,14 @@ void Form::process_bytecode()
 			address += (block[1] & 0x00FFFFFF);
 			block[1] = (block[1] & 0xFF000000) | i;
 
-			fmt::print(
-				"\tOverriden block in script '{}' with variable id {}\n",
-				script->name,
-				i
-			);
+			if (debug_mode)
+			{
+				fmt::print(
+					"\tOverriden block in script '{}' with variable id {}\n",
+					script->name,
+					i
+				);
+			}
 		}
 	}
 }
@@ -67,7 +77,10 @@ void user_reader(Form& form, Reader& reader)
 	while (reader.pos != reader.end)
 	{
 		const ChunkHeader header = reader();
-		header.debug_print();
+		if (debug_mode)
+		{
+			header.debug_print();
+		}
 
 		auto next_reader = reader;
 		next_reader >> skip(header.length);
@@ -75,7 +88,11 @@ void user_reader(Form& form, Reader& reader)
 		auto rd = [&](auto& field) {
 			field.header = header;
 			reader >> field;
-			field.debug_print();
+
+			if (debug_mode)
+			{
+				field.debug_print();
+			}
 		};
 
 		switch (chunk_id(header.name))
