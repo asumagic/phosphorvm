@@ -60,6 +60,17 @@ std::string resolve_variable_name(s32 variable_id, Form& form)
 	return vars[variable_id].name;
 }
 
+// TODO: genericize and merge with resolve_variable_name
+std::string resolve_function_name(s32 func_id, Form& form)
+{
+	if (func_id < 0 || size_t(func_id) >= form.func.definitions.size())
+	{
+		return "<unexisting>";
+	}
+
+	return form.func.definitions[func_id].name;
+}
+
 void print_disassembly(Form& form, const Script& script)
 {
 	auto& program = script.data;
@@ -178,7 +189,10 @@ void print_disassembly(Form& form, const Script& script)
 			params = fmt::to_string(main_block & 0xFFFF);
 		} break;
 
-		case 0xD9: break;
+		case 0xD9: {
+			mnemonic = fmt::format("call.{}", type_suffix(t1));
+			params = resolve_function_name(*(block_ptr++), form);
+		} break;
 
 		case 0xFF: {
 			mnemonic = "break";
