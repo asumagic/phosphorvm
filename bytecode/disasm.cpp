@@ -205,6 +205,7 @@ void Disassembler::operator()(const Script& script)
 			params = comparator_name(u8((main_block >> 8) & 0xFF));
 		} break;
 
+		// TODO: pop.i16.var seems to cause issues
 		case Instr::oppop: {
 			mnemonic = fmt::format("pop.{}.{}", type_suffix(t1), type_suffix(t2));
 			params = resolve_variable_name(*(block_ptr++));
