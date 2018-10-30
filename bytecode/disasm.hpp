@@ -4,9 +4,16 @@
 #include "../unpack/decode.hpp"
 #include <vector>
 
-struct Disassembler
+class Disassembler
 {
-	const Form& form;
+	const Form& _form;
+
+	const Block* block_ptr;
+
+public:
+	Disassembler(const Form& form) :
+		_form{form}
+	{}
 
 	static std::string type_suffix(u32 type);
 	static std::string instance_name(InstId id);

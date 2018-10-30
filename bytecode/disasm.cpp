@@ -7,7 +7,7 @@
 
 const std::string& Disassembler::get_string(s32 id)
 {
-	return form.strg.elements[id].value;
+	return _form.strg.elements[id].value;
 }
 
 std::string Disassembler::type_suffix(u32 type)
@@ -51,7 +51,7 @@ std::string Disassembler::resolve_variable_name(s32 id)
 {
 	id &= 0x00FFFFFF;
 
-	auto& vars = form.vari.definitions;
+	auto& vars = _form.vari.definitions;
 
 	if (id < 0 || size_t(id) >= vars.size())
 	{
@@ -64,12 +64,12 @@ std::string Disassembler::resolve_variable_name(s32 id)
 // TODO: genericize and merge with resolve_variable_name
 std::string Disassembler::resolve_function_name(s32 func_id)
 {
-	if (func_id < 0 || size_t(func_id) >= form.func.definitions.size())
+	if (func_id < 0 || size_t(func_id) >= _form.func.definitions.size())
 	{
 		return "<unexisting>";
 	}
 
-	return form.func.definitions[func_id].name;
+	return _form.func.definitions[func_id].name;
 }
 
 std::string Disassembler::comparator_name(u8 function)
@@ -93,7 +93,7 @@ void Disassembler::operator()(const Script& script)
 
 	fmt::print(fmt::color::orange, "\nDisassembly of '{}': {} blocks ({} bytes)\n", script.name, program.size(), program.size() * 4);
 
-	const Block* block_ptr = script.data.data();
+	block_ptr = script.data.data();
 
 	while (block_ptr != &(*script.data.end()))
 	{
@@ -114,6 +114,10 @@ void Disassembler::operator()(const Script& script)
 		);
 
 		std::string mnemonic = "<unimpl>", params, comment;
+
+		auto generic_1t = [&](auto name) {
+			mnemonic = fmt::format("{}.{}", name, type_suffix(t1));
+		};
 
 		auto generic_2t = [&](auto name) {
 			mnemonic = fmt::format("{}.{}.{}", name, type_suffix(t1), type_suffix(t2));
@@ -155,9 +159,9 @@ void Disassembler::operator()(const Script& script)
 		case 0x0F: generic_2t("or"); break;
 		case 0x10: generic_2t("xor"); break;
 
-		case 0x11: break;
+		case 0x11: generic_1t("neg"); break;
+		case 0x12: generic_1t("not"); break;
 
-		case 0x12: generic_2t("not"); break;
 		case 0x13: generic_2t("shl"); break;
 		case 0x14: generic_2t("shr"); break;
 
