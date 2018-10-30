@@ -69,6 +69,28 @@ void Form::process_bytecode()
 
 	process_references_for(vari);
 	process_references_for(func);
+
+	for (auto& f : func.definitions)
+	{
+		auto pos = std::find_if(
+			scpt.elements.begin(),
+			scpt.elements.end(),
+			[&](ScriptDefinition& def) {
+				return f.name == def.name;
+			}
+		);
+
+		if (pos != scpt.elements.end())
+		{
+			f.is_builtin = false;
+			f.associated_script = &code.elements[pos->id];
+		}
+		else
+		{
+			f.is_builtin = true;
+			// TODO: resolve name
+		}
+	}
 }
 
 void user_reader(Form& form, Reader& reader)
