@@ -115,14 +115,6 @@ void Disassembler::operator()(const Script& script)
 
 		std::string mnemonic = "<unimpl>", params, comment;
 
-		auto generic_1t = [&](auto name) {
-			mnemonic = fmt::format("{}.{}", name, type_suffix(t1));
-		};
-
-		auto generic_2t = [&](auto name) {
-			mnemonic = fmt::format("{}.{}.{}", name, type_suffix(t1), type_suffix(t2));
-		};
-
 		auto read_block_operand = [&](auto& into) {
 			std::memcpy(&into, block_ptr, sizeof(decltype(into)));
 			block_ptr += sizeof(decltype(into)) / sizeof(Block);
@@ -143,6 +135,19 @@ void Disassembler::operator()(const Script& script)
 			}
 
 			return "<unknown>";
+		};
+
+		auto generic_1t = [&](auto name) {
+			mnemonic = fmt::format("{}.{}", name, type_suffix(t1));
+		};
+
+		auto generic_2t = [&](auto name) {
+			mnemonic = fmt::format("{}.{}.{}", name, type_suffix(t1), type_suffix(t2));
+		};
+
+		auto generic_push = [&](auto name, auto type) {
+			mnemonic = fmt::format("{}.{}", name, type_suffix(type));
+			params = push_param(t1);
 		};
 
 		switch (op)
@@ -188,26 +193,13 @@ void Disassembler::operator()(const Script& script)
 		case 0xB6: break;
 		case 0xB7: break;
 		case 0xB8: break;
-
 		case 0xBA: break;
 		case 0xBB: break;
 
-		case 0xC0: {
-			mnemonic = fmt::format("pushcst.{}", type_suffix(t1));
-			params = push_param(t1);
-		} break;
-
-		case 0xC1: {
-			mnemonic = fmt::format("pushloc.{}", type_suffix(t1));
-			params = push_param(t1);
-		} break;
-
-		case 0xC2: break;
-
-		case 0xC3: {
-			mnemonic = fmt::format("pushvar.{}", type_suffix(t2));
-			params = push_param(t1);
-		} break;
+		case 0xC0: generic_push("pushcst", t1); break;
+		case 0xC1: generic_push("pushloc", t1); break;
+		case 0xC2: generic_push("pushglb", t1); break;
+		case 0xC3: generic_push("pushvar", t2); break;
 
 		case 0x84: {
 			mnemonic = "push.i16";
