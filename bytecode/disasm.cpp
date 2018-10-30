@@ -3,13 +3,14 @@
 #include "types.hpp"
 #include <fmt/core.h>
 #include <fmt/color.h>
+#include <string_view>
 
-const std::string& get_string(s32 id, Form& form)
+const std::string& Disassembler::get_string(s32 id)
 {
 	return form.strg.elements[id].value;
 }
 
-std::string type_suffix(u32 type)
+std::string Disassembler::type_suffix(u32 type)
 {
 	switch (type)
 	{
@@ -26,7 +27,7 @@ std::string type_suffix(u32 type)
 	return ".???";
 }
 
-std::string instance_name(InstId id)
+std::string Disassembler::instance_name(InstId id)
 {
 	if (id > 0)
 	{
@@ -46,22 +47,22 @@ std::string instance_name(InstId id)
 	return "<bad>";
 }
 
-std::string resolve_variable_name(s32 variable_id, Form& form)
+std::string Disassembler::resolve_variable_name(s32 id)
 {
-	variable_id &= 0x00FFFFFF;
+	id &= 0x00FFFFFF;
 
 	auto& vars = form.vari.definitions;
 
-	if (variable_id < 0 || size_t(variable_id) >= vars.size())
+	if (id < 0 || size_t(id) >= vars.size())
 	{
 		return "<unexisting>";
 	}
 
-	return vars[variable_id].name;
+	return vars[id].name;
 }
 
 // TODO: genericize and merge with resolve_variable_name
-std::string resolve_function_name(s32 func_id, Form& form)
+std::string Disassembler::resolve_function_name(s32 func_id)
 {
 	if (func_id < 0 || size_t(func_id) >= form.func.definitions.size())
 	{
@@ -71,9 +72,9 @@ std::string resolve_function_name(s32 func_id, Form& form)
 	return form.func.definitions[func_id].name;
 }
 
-std::string cmp_name(u8 func)
+std::string Disassembler::comparator_name(u8 function)
 {
-	switch (func)
+	switch (function)
 	{
 	case 0x1: return "<";
 	case 0x2: return "<=";
@@ -86,7 +87,7 @@ std::string cmp_name(u8 func)
 	return "<bad>";
 }
 
-void print_disassembly(Form& form, const Script& script)
+void Disassembler::operator()(const Script& script)
 {
 	auto& program = script.data;
 
@@ -132,8 +133,8 @@ void print_disassembly(Form& form, const Script& script)
 			case 0x2: { s32 v; return fmt::to_string(read_block_operand(v)); }
 			case 0x3: { s64 v; return fmt::to_string(read_block_operand(v)); }
 			case 0x4: { s32 v; return fmt::to_string(bool(read_block_operand(v))); }
-			case 0x5: { u32 v; return fmt::to_string(resolve_variable_name(read_block_operand(v) & 0xFFFFFF, form)); }
-			case 0x6: { s32 v; return fmt::format("\"{}\"", get_string(read_block_operand(v), form)); }
+			case 0x5: { u32 v; return fmt::to_string(resolve_variable_name(read_block_operand(v) & 0xFFFFFF)); }
+			case 0x6: { s32 v; return fmt::format("\"{}\"", get_string(read_block_operand(v))); }
 			case 0xF: return fmt::to_string(main_block & 0xffff);
 			}
 
@@ -162,12 +163,12 @@ void print_disassembly(Form& form, const Script& script)
 
 		case 0x15: {
 			mnemonic = fmt::format("cmp.{}.{}", type_suffix(t1), type_suffix(t2));
-			params = cmp_name(u8((main_block >> 8) & 0xFF));
+			params = comparator_name(u8((main_block >> 8) & 0xFF));
 		} break;
 
 		case 0x45: {
 			mnemonic = fmt::format("pop.{}.{}", type_suffix(t1), type_suffix(t2));
-			params = resolve_variable_name(*(block_ptr++), form);
+			params = resolve_variable_name(*(block_ptr++));
 		} break;
 
 		case 0x9C: {
@@ -211,7 +212,7 @@ void print_disassembly(Form& form, const Script& script)
 
 		case 0xD9: {
 			mnemonic = fmt::format("call.{}", type_suffix(t1));
-			params = resolve_function_name(*(block_ptr++), form);
+			params = resolve_function_name(*(block_ptr++));
 		} break;
 
 		case 0xFF: {

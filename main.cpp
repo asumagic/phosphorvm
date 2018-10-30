@@ -19,9 +19,11 @@ int main()
 
 	if (debug_mode)
 	{
+		Disassembler disasm{main_form};
+
 		for (auto& script : main_form.code.elements)
 		{
-			print_disassembly(main_form, script);
+			disasm(script);
 		}
 	}
 }
