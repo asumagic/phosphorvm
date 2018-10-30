@@ -19,7 +19,7 @@ public:
 	static std::string instance_name(InstId id);
 	static std::string comparator_name(u8 function);
 
-	const std::string& get_string(s32 id);
+	std::string get_string(s32 id);
 	std::string resolve_variable_name(s32 id);
 	std::string resolve_function_name(s32 id);
 

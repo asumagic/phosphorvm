@@ -5,8 +5,12 @@
 #include <fmt/color.h>
 #include <string_view>
 
-const std::string& Disassembler::get_string(s32 id)
+std::string Disassembler::get_string(s32 id)
 {
+	if (id < 0 || size_t{id} >= _form.strg.elements.size())
+	{
+		return "<badstr>";
+	}
 	return _form.strg.elements[id].value;
 }
 
@@ -150,9 +154,9 @@ void Disassembler::operator()(const Script& script)
 			params = push_param(t1);
 		};
 
+		// TODO: add labels for easier disassembly read
 		auto generic_goto = [&](auto name) {
 			mnemonic = name;
-			params = fmt::to_string(main_block & 0x00FFFFFF);
 		};
 
 		switch (op)
@@ -204,6 +208,8 @@ void Disassembler::operator()(const Script& script)
 			mnemonic = "push.i16";
 			params = fmt::to_string(main_block & 0xFFFF);
 		} break;
+
+		case 0x86: generic_1t("dup"); break;
 
 		case 0xD9: {
 			mnemonic = fmt::format("call.{}", type_suffix(t1));
