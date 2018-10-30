@@ -1,6 +1,10 @@
 #ifndef ENUMS_HPP
 #define ENUMS_HPP
 
+// TODO: might be UB to do Instr(somevalue) when somevalue is not a legal value
+// of the enum. Clang emits a warning in disasm's switch because of the default
+// enum case when all enum cases are covered. Applies to the other enums too.
+
 enum class DataType
 {
 	f64 = 0x0,
