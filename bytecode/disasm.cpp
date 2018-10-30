@@ -150,6 +150,11 @@ void Disassembler::operator()(const Script& script)
 			params = push_param(t1);
 		};
 
+		auto generic_goto = [&](auto name) {
+			mnemonic = name;
+			params = fmt::to_string(main_block & 0x00FFFFFF);
+		};
+
 		switch (op)
 		{
 		case 0x07: generic_2t("conv"); break;
@@ -180,21 +185,15 @@ void Disassembler::operator()(const Script& script)
 			params = resolve_variable_name(*(block_ptr++));
 		} break;
 
-		case 0x9C: {
-			mnemonic = fmt::format("ret.{}", type_suffix(t1));
-		} break;
+		case 0x9C: generic_1t("ret"); break;
+		case 0x9D: mnemonic = "exit"; break;
+		case 0x9E: generic_1t("popz"); break;
 
-		case 0x9D: {
-			mnemonic = "exit";
-		} break;
-
-		case 0x9E: break;
-
-		case 0xB6: break;
-		case 0xB7: break;
-		case 0xB8: break;
-		case 0xBA: break;
-		case 0xBB: break;
+		case 0xB6: generic_goto("b"); break;
+		case 0xB7: generic_goto("bt"); break;
+		case 0xB8: generic_goto("bf"); break;
+		case 0xBA: generic_goto("pushenv"); break;
+		case 0xBB: generic_goto("popenv"); break;
 
 		case 0xC0: generic_push("pushcst", t1); break;
 		case 0xC1: generic_push("pushloc", t1); break;
