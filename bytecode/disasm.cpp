@@ -7,7 +7,7 @@
 
 std::string Disassembler::get_string(s32 id)
 {
-	if (id < 0 || size_t{id} >= _form.strg.elements.size())
+	if (id < 0 || size_t(id) >= _form.strg.elements.size())
 	{
 		return "<badstr>";
 	}
