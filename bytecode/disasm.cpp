@@ -1,6 +1,7 @@
 #include "../unpack/reader.hpp"
 #include "disasm.hpp"
 #include "types.hpp"
+#include "enums.hpp"
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <string_view>
@@ -16,16 +17,16 @@ std::string Disassembler::get_string(s32 id)
 
 std::string Disassembler::type_suffix(u32 type)
 {
-	switch (type)
+	switch (DataType(type))
 	{
-	case 0x0: return "f64";
-	case 0x1: return "f32";
-	case 0x2: return "i32";
-	case 0x3: return "i64";
-	case 0x4: return "b8";
-	case 0x5: return "var";
-	case 0x6: return "str";
-	case 0xF: return "i8";
+	case DataType::f64: return "f64";
+	case DataType::f32: return "f32";
+	case DataType::i32: return "i32";
+	case DataType::i64: return "i64";
+	case DataType::b32: return "b32";
+	case DataType::var: return "var";
+	case DataType::str: return "str";
+	case DataType::i16: return "i16";
 	}
 
 	return ".???";
@@ -38,14 +39,15 @@ std::string Disassembler::instance_name(InstId id)
 		return fmt::to_string(id);
 	}
 
-	switch (id)
+	switch (InstType(id))
 	{
-		case  0: return "<unimpl>";
-		case -1: return "self";
-		case -2: return "other";
-		case -3: return "all";
-		case -4: return "noone";
-		case -5: return "global";
+		case InstType::stack_top_or_global: return "(stacktop)";
+		case InstType::self:                return "self";
+		case InstType::other:               return "other";
+		case InstType::all:                 return "all";
+		case InstType::noone:               return "noone";
+		case InstType::global:              return "global";
+		case InstType::local:               return "local";
 	}
 
 	return "<bad>";
@@ -78,14 +80,14 @@ std::string Disassembler::resolve_function_name(s32 func_id)
 
 std::string Disassembler::comparator_name(u8 function)
 {
-	switch (function)
+	switch (CompFunc(function))
 	{
-	case 0x1: return "<";
-	case 0x2: return "<=";
-	case 0x3: return "==";
-	case 0x4: return "!=";
-	case 0x5: return ">=";
-	case 0x6: return ">";
+	case CompFunc::lt:  return "<";
+	case CompFunc::lte: return "<=";
+	case CompFunc::eq:  return "==";
+	case CompFunc::neq: return "!=";
+	case CompFunc::gte: return ">=";
+	case CompFunc::gt:  return ">";
 	}
 
 	return "<bad>";
@@ -126,16 +128,16 @@ void Disassembler::operator()(const Script& script)
 		};
 
 		auto push_param = [&](auto type) -> std::string {
-			switch (type)
+			switch (DataType(type))
 			{
-			case 0x0: { f32 v; return fmt::to_string(read_block_operand(v)); }
-			case 0x1: { f64 v; return fmt::to_string(read_block_operand(v)); }
-			case 0x2: { s32 v; return fmt::to_string(read_block_operand(v)); }
-			case 0x3: { s64 v; return fmt::to_string(read_block_operand(v)); }
-			case 0x4: { s32 v; return fmt::to_string(bool(read_block_operand(v))); }
-			case 0x5: { u32 v; return fmt::to_string(resolve_variable_name(read_block_operand(v) & 0xFFFFFF)); }
-			case 0x6: { s32 v; return fmt::format("\"{}\"", get_string(read_block_operand(v))); }
-			case 0xF: return fmt::to_string(main_block & 0xffff);
+			case DataType::f64: { f64 v; return fmt::to_string(read_block_operand(v)); }
+			case DataType::f32: { f32 v; return fmt::to_string(read_block_operand(v)); }
+			case DataType::i32: { s32 v; return fmt::to_string(read_block_operand(v)); }
+			case DataType::i64: { s64 v; return fmt::to_string(read_block_operand(v)); }
+			case DataType::b32: { s32 v; return fmt::to_string(bool(read_block_operand(v))); }
+			case DataType::var: { u32 v; return fmt::to_string(resolve_variable_name(read_block_operand(v) & 0xFFFFFF)); }
+			case DataType::str: { s32 v; return fmt::format("\"{}\"", get_string(read_block_operand(v))); }
+			case DataType::i16: return fmt::to_string(main_block & 0xffff);
 			}
 
 			return "<unknown>";
@@ -159,64 +161,61 @@ void Disassembler::operator()(const Script& script)
 			mnemonic = name;
 		};
 
-		switch (op)
+		switch (Instr(op))
 		{
-		case 0x07: generic_2t("conv"); break;
+		case Instr::opconv:     generic_2t("conv"); break;
+		case Instr::opmul:      generic_2t("mul"); break;
+		case Instr::opdiv:      generic_2t("div"); break;
+		case Instr::oprem:      generic_2t("rem"); break;
+		case Instr::opmod:      generic_2t("mod"); break;
+		case Instr::opadd:      generic_2t("add"); break;
+		case Instr::opsub:      generic_2t("sub"); break;
+		case Instr::opand:      generic_2t("and"); break;
+		case Instr::opor:       generic_2t("or"); break;
+		case Instr::opxor:      generic_2t("xor"); break;
+		case Instr::opshl:      generic_2t("shl"); break;
+		case Instr::opshr:      generic_2t("shr"); break;
 
-		case 0x08: generic_2t("mul"); break;
-		case 0x09: generic_2t("div"); break;
-		case 0x0A: generic_2t("rem"); break;
-		case 0x0B: generic_2t("mod"); break;
-		case 0x0C: generic_2t("add"); break;
-		case 0x0D: generic_2t("sub"); break;
-		case 0x0E: generic_2t("and"); break;
-		case 0x0F: generic_2t("or"); break;
-		case 0x10: generic_2t("xor"); break;
+		case Instr::opneg:      generic_1t("neg"); break;
+		case Instr::opnot:      generic_1t("not"); break;
+		case Instr::opret:      generic_1t("ret"); break;
+		case Instr::oppopz:     generic_1t("popz"); break;
+		case Instr::opdup:      generic_1t("dup"); break;
 
-		case 0x11: generic_1t("neg"); break;
-		case 0x12: generic_1t("not"); break;
+		case Instr::opexit:     mnemonic = "exit"; break;
 
-		case 0x13: generic_2t("shl"); break;
-		case 0x14: generic_2t("shr"); break;
+		case Instr::opb:        generic_goto("b"); break;
+		case Instr::opbt:       generic_goto("bt"); break;
+		case Instr::opbf:       generic_goto("bf"); break;
+		case Instr::oppushenv:  generic_goto("pushenv"); break;
+		case Instr::oppopenv:   generic_goto("popenv"); break;
 
-		case 0x15: {
-			mnemonic = fmt::format("cmp.{}.{}", type_suffix(t1), type_suffix(t2));
-			params = comparator_name(u8((main_block >> 8) & 0xFF));
-		} break;
+		case Instr::oppushcst:  generic_push("pushcst", t1); break;
+		case Instr::oppushloc:  generic_push("pushloc", t1); break;
+		case Instr::oppushglb:  generic_push("pushglb", t1); break;
+		case Instr::oppushvar:  generic_push("pushvar", t2); break;
 
-		case 0x45: {
-			mnemonic = fmt::format("pop.{}.{}", type_suffix(t1), type_suffix(t2));
-			params = resolve_variable_name(*(block_ptr++));
-		} break;
-
-		case 0x9C: generic_1t("ret"); break;
-		case 0x9D: mnemonic = "exit"; break;
-		case 0x9E: generic_1t("popz"); break;
-
-		case 0xB6: generic_goto("b"); break;
-		case 0xB7: generic_goto("bt"); break;
-		case 0xB8: generic_goto("bf"); break;
-		case 0xBA: generic_goto("pushenv"); break;
-		case 0xBB: generic_goto("popenv"); break;
-
-		case 0xC0: generic_push("pushcst", t1); break;
-		case 0xC1: generic_push("pushloc", t1); break;
-		case 0xC2: generic_push("pushglb", t1); break;
-		case 0xC3: generic_push("pushvar", t2); break;
-
-		case 0x84: {
+		case Instr::oppushi16: {
 			mnemonic = "push.i16";
 			params = fmt::to_string(main_block & 0xFFFF);
 		} break;
 
-		case 0x86: generic_1t("dup"); break;
+		case Instr::opcmp: {
+			mnemonic = fmt::format("cmp.{}.{}", type_suffix(t1), type_suffix(t2));
+			params = comparator_name(u8((main_block >> 8) & 0xFF));
+		} break;
 
-		case 0xD9: {
+		case Instr::oppop: {
+			mnemonic = fmt::format("pop.{}.{}", type_suffix(t1), type_suffix(t2));
+			params = resolve_variable_name(*(block_ptr++));
+		} break;
+
+		case Instr::opcall: {
 			mnemonic = fmt::format("call.{}", type_suffix(t1));
 			params = resolve_function_name(*(block_ptr++));
 		} break;
 
-		case 0xFF: {
+		case Instr::opbreak: {
 			mnemonic = "break";
 			params = fmt::to_string(static_cast<s16>(main_block & 0xFFFF));
 		} break;
