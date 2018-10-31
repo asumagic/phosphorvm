@@ -47,9 +47,16 @@ public:
 	}
 
 	template<class T>
+	void push_raw(const T& value)
+	{
+		stack.resize(stack.size() + sizeof(T));
+		std::memcpy(stack.data() + stack.size() - sizeof(T), &value, sizeof(T));
+	}
+
+	template<class T>
 	void push(const T& value)
 	{
-		fmt::print("push! {}\n", value);
+		push(value);
 	}
 
 public:
