@@ -56,6 +56,7 @@ public:
 	template<class T>
 	void push(const T& value)
 	{
+		fmt::print("Push value {}\n", value);
 		push(value);
 	}
 

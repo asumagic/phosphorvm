@@ -5,6 +5,8 @@
 #include <utility>
 #include <type_traits>
 
+// Please don't scroll down.
+
 #define BINOP_ARITH(name, op) case Instr:: name : binop_arithmetic([&](auto a, auto b) { return a op b; }); break;
 
 void fail_impossible()
@@ -27,15 +29,32 @@ template<class T, template<class> class TT>
 struct is_instantiation_of<TT<T>, TT> : std::true_type {};
 
 template<class T>
-using is_arithmetic_convertible =
-	std::disjunction<
-		std::is_fundamental<T>,
-		is_instantiation_of<T, VariableReference>
-	>;
+struct vm_value_value_type { using value_type = T; };
+
+template<template<class> class TT, class T>
+struct vm_value_value_type<TT<T>> { using value_type = typename TT<T>::value_type; };
+
+template<class T>
+constexpr bool is_arithmetic_convertible()
+{
+	if constexpr (std::is_fundamental_v<T>)
+	{
+		return true;
+	}
+
+	if constexpr (is_instantiation_of<T, VariableReference>::value)
+	{
+		return std::is_fundamental_v<typename T::value_type>;
+	}
+
+	return false;
+}
 
 template<class... Ts>
-inline constexpr bool arith_like_v =
-	std::conjunction_v<is_arithmetic_convertible<Ts>...>;
+constexpr bool is_arith_like()
+{
+	return (is_arithmetic_convertible<Ts>() && ...);
+}
 
 void VM::execute(const Script& script)
 {
@@ -58,7 +77,7 @@ void VM::execute(const Script& script)
 
 	auto binop_arithmetic = [&](auto handler) {
 		binop([&]<class A, class B>(A a, B b) {
-			if constexpr (arith_like_v<A, B>)
+			if constexpr (is_arith_like<A, B>())
 			{
 				push(handler(a, b));
 			}
@@ -73,11 +92,11 @@ void VM::execute(const Script& script)
 		{
 		case Instr::opmul:
 			binop([&]<class A, class B>(A a, B b) {
-				if constexpr (arith_like_v<A, B>)
+				if constexpr (is_arith_like<A, B>())
 				{
 					push(a * b);
 				}
-				else if constexpr (std::is_same_v<A, StringReference> && arith_like_v<B>)
+				else if constexpr (std::is_same_v<A, StringReference> && is_arith_like<B>())
 				{
 					// TODO: repeat string
 				}
