@@ -2,6 +2,7 @@
 #include "unpack/decode.hpp"
 #include "unpack/mmap.hpp"
 #include "bytecode/disasm.hpp"
+#include "interpreter/vm.hpp"
 
 int main()
 {
@@ -23,6 +24,14 @@ int main()
 
 		for (auto& script : main_form.code.elements)
 		{
+			if (script.name == "gml_Script_script_fibo")
+			{
+				VM vm{main_form};
+				vm.execute(script);
+
+				return 0;
+			}
+
 			disasm(script);
 		}
 	}
