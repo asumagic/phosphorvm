@@ -70,6 +70,11 @@ public:
 	//! types so it can dispatch the 'types' passed to it.
 	//! It builds up the 'Ts' parameter packs over subsequent calls.
 	// No idea if it even compiles to remotely efficient code.
+	// If it's inlined properly it should be fairly fast.
+	// There's another layer of dumb crap so I can just abuse lambdas in
+	// VM::execute. It passes a default-initialized list of the types rather
+	// than invoking f<Ts...>(); because you can't do that with C++20 templated
+	// lambdas.
 	template<std::size_t Left, class F, class... Ts>
 	void hell(F f, std::array<DataType, Left> types)
 	{

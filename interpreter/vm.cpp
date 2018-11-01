@@ -56,6 +56,8 @@ constexpr bool is_arith_like()
 	return (is_arithmetic_convertible<Ts>() && ...);
 }
 
+// I tried to warn you.
+
 void VM::execute(const Script& script)
 {
 	const Block* block = script.data.data();
@@ -82,6 +84,26 @@ void VM::execute(const Script& script)
 				push(handler(a, b));
 			}
 		});
+	};
+
+	// TODO: copypasted garbage from disasm.cpp, merge somehow?
+	auto read_block_operand = [&](auto& into) {
+		std::memcpy(&into, block, sizeof(decltype(into)));
+		block += sizeof(decltype(into)) / sizeof(Block);
+		return into;
+	};
+
+	// TODO: further copypasted garbage
+	auto decode_and_push_value = [&](auto placeholder) {
+		if constexpr (std::is_fundamental_v<decltype(placeholder)>)
+		{
+			read_block_operand(placeholder);
+			push(placeholder);
+		}
+		else
+		{
+			throw std::runtime_error{"Unhandled push value type"};
+		}
 	};
 
 	while (block != end_block)
@@ -128,7 +150,10 @@ void VM::execute(const Script& script)
 		// case Instr::opbf: // TODO
 		// case Instr::oppushenv: // TODO
 		// case Instr::oppopenv: // TODO
-		// case Instr::oppushcst: // TODO
+		case Instr::oppushcst: {
+			auto [t1, t2] = decode_type_pair();
+			hell<1>(decode_and_push_value, {t1});
+		} break;
 		// case Instr::oppushloc: // TODO
 		// case Instr::oppushglb: // TODO
 		// case Instr::oppushvar: // TODO
