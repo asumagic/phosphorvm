@@ -8,6 +8,7 @@
 struct Gen8 : Chunk
 {
 	u8 debug;
+	u8 bytecode_version;
 	std::string filename;
 	std::string config;
 	u32 game_id;
@@ -32,7 +33,7 @@ struct Gen8 : Chunk
 	void debug_print() const
 	{
 		fmt::print(
-			"\t.win version {:03b}\n"
+			"\t.win version {:03b}, bytecode version ${:02x}\n"
 			"\tDebug:    {}\n"
 			"\tFile:     {}\n"
 			"\tConfig:   {}\n"
@@ -47,6 +48,7 @@ struct Gen8 : Chunk
 			"",
 
 			flags.studio_version,
+			bytecode_version,
 			debug,
 			filename,
 			config,
@@ -80,7 +82,8 @@ inline void user_reader(Gen8& target, Reader& reader)
 
 	reader
 		>> target.debug
-		>> skip(3)
+		>> target.bytecode_version
+		>> skip(2)
 		>> string_reference(target.filename)
 		>> string_reference(target.config)
 		>> skip(2 * 4)
