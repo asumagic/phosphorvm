@@ -227,8 +227,9 @@ void Disassembler::operator()(const Script& script)
 
 		};
 
+		// HACK -y stuff. probably refactor that part?
 		bool mnemonic_warning = !mnemonic.empty() && mnemonic[0] == '<';
-		bool params_warning = !params.empty() && params[0] == '<';
+		bool params_warning = params.size() >= 3 && params[0] == '<';
 
 		comment.insert(0, fmt::format(
 			"${:08x} ",
