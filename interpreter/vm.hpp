@@ -66,6 +66,10 @@ public:
 	{}
 
 	// Worry not, this is not meant to be readable!
+	//! Does some lame shit so it can call 'f' with all Left combinations of VM
+	//! types so it can dispatch the 'types' passed to it.
+	//! It builds up the 'Ts' parameter packs over subsequent calls.
+	// No idea if it even compiles to remotely efficient code.
 	template<std::size_t Left, class F, class... Ts>
 	void hell(F f, std::array<DataType, Left> types)
 	{
