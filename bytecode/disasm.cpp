@@ -113,7 +113,7 @@ void Disassembler::operator()(const Script& script)
 
 		fmt::print(
 			fmt::color::light_gray,
-			"0x{:08x}: ",
+			"${:08x}: ",
 			std::distance(script.data.data(), main_block_ptr),
 			main_block
 		);
