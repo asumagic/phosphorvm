@@ -5,8 +5,6 @@
 #include <utility>
 #include <type_traits>
 
-// Please don't scroll down.
-
 #define BINOP_ARITH(name, op) case Instr:: name : binop_arithmetic([&](auto a, auto b) { return a op b; }); break;
 
 void fail_impossible()
@@ -56,8 +54,6 @@ constexpr bool is_arith_like()
 	return (is_arithmetic_convertible<Ts>() && ...);
 }
 
-// I tried to warn you.
-
 void VM::execute(const Script& script)
 {
 	const Block* block = script.data.data();
@@ -70,66 +66,80 @@ void VM::execute(const Script& script)
 		};
 	};
 
-	auto binop = [&](auto handler) {
-		auto [t1, t2] = decode_type_pair();
-		hell<2>([&](auto a, auto b) {
-			handler(pop<decltype(a)>(), pop<decltype(b)>());
-		}, {t1, t2});
-	};
-
-	auto binop_arithmetic = [&](auto handler) {
-		binop([&]<class A, class B>(A a, B b) {
-			if constexpr (is_arith_like<A, B>())
-			{
-				push(handler(a, b));
-			}
-		});
-	};
-
-	// TODO: copypasted garbage from disasm.cpp, merge somehow?
-	auto read_block_operand = [&](auto& into) {
-		std::memcpy(&into, block, sizeof(decltype(into)));
-		block += sizeof(decltype(into)) / sizeof(Block);
-		return into;
-	};
-
-	// TODO: further copypasted garbage
-	auto decode_and_push_value = [&](auto placeholder) {
-		if constexpr (std::is_fundamental_v<decltype(placeholder)>)
-		{
-			read_block_operand(placeholder);
-			push(placeholder);
-		}
-		else
-		{
-			throw std::runtime_error{"Unhandled push value type"};
-		}
+	auto decode_opcode = [&] {
+		return *block >> 24;
 	};
 
 	while (block != end_block)
 	{
-		auto opcode = *block >> 24;
+		auto opcode = decode_opcode();
+		auto [t1, t2] = decode_type_pair();
 
-		switch (Instr(opcode))
-		{
-		case Instr::opmul:
+		fmt::print(
+			"Execution trace: at ${:08x} opcode ${:02x}. stack data: {:02x}\n",
+			std::distance(script.data.data(), block),
+			opcode,
+			fmt::join(stack, " ")
+		);
+
+		auto binop = [&](auto handler) {
+			hell<true, 2>([&](auto a, auto b) {
+				handler(pop<decltype(a)>(), pop<decltype(b)>());
+			}, {t1, t2});
+		};
+
+		auto binop_arithmetic = [&](auto handler) {
 			binop([&]<class A, class B>(A a, B b) {
 				if constexpr (is_arith_like<A, B>())
 				{
-					push(a * b);
+					push(handler(a, b));
 				}
-				else if constexpr (std::is_same_v<A, StringReference> && is_arith_like<B>())
-				{
-					// TODO: repeat string
-				}
-				else { fail_impossible(); }
 			});
-			break;
+		};
 
+		auto op_push_var = [&] {
+			auto reference = *(++block);
+			auto inst_type = InstType(reference >> 24);
+
+			// Override instance type for certain opcodes as an optimization
+			// TODO: make this by passing an argument to the lambda somehow
+			switch (Instr(opcode))
+			{
+			case Instr::oppushloc:
+				inst_type = InstType::local;
+				break;
+
+			case Instr::oppushglb:
+				inst_type = InstType::global;
+				break;
+
+			// This case is somewhat different. I am not certain whether it
+			// results into an actual improvement.
+			case Instr::oppushvar: {
+				if (inst_type == InstType::global
+				 || inst_type == InstType::local)
+				{
+					fail_impossible();
+				}
+			} break;
+
+			default: break;
+			}
+
+			// Using hell to dispatch
+			hell<true, 1>([&](auto v) {
+
+			}, {DataType::var});
+		};
+
+		switch (Instr(opcode))
+		{
+		// TODO: check if multiplying strings with int is actually possible
+		BINOP_ARITH(opmul, *)
 		BINOP_ARITH(opdiv, /)
 		// case Instr::oprem: // TODO
 		// case Instr::opmod: // TODO
-		BINOP_ARITH(opadd, +)
+		BINOP_ARITH(opadd, +) // TODO: you can add strings together, too
 		BINOP_ARITH(opsub, -)
 		//BINOP_ARITH(opand, &)
 		//BINOP_ARITH(opor,  |)
@@ -150,18 +160,20 @@ void VM::execute(const Script& script)
 		// case Instr::opbf: // TODO
 		// case Instr::oppushenv: // TODO
 		// case Instr::oppopenv: // TODO
-		case Instr::oppushcst: {
-			auto [t1, t2] = decode_type_pair();
-			hell<1>(decode_and_push_value, {t1});
-		} break;
-		// case Instr::oppushloc: // TODO
-		// case Instr::oppushglb: // TODO
-		// case Instr::oppushvar: // TODO
+
+		//case Instr::oppushcst: break;
+
+		case Instr::oppushloc:
+		case Instr::oppushglb:
+		case Instr::oppushvar:
+			op_push_var();
+			break;
+
 		// case Instr::opcall: // TODO
 		// case Instr::opbreak: // TODO
 
 		default:
-			fmt::print(fmt::color::red, "Unhandled op {:02x}\n", opcode);
+			fmt::print(fmt::color::red, "Unhandled op ${:02x}\n", opcode);
 			return;
 		}
 

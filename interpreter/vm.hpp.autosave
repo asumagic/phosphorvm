@@ -139,7 +139,7 @@ public:
 				else
 				{
 					auto inst_type = pop<InstType>();
-					HELL(VariablePlaceholder)
+					
 				}
 			} break;
 			default: break;

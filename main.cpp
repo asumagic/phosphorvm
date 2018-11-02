@@ -24,6 +24,8 @@ int main()
 
 		for (auto& script : main_form.code.elements)
 		{
+			disasm(script);
+
 			if (script.name == "gml_Script_script_fibo")
 			{
 				VM vm{main_form};
@@ -31,8 +33,6 @@ int main()
 
 				return 0;
 			}
-
-			disasm(script);
 		}
 	}
 }
