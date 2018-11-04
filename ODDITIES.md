@@ -91,8 +91,35 @@ It appears that `0xC3` is meant for special variables. There is no real common t
 However, because of `6.` we know that they are surely meant to be unique. Yet `argument0` is definitively not going to be a global value, because it would get overriden just at the following call (and, nope, it doesn't get "saved" by being pushed temporarily to the stack when it happens).
 
 As for `2.` and `3.`: If the second unknown value is *really* an `InstanceType`.  
-Instance IDs seem to begin at 10000 and this value is usually below 100 when it's >0.  
-I suspect it is some sort of location argument. It should be checked what types of `push` are used for variables that have this value `>0`. After a few quick tests (which requires deeper checking!) it appears that only `pushloc` use this. Very interestingly, this could be a way to pool local variables.
+Instance IDs seem to begin at 10000 and this value is usually below 100 when it's >0, so it's not ones.  
+In this case, `pushloc` is used, and this must be a local variable ID: The second unknown value has less occurrences for `0002` than for `0001`, less for `0003` than for `0002`, etc., see this from the parsed DELTARUNE `data.win`:
+
+```
+        Variable i                   , instance type -1 (unknown=0010).
+        Variable __nearestdepth      , instance type -7 (unknown=0010).
+        Variable __yscale            , instance type -7 (unknown=0010).
+        Variable __elslength         , instance type -7 (unknown=0010).
+```
+
+```
+        Variable myinteract          , instance type -1 (unknown=000f).
+        Variable __alpha             , instance type -7 (unknown=000f).
+        Variable __xscale            , instance type -7 (unknown=000f).
+        Variable __els               , instance type -7 (unknown=000f).
+        Variable prefix              , instance type -7 (unknown=000f).
+```
+
+```
+        Variable ltsprite            , instance type -1 (unknown=000e).
+        Variable __newback           , instance type -7 (unknown=000e).
+        Variable __blend             , instance type -7 (unknown=000e).
+        Variable __alpha             , instance type -7 (unknown=000e).
+        Variable __slot              , instance type -7 (unknown=000e).
+        Variable selected            , instance type -7 (unknown=000e).
+        Variable __spr               , instance type -7 (unknown=000e).
+```
+
+In the above examples, it is weird for one of the instance types to `-1` (i.e. `InstanceType::self`)... Maybe that's all within one piece of code that is peculiar in some way?
 
 Because of all of this, I believe that `0xC3` is meant to push a variable **that has an entirely unique behavior**.
 
