@@ -5,6 +5,8 @@
 #include "../unpack/decode.hpp"
 #include "../bytecode/types.hpp"
 #include <tuple>
+#include <unordered_map>
+#include <stack>
 
 // Seriously, don't bother looking at this unless you want to get rid of your
 // sanity for good. This is the worst pile of garbage hacks since the creation
@@ -12,7 +14,6 @@
 
 #define HELL(appended_type) \
 	hell< \
-		ResolveVariableReferences, \
 		Left - 1, \
 		F, \
 		Ts..., \
@@ -30,6 +31,27 @@ template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 // stack in order to read that value, which may be the unwanted behavior.
 // pop<VariablePlaceholder> should successfully skip the value, however.
 struct VariablePlaceholder {};
+
+struct StringReference
+{
+
+};
+
+struct Variable
+{
+	DataType type;
+
+	union TypeUnion
+	{
+		f64 vf64;
+		f32 vf32;
+		s64 vs64;
+		s32 vs32;
+		s16 vs16;
+		bool vb32;
+		StringReference vstr;
+	};
+};
 
 //! Typed variable reference, which can be obtained as a parameter in 'f' when
 //! calling VM::hell, assuming ResolveVariableReferences is true.
@@ -51,9 +73,14 @@ struct VariableReference
 	}
 };
 
-struct StringReference
+struct Instance
 {
+	std::unordered_map<std::int32_t, Variable> variables;
+};
 
+struct LocalFrame
+{
+	std::unordered_map<std::int32_t, Variable> locals;
 };
 
 class VM
@@ -71,6 +98,10 @@ class VM
 		stack.resize(stack.size() + sizeof(T));
 		std::memcpy(stack.data() + stack.size() - sizeof(T), &value, sizeof(T));
 	}
+
+	std::unordered_map<std::int32_t, Variable> globals;
+	std::unordered_map<InstId, Instance> instances;
+	std::stack<LocalFrame> frame_stack;
 
 public:
 	VM(Form& form) :
@@ -110,7 +141,7 @@ public:
 	// TODO: maybe split hell in two (because of ResolveVariableReferences)
 	// TODO: make this usable to implement builtins sanely
 	// TODO: this is probably awful in terms of compile times, improve that
-	template<bool ResolveVariableReferences, std::size_t Left, class F, class... Ts>
+	template<std::size_t Left, class F, class... Ts>
 	void hell(F f, std::array<DataType, Left> types)
 	{
 		if constexpr (Left == 0)
@@ -131,17 +162,7 @@ public:
 			case DataType::i32: HELL(s32) break;
 			case DataType::i16: HELL(s16) break;
 			case DataType::str: HELL(StringReference) break;
-			case DataType::var: {
-				if constexpr (ResolveVariableReferences)
-				{
-					HELL(VariablePlaceholder)
-				}
-				else
-				{
-					auto inst_type = pop<InstType>();
-					HELL(VariablePlaceholder)
-				}
-			} break;
+			case DataType::var: HELL(VariablePlaceholder) break;
 			default: break;
 			}
 		}

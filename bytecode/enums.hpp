@@ -29,6 +29,14 @@ enum class InstType
 	local = -7
 };
 
+enum class VarType
+{
+	array = 0x00,
+	stack_top = 0x80,
+	normal = 0xA0,
+	unknown = 0xE0
+};
+
 enum class CompFunc
 {
 	lt = 0x1,
@@ -70,7 +78,7 @@ enum class Instr
 	oppushcst = 0xC0,
 	oppushloc = 0xC1,
 	oppushglb = 0xC2,
-	oppushvar = 0xC3,
+	oppushfst = 0xC3,
 	opcall    = 0xD9,
 	opbreak   = 0xFF
 };

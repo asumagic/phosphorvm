@@ -70,6 +70,24 @@ void VM::execute(const Script& script)
 		return *block >> 24;
 	};
 
+	auto peek_data_type = [&](InstType inst_type) {
+		switch (inst_type)
+		{
+		case InstType::local: {
+			auto reference = *block;
+			return frame_stack.top().locals[reference & 0x00FFFFFF].type;
+		}
+
+		default:
+			throw std::runtime_error{
+				fmt::format(
+					"Unhandled variable instance type for peek '{}'",
+					u8(inst_type)
+				)
+			};
+		}
+	};
+
 	while (block != end_block)
 	{
 		auto opcode = decode_opcode();
@@ -83,53 +101,32 @@ void VM::execute(const Script& script)
 		);
 
 		auto binop = [&](auto handler) {
-			hell<true, 2>([&](auto a, auto b) {
+			hell([&](auto a, auto b) {
 				handler(pop<decltype(a)>(), pop<decltype(b)>());
-			}, {t1, t2});
+			}, std::array{t1, t2});
 		};
 
 		auto binop_arithmetic = [&](auto handler) {
-			binop([&]<class A, class B>(A a, B b) {
-				if constexpr (is_arith_like<A, B>())
+			binop([&](auto a, auto b) {
+				if constexpr (is_arith_like<decltype(a), decltype(b)>())
 				{
 					push(handler(a, b));
 				}
 			});
 		};
 
-		auto op_push_var = [&] {
+		auto op_push_var = [&](InstType inst_type) {
 			auto reference = *(++block);
-			auto inst_type = InstType(reference >> 24);
+			auto var_type = VarType(reference >> 24);
 
-			// Override instance type for certain opcodes as an optimization
-			// TODO: make this by passing an argument to the lambda somehow
-			switch (Instr(opcode))
-			{
-			case Instr::oppushloc:
-				inst_type = InstType::local;
-				break;
+			fmt::print("{:08x}\n", reference >> 24);
 
-			case Instr::oppushglb:
-				inst_type = InstType::global;
-				break;
+			VariableDefinition& def = _form.vari.definitions[reference & 0x00FFFFFF];
+			fmt::print("name = {}, instance type: {:04x}\n", def.name, def.instance_type);
 
-			// This case is somewhat different. I am not certain whether it
-			// results into an actual improvement.
-			case Instr::oppushvar: {
-				if (inst_type == InstType::global
-				 || inst_type == InstType::local)
-				{
-					fail_impossible();
-				}
-			} break;
+			hell([&](auto) {
 
-			default: break;
-			}
-
-			// Using hell to dispatch
-			hell<true, 1>([&](auto v) {
-
-			}, {DataType::var});
+			}, std::array{peek_data_type(inst_type)});
 		};
 
 		switch (Instr(opcode))
@@ -163,10 +160,9 @@ void VM::execute(const Script& script)
 
 		//case Instr::oppushcst: break;
 
-		case Instr::oppushloc:
-		case Instr::oppushglb:
-		case Instr::oppushvar:
-			op_push_var();
+		case Instr::oppushloc: op_push_var(InstType::local); break;
+		case Instr::oppushglb: op_push_var(InstType::global); break;
+		case Instr::oppushfst: op_push_var({}); break;
 			break;
 
 		// case Instr::opcall: // TODO

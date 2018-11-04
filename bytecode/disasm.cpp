@@ -192,7 +192,7 @@ void Disassembler::operator()(const Script& script)
 		case Instr::oppushcst:  generic_push("pushcst", t1); break;
 		case Instr::oppushloc:  generic_push("pushloc", t1); break;
 		case Instr::oppushglb:  generic_push("pushglb", t1); break;
-		case Instr::oppushvar:  generic_push("pushvar", t2); break;
+		case Instr::oppushfst:  generic_push("pushfst", t2); break;
 
 		case Instr::oppushi16: {
 			mnemonic = "push.i16";
