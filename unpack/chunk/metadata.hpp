@@ -107,19 +107,17 @@ inline void user_reader(Gen8& target, Reader& reader)
 		return (flags & (1 << byte_offset)) != 0;
 	};
 
-	target.flags = {
-		.fullscreen          = f(0),
-		.sync_vertex_1       = f(1),
-		.sync_vertex_2       = f(2),
-		.interpolate         = f(3),
-		// unknown
-		.show_cursor         = f(4),
-		.resizeable          = f(5),
-		.screen_key          = f(6),
-		.sync_vertex_3       = f(7),
-		.studio_version      = u8((flags >> 9) & 0b111),
-		.is_steam            = f(12),
-		.local_data_enabled  = f(13),
-		.borderless          = f(14)
-	};
+	target.flags.fullscreen         = f(0);
+	target.flags.sync_vertex_1      = f(1);
+	target.flags.sync_vertex_2      = f(2);
+	target.flags.interpolate        = f(3);
+	// unknown = f(4);
+	target.flags.show_cursor        = f(5);
+	target.flags.resizeable         = f(6);
+	target.flags.screen_key         = f(7);
+	target.flags.sync_vertex_3      = f(8);
+	target.flags.studio_version     = u8((flags >> 9) & 0b111);
+	target.flags.is_steam           = f(12);
+	target.flags.local_data_enabled = f(13);
+	target.flags.borderless         = f(14);
 }
