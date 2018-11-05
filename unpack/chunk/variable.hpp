@@ -5,6 +5,8 @@
 
 struct VariableDefinition
 {
+	SpecialVar special_var = SpecialVar::none;
+
 	std::string name;
 
 	//! This is a 16-bit value within the bytecode but seems to be 32-bit here for a unknown reason.

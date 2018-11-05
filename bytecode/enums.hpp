@@ -47,6 +47,31 @@ enum class CompFunc
 	gt
 };
 
+enum class SpecialVar
+{
+	argument0,
+	argument1,
+	argument2,
+	argument3,
+	argument4,
+	argument5,
+	argument6,
+	argument7,
+	argument8,
+	argument9,
+	argument10,
+	argument11,
+	argument12,
+	argument13,
+	argument14,
+	argument15,
+
+	//! Current instance id
+	id,
+
+	none
+};
+
 enum class Instr
 {
 	opconv    = 0x07,
