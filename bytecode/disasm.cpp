@@ -122,7 +122,7 @@ void Disassembler::operator()(const Script& script)
 
 		auto read_block_operand = [&](auto& into) {
 			std::memcpy(&into, block_ptr, sizeof(decltype(into)));
-			block_ptr += sizeof(decltype(into)) / sizeof(Block);
+			block_ptr += sizeof(std::decay_t<decltype(into)>) / sizeof(Block);
 			return into;
 		};
 
