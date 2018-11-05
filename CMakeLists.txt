@@ -12,7 +12,7 @@ add_executable(${PROJECT_NAME}
 )
 
 target_compile_options(${PROJECT_NAME} PUBLIC
-	"-std=c++2a"
+	"-std=c++17"
 	"-Wall"
 	"-Wextra"
 	"-Wpedantic"
