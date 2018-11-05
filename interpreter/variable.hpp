@@ -28,3 +28,9 @@ struct Variable
 		StringReference vstr;
 	};
 };
+
+template<class T>
+struct VariableReference
+{
+	using value_type = T;
+};

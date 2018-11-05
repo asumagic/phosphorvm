@@ -4,9 +4,10 @@
 #include <fmt/color.h>
 #include <utility>
 #include <type_traits>
+#include "vmtraits.hpp"
 
-#define BINOP_ARITH(name, op) case Instr:: name : binop_arithmetic([&](auto a, auto b) { return a op b; }); break;
-/*
+#define BINOP_ARITH(name, op) case Instr::name : binop_arithmetic([&](auto a, auto b) { return a op b; }); break;
+
 void fail_impossible()
 {
 	if constexpr (debug_mode)
@@ -17,46 +18,9 @@ void fail_impossible()
 	__builtin_unreachable();
 }
 
-template<class... Ts>
-using are_arithmetic = std::conjunction<std::is_fundamental<Ts>...>;
-
-template<class T, template<class> class TT>
-struct is_instantiation_of : std::false_type {};
-
-template<class T, template<class> class TT>
-struct is_instantiation_of<TT<T>, TT> : std::true_type {};
-
-template<class T>
-struct vm_value_value_type { using value_type = T; };
-
-template<template<class> class TT, class T>
-struct vm_value_value_type<TT<T>> { using value_type = typename TT<T>::value_type; };
-
-template<class T>
-constexpr bool is_arithmetic_convertible()
-{
-	if constexpr (std::is_fundamental_v<T>)
-	{
-		return true;
-	}
-
-	if constexpr (is_instantiation_of<T, VariableReference>::value)
-	{
-		return std::is_fundamental_v<typename T::value_type>;
-	}
-
-	return false;
-}
-
-template<class... Ts>
-constexpr bool is_arith_like()
-{
-	return (is_arithmetic_convertible<Ts>() && ...);
-}
-*/
 void VM::execute(const Script& script)
 {
-/*	const Block* block = script.data.data();
+	const Block* block = script.data.data();
 	const Block* end_block = block + script.data.size();
 
 	auto decode_type_pair = [&] {
@@ -75,7 +39,7 @@ void VM::execute(const Script& script)
 		{
 		case InstType::local: {
 			auto reference = *block;
-			return frame_stack.top().locals[reference & 0x00FFFFFF].type;
+			return frames.top().locals[reference & 0x00FFFFFF].type;
 		}
 
 		default:
@@ -97,12 +61,12 @@ void VM::execute(const Script& script)
 			"Execution trace: at ${:08x} opcode ${:02x}. stack data: {:02x}\n",
 			std::distance(script.data.data(), block),
 			opcode,
-			fmt::join(stack, " ")
+			fmt::join(std::vector(&stack.raw[0], &stack.raw[stack.offset]), " ")
 		);
 
-		auto binop = [&](auto handler) {
+		auto binop = [&, t1=t1, t2=t2](auto handler) {
 			hell([&](auto a, auto b) {
-				handler(pop<decltype(a)>(), pop<decltype(b)>());
+				handler(stack.pop<decltype(a)>(), stack.pop<decltype(b)>());
 			}, std::array{t1, t2});
 		};
 
@@ -110,7 +74,7 @@ void VM::execute(const Script& script)
 			binop([&](auto a, auto b) {
 				if constexpr (is_arith_like<decltype(a), decltype(b)>())
 				{
-					push(handler(a, b));
+					stack.push(handler(a, b));
 				}
 			});
 		};
@@ -161,5 +125,5 @@ void VM::execute(const Script& script)
 		}
 
 		++block;
-	}*/
+	}
 }

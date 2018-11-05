@@ -4,10 +4,19 @@
 #include "frame.hpp"
 #include <array>
 
-struct FrameStack
+class FrameStack
 {
-	std::array<Frame, max_call_depth> frames;
+	std::size_t offset = 0;
+
+public:
+	std::array<Frame, max_call_depth> frames = {};
 
 	Frame& push();
 	void pop();
+	Frame& top();
 };
+
+inline Frame& FrameStack::top()
+{
+	return frames[offset];
+}
