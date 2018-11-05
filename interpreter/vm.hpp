@@ -27,6 +27,11 @@
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
+//! Call to designate a normally unreachable spot.
+//! With debug_mode set, throws an exception. Otherwise, uses
+//! __builtin_unreachble (effectively becoming an optimization).
+void fail_impossible();
+
 class VM
 {
 	Form& form;
