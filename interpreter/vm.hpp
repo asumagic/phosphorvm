@@ -2,7 +2,7 @@
 
 #include "contextstack.hpp"
 #include "framestack.hpp"
-#include "stack.hpp"
+#include "mainstack.hpp"
 #include "variable.hpp"
 #include "../config.hpp"
 #include "../unpack/decode.hpp"
