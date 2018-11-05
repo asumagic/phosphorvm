@@ -1,5 +1,4 @@
-#ifndef SCRIPT_HPP
-#define SCRIPT_HPP
+#pragma once
 
 #include "common.hpp"
 
@@ -22,6 +21,3 @@ inline void user_reader(ScriptDefinition& def, Reader& reader)
 		>> string_reference(def.name)
 		>> def.id;
 }
-
-
-#endif // SCRIPT_HPP

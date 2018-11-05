@@ -1,5 +1,4 @@
-#ifndef CONTEXTSTACK_HPP
-#define CONTEXTSTACK_HPP
+#pragma once
 
 #include <array>
 #include "../config.hpp"
@@ -14,5 +13,3 @@ struct ContextStack
 	Context& push();
 	void pop();
 };
-
-#endif // CONTEXTSTACK_HPP

@@ -1,5 +1,4 @@
-#ifndef FUNCTION_HPP
-#define FUNCTION_HPP
+#pragma once
 
 #include "common.hpp"
 #include "code.hpp"
@@ -50,5 +49,3 @@ inline void user_reader(Func& func, Reader& reader)
 	    >> count
 	    >> container(func.definitions, count);
 }
-
-#endif // FUNCTION_HPP

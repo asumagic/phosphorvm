@@ -1,5 +1,4 @@
-#ifndef METADATA_HPP
-#define METADATA_HPP
+#pragma once
 
 #include "common.hpp"
 #include <ctime>
@@ -124,5 +123,3 @@ inline void user_reader(Gen8& target, Reader& reader)
 		.borderless          = f(14)
 	};
 }
-
-#endif // METADATA_HPP

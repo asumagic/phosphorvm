@@ -1,5 +1,4 @@
-#ifndef DECODE_HPP
-#define DECODE_HPP
+#pragma once
 
 #include "chunk/background.hpp"
 #include "chunk/code.hpp"
@@ -54,5 +53,3 @@ struct Form
 };
 
 void user_reader(Form& form, Reader& reader);
-
-#endif // DECODE_HPP

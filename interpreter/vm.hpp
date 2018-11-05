@@ -1,5 +1,4 @@
-#ifndef VM_HPP
-#define VM_HPP
+#pragma once
 
 #include "contextstack.hpp"
 #include "framestack.hpp"
@@ -84,5 +83,3 @@ public:
 
 	void execute(const Script& script);
 };
-
-#endif // VM_HPP

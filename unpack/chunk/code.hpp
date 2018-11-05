@@ -1,5 +1,4 @@
-#ifndef CODE_HPP
-#define CODE_HPP
+#pragma once
 
 #include "common.hpp"
 
@@ -38,5 +37,3 @@ inline void user_reader(Script& script, Reader& reader)
 		>> skip(offset)
 		>> container(script.data, bytes / 4);
 }
-
-#endif // CODE_HPP

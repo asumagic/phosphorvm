@@ -1,5 +1,4 @@
-#ifndef STRINGS_HPP
-#define STRINGS_HPP
+#pragma once
 
 #include "common.hpp"
 
@@ -22,5 +21,3 @@ inline void user_reader(StringDefinition& def, Reader& reader)
 		>> size
 		>> container(def.value, size);
 }
-
-#endif // STRINGS_HPP

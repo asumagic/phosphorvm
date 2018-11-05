@@ -1,5 +1,4 @@
-#ifndef MMAP_HPP
-#define MMAP_HPP
+#pragma once
 
 #include <string>
 
@@ -31,5 +30,3 @@ inline char* ReadMappedFile::data()
 {
 	return _address;
 }
-
-#endif // MMAP_HPP

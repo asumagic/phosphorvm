@@ -1,5 +1,4 @@
-#ifndef CHUNK_HPP
-#define CHUNK_HPP
+#pragma once
 
 #include <fmt/core.h>
 #include "../gmreader.hpp"
@@ -46,5 +45,3 @@ inline void user_reader(ChunkHeader& header, Reader& reader)
 		};
 	}
 }
-
-#endif // CHUNK_HPP

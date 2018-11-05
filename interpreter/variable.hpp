@@ -1,5 +1,4 @@
-#ifndef INTERPRETER_VARIABLE_HPP
-#define INTERPRETER_VARIABLE_HPP
+#pragma once
 
 #include "../bytecode/enums.hpp"
 #include "../bytecode/types.hpp"
@@ -29,5 +28,3 @@ struct Variable
 		StringReference vstr;
 	};
 };
-
-#endif // INTERPRETER_VARIABLE_HPP

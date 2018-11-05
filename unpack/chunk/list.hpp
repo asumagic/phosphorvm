@@ -1,5 +1,4 @@
-#ifndef LIST_HPP
-#define LIST_HPP
+#pragma once
 
 #include "chunk.hpp"
 #include "../gmreader.hpp"
@@ -36,5 +35,3 @@ void user_reader(List<T>& list, Reader& reader)
 		list.elements.push_back(element_reader());
 	}
 }
-
-#endif // LIST_HPP

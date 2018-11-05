@@ -1,5 +1,4 @@
-#ifndef BACKGROUND_HPP
-#define BACKGROUND_HPP
+#pragma once
 
 #include "common.hpp"
 
@@ -23,5 +22,3 @@ inline void user_reader(Background& bg, Reader& reader)
 		>> skip(3 * 4)
 		>> bg.texture_address;
 }
-
-#endif // BACKGROUND_HPP

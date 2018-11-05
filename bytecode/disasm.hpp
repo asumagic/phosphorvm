@@ -1,5 +1,4 @@
-#ifndef DISASM_HPP
-#define DISASM_HPP
+#pragma once
 
 #include "../unpack/decode.hpp"
 #include <vector>
@@ -25,5 +24,3 @@ public:
 
 	void operator()(const Script& script);
 };
-
-#endif // DISASM_HPP

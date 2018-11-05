@@ -1,5 +1,4 @@
-#ifndef STACK_HPP
-#define STACK_HPP
+#pragma once
 
 #include <array>
 #include "../config.hpp"
@@ -20,5 +19,3 @@ public:
 	template<class T>
 	void push() const;
 };
-
-#endif // STACK_HPP

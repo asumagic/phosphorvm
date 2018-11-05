@@ -1,5 +1,4 @@
-#ifndef SPRITE_HPP
-#define SPRITE_HPP
+#pragma once
 
 #include "common.hpp"
 
@@ -24,5 +23,3 @@ inline void user_reader(Sprite& sprite, Reader& reader)
 		>> sprite.width
 		>> sprite.height;
 }
-
-#endif // SPRITE_HPP

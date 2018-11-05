@@ -1,5 +1,4 @@
-#ifndef FRAMESTACK_HPP
-#define FRAMESTACK_HPP
+#pragma once
 
 #include "../config.hpp"
 #include "frame.hpp"
@@ -11,5 +10,3 @@ struct FrameStack
 	Frame& push();
 	void pop();
 };
-
-#endif // FRAMESTACK_HPP

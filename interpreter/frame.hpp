@@ -1,9 +1,6 @@
-#ifndef FRAME_HPP
-#define FRAME_HPP
+#pragma once
 
 struct Frame
 {
 
 };
-
-#endif // FRAME_HPP

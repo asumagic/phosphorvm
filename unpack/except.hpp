@@ -1,8 +1,5 @@
-#ifndef EXCEPT_HPP
-#define EXCEPT_HPP
+#pragma once
 
 #include <stdexcept>
 
 using DecoderError = std::runtime_error;
-
-#endif // EXCEPT_HPP

@@ -1,5 +1,4 @@
-#ifndef HELPER_HPP
-#define HELPER_HPP
+#pragma once
 
 #include <algorithm>
 #include <fmt/core.h>
@@ -116,5 +115,3 @@ constexpr auto container = [] (auto& target, std::size_t count) {
 		}
 	};
 };
-
-#endif // HELPER_HPP

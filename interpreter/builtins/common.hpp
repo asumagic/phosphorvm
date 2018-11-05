@@ -1,7 +1,4 @@
-#ifndef INTERPRETER_BUILTINS_COMMON_HPP
-#define INTERPRETER_BUILTINS_COMMON_HPP
+#pragma once
 
 #include "../builtin.hpp"
 #include "../vm.hpp"
-
-#endif

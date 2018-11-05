@@ -1,5 +1,4 @@
-#ifndef GMREADER_HPP
-#define GMREADER_HPP
+#pragma once
 
 #include "../bytecode/types.hpp"
 #include "reader.hpp"
@@ -37,5 +36,3 @@ constexpr auto string_reference = [] (auto& target) {
 		far_reader >> string_ascii(target);
 	};
 };
-
-#endif // GMREADER_HPP

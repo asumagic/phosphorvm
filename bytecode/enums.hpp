@@ -1,5 +1,4 @@
-#ifndef ENUMS_HPP
-#define ENUMS_HPP
+#pragma once
 
 // TODO: might be UB to do Instr(somevalue) when somevalue is not a legal value
 // of the enum. Clang emits a warning in disasm's switch because of the default
@@ -107,5 +106,3 @@ enum class Instr
 	opcall    = 0xD9,
 	opbreak   = 0xFF
 };
-
-#endif // ENUMS_HPP

@@ -1,5 +1,4 @@
-#ifndef VARIABLE_HPP
-#define VARIABLE_HPP
+#pragma once
 
 #include "common.hpp"
 
@@ -80,5 +79,3 @@ inline void user_reader(Vari& vari, Reader& reader)
 		>> skip(3 * 4)
 		>> container(vari.definitions, (vari.header.length - (3 * 4)) / 20);
 }
-
-#endif // VARIABLE_HPP
