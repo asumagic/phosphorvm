@@ -4,6 +4,7 @@
 #include <fmt/color.h>
 #include "../config.hpp"
 
+// TODO: perform this lazily
 void Form::process_bytecode()
 {
 	auto process_references_for = [&](auto& chunk) {
