@@ -2,6 +2,7 @@
 
 #include "../config.hpp"
 #include "frame.hpp"
+#include <array>
 
 struct FrameStack
 {
