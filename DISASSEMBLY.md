@@ -29,7 +29,8 @@ $00000018: push.i16       1                   ; $840f0001
 $00000019: sub.i32.var                        ; $0d520000 
 $0000001a: call.i32       script_fibo         ; $d9020001'00000004 
 $0000001c: add.var.var                        ; $0c550000 
-$0000001d: ret.var                            ; $9c050000 ```
+$0000001d: ret.var                            ; $9c050000
+```
 
 The first hexadecimal value (e.g. `$0000001d`) represents the offset, in **blocks** (32-bit values), of the opcode appearing on the right.
 
