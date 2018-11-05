@@ -11,12 +11,11 @@ add_executable(${PROJECT_NAME}
 )
 
 target_compile_options(${PROJECT_NAME} PUBLIC
-	"-std=c++17"
+	"-std=c++1z"
 	"-Wall"
 	"-Wextra"
 	"-Wpedantic"
 	"-Wno-missing-braces"
-	"-Wno-unused-but-set-parameter"
 	"-ggdb"
 )
 
