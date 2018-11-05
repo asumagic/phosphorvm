@@ -115,20 +115,6 @@ void VM::execute(const Script& script)
 			});
 		};
 
-		auto op_push_var = [&](InstType inst_type) {
-			auto reference = *(++block);
-			auto var_type = VarType(reference >> 24);
-
-			fmt::print("{:08x}\n", reference >> 24);
-
-			VariableDefinition& def = _form.vari.definitions[reference & 0x00FFFFFF];
-			fmt::print("name = {}, instance type: {:04x}\n", def.name, def.instance_type);
-
-			hell([&](auto) {
-
-			}, std::array{peek_data_type(inst_type)});
-		};
-
 		switch (Instr(opcode))
 		{
 		// TODO: check if multiplying strings with int is actually possible
@@ -160,9 +146,9 @@ void VM::execute(const Script& script)
 
 		//case Instr::oppushcst: break;
 
-		case Instr::oppushloc: op_push_var(InstType::local); break;
-		case Instr::oppushglb: op_push_var(InstType::global); break;
-		case Instr::oppushfst: op_push_var({}); break;
+		case Instr::oppushloc:
+		case Instr::oppushglb:
+		case Instr::oppushspc:
 			break;
 
 		// case Instr::opcall: // TODO

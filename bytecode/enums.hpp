@@ -78,7 +78,7 @@ enum class Instr
 	oppushcst = 0xC0,
 	oppushloc = 0xC1,
 	oppushglb = 0xC2,
-	oppushfst = 0xC3,
+	oppushspc = 0xC3, //! See ODDITIES.md for details about $C3
 	opcall    = 0xD9,
 	opbreak   = 0xFF
 };
