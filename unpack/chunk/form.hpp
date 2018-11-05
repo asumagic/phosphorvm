@@ -1,11 +1,39 @@
-#include "decode.hpp"
+#pragma once
 
-#include <fmt/core.h>
+#include "common.hpp"
+#include "../decode.hpp"
 #include <fmt/color.h>
-#include "../config.hpp"
+
+struct Form
+{
+	Gen8 gen8;
+	Optn optn;
+	Extn extn;
+	Sond sond;
+	Agrp agrp;
+	Sprt sprt;
+	Bgnd bgnd;
+	Path path;
+	Scpt scpt;
+	Shdr shdr;
+	Font font;
+	Tmln tmln;
+	Objt objt;
+	Room room;
+	Dafl dafl;
+	Tpag tpag;
+	Code code;
+	Vari vari;
+	Func func;
+	Strg strg;
+	Txtr txtr;
+	Audo audo;
+
+	void process_bytecode();
+};
 
 // TODO: perform this lazily
-void Form::process_bytecode()
+inline void Form::process_bytecode()
 {
 	auto process_references_for = [&](auto& chunk) {
 		for (s32 i = 0; std::size_t(i) < chunk.definitions.size(); ++i)
@@ -94,7 +122,7 @@ void Form::process_bytecode()
 	}
 }
 
-void user_reader(Form& form, Reader& reader)
+inline void user_reader(Form& form, Reader& reader)
 {
 	const ChunkHeader form_header = reader();
 
