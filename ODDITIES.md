@@ -5,6 +5,8 @@ I am trying to list all of those I encountered.
 
 ### Bytecode ver `0xF`+ `pushvar`
 
+*Note: this instruction is now named `pushspc` in PhosphorVM.*
+
 Buckle up, that's a big one.
 
 More than just meant to push "other" variables as pointed out by [this page](https://pcy.ulyssis.be/undertale/decompilation-corrected), it appears that `0xC3` is behaving very strangely.
