@@ -1,6 +1,10 @@
 #ifndef VM_HPP
 #define VM_HPP
 
+#include "contextstack.hpp"
+#include "framestack.hpp"
+#include "stack.hpp"
+#include "variable.hpp"
 #include "../config.hpp"
 #include "../unpack/decode.hpp"
 #include "../bytecode/types.hpp"
@@ -24,108 +28,18 @@
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-//! Type used as a placeholder in hell so instructions can detect variables
-//! through type information. This may be passed to the 'f' parameter when
-//! called by VM:hell only when ResolveVariableReferences is false.
-// It doesn't even have InstType information because we may have to peek the
-// stack in order to read that value, which may be the unwanted behavior.
-// pop<VariablePlaceholder> should successfully skip the value, however.
-struct VariablePlaceholder {};
-
-struct StringReference
-{
-
-};
-
-struct Variable
-{
-	DataType type;
-
-	union TypeUnion
-	{
-		f64 vf64;
-		f32 vf32;
-		s64 vs64;
-		s32 vs32;
-		s16 vs16;
-		bool vb32;
-		StringReference vstr;
-	};
-};
-
-//! Typed variable reference, which can be obtained as a parameter in 'f' when
-//! calling VM::hell, assuming ResolveVariableReferences is true.
-template<class T>
-struct VariableReference
-{
-	using value_type = T;
-	InstType inst_type;
-	VM& vm;
-
-	T pop()
-	{
-		if (inst_type == InstType::stack_top_or_global)
-		{
-			return {};
-		}
-
-		return {};
-	}
-};
-
-struct Instance
-{
-	std::unordered_map<std::int32_t, Variable> variables;
-};
-
-struct LocalFrame
-{
-	std::unordered_map<std::int32_t, Variable> locals;
-};
-
 class VM
 {
-	Form& _form;
+	Form& form;
 
-	std::vector<char> stack;
-
-	template<class T>
-	T pop_raw();
-
-	template<class T>
-	void push_raw(const T& value)
-	{
-		stack.resize(stack.size() + sizeof(T));
-		std::memcpy(stack.data() + stack.size() - sizeof(T), &value, sizeof(T));
-	}
-
-	std::unordered_map<std::int32_t, Variable> globals;
-	std::unordered_map<InstId, Instance> instances;
-	std::stack<LocalFrame> frame_stack;
+	MainStack stack;
+	FrameStack frames;
+	ContextStack context;
 
 public:
-	VM(Form& form) :
-		_form{form}
+	VM(Form& p_form) :
+		form{p_form}
 	{}
-
-	//! Pop a value from the stack, if applicable. When fetching a value from
-	//! outside the stack, the data will not be popped, just read.
-	//! For instance, with VariableReference, if inst_type == InstType::Global
-	//! then pop() will only read the variable.
-	//! If inst_type == stack_top_or_global then the variable *will* be popped
-	//! from the stack.
-	template<class T>
-	T pop()
-	{
-		return pop_raw<T>();
-	}
-
-	template<class T>
-	void push(const T& value)
-	{
-		fmt::print("Push value {}\n", value);
-		push(value);
-	}
 
 	// Worry not, this is not meant to be readable!
 	//! Does some lame shit so it can call 'f' with all Left combinations of VM
@@ -170,16 +84,5 @@ public:
 
 	void execute(const Script& script);
 };
-
-template<class T>
-T VM::pop_raw()
-{
-	// TODO: when debug_mode is set, do sanity checks
-	char* data = stack.data() + stack.size() - sizeof(T);
-
-	T ret;
-	std::memcpy(&ret, data, sizeof(T));
-	return ret;
-}
 
 #endif // VM_HPP

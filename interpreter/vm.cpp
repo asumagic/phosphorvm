@@ -6,7 +6,7 @@
 #include <type_traits>
 
 #define BINOP_ARITH(name, op) case Instr:: name : binop_arithmetic([&](auto a, auto b) { return a op b; }); break;
-
+/*
 void fail_impossible()
 {
 	if constexpr (debug_mode)
@@ -53,10 +53,10 @@ constexpr bool is_arith_like()
 {
 	return (is_arithmetic_convertible<Ts>() && ...);
 }
-
+*/
 void VM::execute(const Script& script)
 {
-	const Block* block = script.data.data();
+/*	const Block* block = script.data.data();
 	const Block* end_block = block + script.data.size();
 
 	auto decode_type_pair = [&] {
@@ -146,8 +146,9 @@ void VM::execute(const Script& script)
 
 		//case Instr::oppushcst: break;
 
-		case Instr::oppushloc:
-		case Instr::oppushglb:
+		//case Instr::oppushloc:
+		//case Instr::oppushglb:
+
 		case Instr::oppushspc:
 			break;
 
@@ -160,5 +161,5 @@ void VM::execute(const Script& script)
 		}
 
 		++block;
-	}
+	}*/
 }
