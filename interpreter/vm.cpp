@@ -34,24 +34,6 @@ void VM::execute(const Script& script)
 		return *block >> 24;
 	};
 
-	auto peek_data_type = [&](InstType inst_type) {
-		switch (inst_type)
-		{
-		case InstType::local: {
-			auto reference = *block;
-			return frames.top().locals[reference & 0x00FFFFFF].type;
-		}
-
-		default:
-			throw std::runtime_error{
-				fmt::format(
-					"Unhandled variable instance type for peek '{}'",
-					u8(inst_type)
-				)
-			};
-		}
-	};
-
 	while (block != end_block)
 	{
 		auto opcode = decode_opcode();
@@ -114,6 +96,7 @@ void VM::execute(const Script& script)
 		//case Instr::oppushglb:
 
 		case Instr::oppushspc:
+			push_special(SpecialVar(*(++block) & 0x00FFFFFF));
 			break;
 
 		// case Instr::opcall: // TODO
@@ -125,5 +108,31 @@ void VM::execute(const Script& script)
 		}
 
 		++block;
+	}
+}
+
+void VM::push_special(SpecialVar var)
+{
+	// argumentn
+	if (unsigned(var) != 0 && unsigned(var) <= 17)
+	{
+		stack.push_raw(
+			&stack.raw[frames.top().stack_offset - Variable::stack_variable_size * unsigned(var)],
+			Variable::stack_variable_size
+		);
+
+		return;
+	}
+}
+
+VarType VM::pop_variable_var_type(InstType inst_type)
+{
+	switch (inst_type)
+	{
+	case InstType::stack_top_or_global:
+		return stack.pop<VarType>();
+
+	default:
+		throw std::runtime_error{"Unhandled variable type"};
 	}
 }

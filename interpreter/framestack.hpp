@@ -9,7 +9,7 @@ class FrameStack
 	std::size_t offset = 0;
 
 public:
-	std::array<Frame, max_call_depth> frames = {};
+	std::array<Frame, max_call_depth> frames;
 
 	Frame& push();
 	void pop();

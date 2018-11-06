@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../config.hpp"
+#include "../../bytecode/enums.hpp"
 #include "../../bytecode/types.hpp"
 #include "../gmreader.hpp"
 #include "../except.hpp"

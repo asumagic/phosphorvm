@@ -86,5 +86,9 @@ public:
 		}
 	}
 
+	void push_special(SpecialVar var);
+
+	VarType pop_variable_var_type(InstType inst_type);
+
 	void execute(const Script& script);
 };

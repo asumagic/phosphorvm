@@ -1,5 +1,7 @@
 #pragma once
 
+#include "types.hpp"
+
 // TODO: might be UB to do Instr(somevalue) when somevalue is not a legal value
 // of the enum. Clang emits a warning in disasm's switch because of the default
 // enum case when all enum cases are covered. Applies to the other enums too.
@@ -16,7 +18,7 @@ enum class DataType
 	i16 = 0xF
 };
 
-enum class InstType
+enum class InstType : s32
 {
 	stack_top_or_global = 0,
 	self = -1,
@@ -28,7 +30,7 @@ enum class InstType
 	local = -7
 };
 
-enum class VarType
+enum class VarType : u8
 {
 	array = 0x00,
 	stack_top = 0x80,
@@ -46,9 +48,14 @@ enum class CompFunc
 	gt
 };
 
+// Warning: SpecialVar lookup using string keys can be performed using
+// "bytecode/names.hpp", make sure you keep both in-sync!
 enum class SpecialVar
 {
-	argument0,
+	argument_count = 0,
+
+	// Arguments should always begin at 1; VM::push_special relies on it
+	argument0 = 1,
 	argument1,
 	argument2,
 	argument3,

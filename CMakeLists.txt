@@ -3,8 +3,10 @@ cmake_minimum_required(VERSION 2.8)
 project(phosphorvm)
 add_executable(${PROJECT_NAME}
 	"bytecode/disasm.cpp"
+	"bytecode/names.cpp"
 	"interpreter/builtins/debug.cpp"
 	"interpreter/vm.cpp"
+	"unpack/chunk/form.cpp"
 	"unpack/mmap.cpp"
 
 	"main.cpp"

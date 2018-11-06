@@ -27,6 +27,9 @@ struct Variable
 		bool vb32;
 		StringReference vstr;
 	};
+
+	constexpr static std::size_t stack_variable_size =
+		sizeof(InstType) + sizeof(VarType) + sizeof(s64);
 };
 
 template<class T>

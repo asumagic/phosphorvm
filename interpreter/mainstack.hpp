@@ -16,6 +16,8 @@ struct MainStack
 
 	template<class T>
 	void push(const T& value);
+
+	void push_raw(const void* source, std::size_t bytes);
 };
 
 template<class T>
@@ -41,8 +43,7 @@ void MainStack::push(const T& value)
 {
 	if constexpr (std::is_fundamental_v<T>)
 	{
-		std::memcpy(&raw[offset], &value, sizeof(T));
-		offset += sizeof(T);
+		push_raw(&value, sizeof(T));
 	}
 	else
 	{
@@ -50,4 +51,10 @@ void MainStack::push(const T& value)
 			"Unimplemented MainStack::push for current type"
 		};
 	}
+}
+
+inline void MainStack::push_raw(const void* source, std::size_t bytes)
+{
+	std::memcpy(&raw[offset], source, bytes);
+	offset += bytes;
 }
