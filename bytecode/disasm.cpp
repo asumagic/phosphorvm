@@ -193,10 +193,30 @@ void Disassembler::operator()(const Script& script)
 		case Instr::oppushloc:  generic_push("pushloc", t1); break;
 		case Instr::oppushglb:  generic_push("pushglb", t1); break;
 
-		case Instr::oppushspc:
+		case Instr::oppushspc: {
 			mnemonic = "pushspc";
-			params = push_param(t1);
-			break;
+			params = "<bad>";
+
+			auto reference_block = *(block_ptr++);
+
+			auto& defs = _form.vari.definitions;
+			auto it = std::find_if(defs.begin(), defs.end(), [&](auto& def) {
+				return (reference_block & 0x00FFFFFF) == s32(def.special_var);
+			});
+
+			if (it != defs.end())
+			{
+				params = it->name;
+			}
+			else
+			{
+				// HACK: move back to the older block_ptr then read it as a
+				// regular variable name if reading the special var fails
+
+				--block_ptr;
+				params = fmt::format("<unimpl:{}>", push_param(t1));
+			}
+		} break;
 
 		case Instr::oppushi16: {
 			mnemonic = "push.i16";
