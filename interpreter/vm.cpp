@@ -99,6 +99,10 @@ void VM::execute(const Script& script)
 			push_special(SpecialVar(*(++block) & 0x00FFFFFF));
 			break;
 
+		case Instr::oppushi16:
+			stack.push<s16>(*block & 0xFFFF);
+			break;
+
 		// case Instr::opcall: // TODO
 		// case Instr::opbreak: // TODO
 
