@@ -17,6 +17,3 @@ using f64 = double;
 
 using Block = u32;
 using InstId = s16;
-
-static_assert(sizeof(float) == 4, "Expected float to be 32-bit fp!");
-static_assert(sizeof(double) == 8, "Expected double to be 64-bit fp!");
