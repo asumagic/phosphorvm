@@ -46,6 +46,10 @@ void VM::execute(const Script& script)
 			fmt::join(std::vector(&stack.raw[0], &stack.raw[stack.offset]), " ")
 		);
 
+		// TODO: implement dispatcher to pop variables while taking care of
+		// properly reading out variables. Should split cases:
+		// {var, notvar}, {notvar, var}, {var, var}, {notvar, notvar}.
+
 		auto binop = [&, t1=t1, t2=t2](auto handler) {
 			hell([&](auto a, auto b) {
 				handler(stack.pop<decltype(a)>(), stack.pop<decltype(b)>());
