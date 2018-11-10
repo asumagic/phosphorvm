@@ -6,7 +6,11 @@
 #include <type_traits>
 #include "vmtraits.hpp"
 
-#define BINOP_ARITH(name, op) case Instr::name : binop_arithmetic([&](auto a, auto b) { return a op b; }); break;
+#define BINOP_ARITH(name, op) case Instr::name : \
+	binop_arithmetic([&](auto a, auto b) { \
+		return vm_value(a) op vm_value(b); \
+	}); \
+	break;
 
 void fail_impossible()
 {
@@ -46,18 +50,42 @@ void VM::execute(const Script& script)
 			fmt::join(std::vector(&stack.raw[0], &stack.raw[stack.offset]), " ")
 		);
 
-		// TODO: implement dispatcher to pop variables while taking care of
-		// properly reading out variables. Should split cases:
-		// {var, notvar}, {notvar, var}, {var, var}, {notvar, notvar}.
+		auto vm_value = [&](auto v) {
+			if constexpr (is_var<decltype(v)>())
+			{
+				return pop_variable(v);
+			}
+			else
+			{
+				// NB: This HAS to be in an else branch rather than just
+				// outside of the 'if' because otherwise the return type cannot
+				// be deduced because of the two returns. Eat that, clang-tidy!
+				return v;
+			}
+		};
 
-		auto binop = [&, t1=t1, t2=t2](auto handler) {
-			hell([&](auto a, auto b) {
-				handler(stack.pop<decltype(a)>(), stack.pop<decltype(b)>());
-			}, std::array{t1, t2});
+		auto pop_parameter = [&](auto handler, DataType type) {
+			if (type == DataType::var)
+			{
+				auto type = stack.pop<InstType>();
+				return dispatcher([&](auto v) {
+					handler(stack.pop<VariableReference<decltype(v)>>());
+				}, std::array{pop_variable_var_type(type)});
+			}
+
+			return dispatcher(handler, std::array{type});
+		};
+
+		auto stack_dispatch_2 = [&, t1=t1, t2=t2](auto handler) {
+			pop_parameter([&](auto a) {
+				pop_parameter([&](auto b) {
+					handler(a, b);
+				}, t2);
+			}, t1);
 		};
 
 		auto binop_arithmetic = [&](auto handler) {
-			binop([&](auto a, auto b) {
+			stack_dispatch_2([&](auto a, auto b) {
 				if constexpr (is_arith_like<decltype(a), decltype(b)>())
 				{
 					stack.push(handler(a, b));
@@ -81,7 +109,30 @@ void VM::execute(const Script& script)
 		// case Instr::opnot: // TODO
 		// case Instr::opshl: // TODO
 		// case Instr::opshr: // TODO
-		// case Instr::opcmp: // TODO
+
+		case Instr::opcmp: {
+			auto func = CompFunc((*block >> 8) & 0xFF);
+			stack_dispatch_2([&](auto a, auto b) {
+				stack.push<bool>([](auto func, auto a, auto b) -> bool {
+					if constexpr (is_arith_like<decltype(a), decltype(b)>())
+					{
+						switch (func)
+						{
+						case CompFunc::lt:  return a <  b;
+						case CompFunc::lte: return a <= b;
+						case CompFunc::eq:  return a == b;
+						case CompFunc::neq: return a != b;
+						case CompFunc::gte: return a >= b;
+						case CompFunc::gt:  return a >  b;
+						default: fail_impossible();
+						}
+					}
+
+					fail_impossible();
+				}(func, vm_value(a), vm_value(b)));
+			});
+		} break;
+
 		// case Instr::oppop: // TODO
 		// case Instr::oppushi16: // TODO
 		// case Instr::opdup: // TODO
@@ -133,12 +184,12 @@ void VM::push_special(SpecialVar var)
 	}
 }
 
-VarType VM::pop_variable_var_type(InstType inst_type)
+DataType VM::pop_variable_var_type(InstType inst_type)
 {
 	switch (inst_type)
 	{
 	case InstType::stack_top_or_global:
-		return stack.pop<VarType>();
+		return stack.pop<DataType>();
 
 	default:
 		throw std::runtime_error{"Unhandled variable type"};

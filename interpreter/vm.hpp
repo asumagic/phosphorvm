@@ -15,8 +15,8 @@
 // sanity for good. This is the worst pile of garbage hacks since the creation
 // of the Win32 API.
 
-#define HELL(appended_type) \
-	hell< \
+#define DISPATCH_NEXT(appended_type) \
+	dispatcher< \
 		Left - 1, \
 		F, \
 		Ts..., \
@@ -30,6 +30,7 @@ template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 //! Call to designate a normally unreachable spot.
 //! With debug_mode set, throws an exception. Otherwise, uses
 //! __builtin_unreachble (effectively becoming an optimization).
+[[noreturn]]
 void fail_impossible();
 
 class VM
@@ -56,11 +57,10 @@ public:
 	// than invoking f<Ts...>(); because you can't do that with C++20 templated
 	// lambdas.
 	// TODO: deduce Left from std::array size
-	// TODO: maybe split hell in two (because of ResolveVariableReferences)
 	// TODO: make this usable to implement builtins sanely
 	// TODO: this is probably awful in terms of compile times, improve that
 	template<std::size_t Left, class F, class... Ts>
-	void hell(F f, std::array<DataType, Left> types)
+	void dispatcher(F f, std::array<DataType, Left> types)
 	{
 		if constexpr (Left == 0)
 		{
@@ -74,13 +74,13 @@ public:
 
 			switch(types[0])
 			{
-			case DataType::f64: HELL(f64) break;
-			case DataType::f32: HELL(f32) break;
-			case DataType::i64: HELL(s64) break;
-			case DataType::i32: HELL(s32) break;
-			case DataType::i16: HELL(s16) break;
-			case DataType::str: HELL(StringReference) break;
-			case DataType::var: HELL(VariablePlaceholder) break;
+			case DataType::f64: DISPATCH_NEXT(f64) break;
+			case DataType::f32: DISPATCH_NEXT(f32) break;
+			case DataType::i64: DISPATCH_NEXT(s64) break;
+			case DataType::i32: DISPATCH_NEXT(s32) break;
+			case DataType::i16: DISPATCH_NEXT(s16) break;
+			case DataType::str: DISPATCH_NEXT(StringReference) break;
+			case DataType::var: DISPATCH_NEXT(VariablePlaceholder) break;
 			default: break;
 			}
 		}
@@ -88,7 +88,14 @@ public:
 
 	void push_special(SpecialVar var);
 
-	VarType pop_variable_var_type(InstType inst_type);
+	DataType pop_variable_var_type(InstType inst_type);
+
+	template<class T>
+	T pop_variable(VariableReference<T>& variable)
+	{
+		// TODO
+		return {};
+	}
 
 	void execute(const Script& script);
 };

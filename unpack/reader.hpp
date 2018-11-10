@@ -78,7 +78,7 @@ struct Reader
 template<class T>
 Reader& operator>>(Reader& reader, T& target)
 {
-	if constexpr (std::is_fundamental_v<T>)
+	if constexpr (std::is_arithmetic_v<T>)
 	{
 		reader.sanitize_read(sizeof(T));
 		std::memcpy(&target, reader.pos, sizeof(T));

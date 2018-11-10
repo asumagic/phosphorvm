@@ -1,5 +1,5 @@
 #include "mmap.hpp"
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
 #include <fmt/core.h>
 #include <sys/mman.h>
@@ -9,7 +9,7 @@
 ReadMappedFile::ReadMappedFile(const std::string& name)
 {
 	_file = fopen(name.c_str(), "r");
-	if (!_file)
+	if (_file == nullptr)
 	{
 		throw std::runtime_error{fmt::format("File '{}' could not be opened: {}", name, strerror(errno))};
 	}

@@ -23,7 +23,7 @@ struct MainStack
 template<class T>
 T MainStack::pop()
 {
-	if constexpr (std::is_fundamental_v<T>)
+	if constexpr (std::is_arithmetic_v<T>)
 	{
 		offset -= sizeof(T);
 
@@ -41,7 +41,7 @@ T MainStack::pop()
 template<class T>
 void MainStack::push(const T& value)
 {
-	if constexpr (std::is_fundamental_v<T>)
+	if constexpr (std::is_arithmetic_v<T>)
 	{
 		push_raw(&value, sizeof(T));
 	}
