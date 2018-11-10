@@ -47,7 +47,7 @@ void VM::execute(const Script& script)
 	{
 		auto opcode = *block >> 24;
 		auto t1 = DataType((*block >> 16) & 0xF);
-		auto t2 = DataType((*block >> 12) & 0xF);
+		auto t2 = DataType((*block >> 20) & 0xF);
 
 		if (debug_mode)
 		{
