@@ -52,10 +52,8 @@ enum class CompFunc
 // "bytecode/names.hpp", make sure you keep both in-sync!
 enum class SpecialVar
 {
-	argument_count = 0,
-
-	// Arguments should always begin at 1; VM::push_special relies on it
-	argument0 = 1,
+	// Arguments should always begin at 0; VM::push_special relies on it
+	argument0 = 0,
 	argument1,
 	argument2,
 	argument3,
@@ -71,6 +69,8 @@ enum class SpecialVar
 	argument13,
 	argument14,
 	argument15,
+
+	argument_count,
 
 	//! Current instance id
 	id,

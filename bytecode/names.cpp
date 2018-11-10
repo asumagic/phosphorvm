@@ -1,8 +1,6 @@
 #include "names.hpp"
 
 const std::unordered_map<std::string_view, SpecialVar> special_var_names {
-	{"argument_count",      SpecialVar::argument_count},
-
 	{"argument0",           SpecialVar::argument0},
 	{"argument1",           SpecialVar::argument1},
 	{"argument2",           SpecialVar::argument2},
@@ -19,6 +17,8 @@ const std::unordered_map<std::string_view, SpecialVar> special_var_names {
 	{"argument13",          SpecialVar::argument13},
 	{"argument14",          SpecialVar::argument14},
 	{"argument15",          SpecialVar::argument15},
+
+	{"argument_count",      SpecialVar::argument_count},
 
 	{"id",                  SpecialVar::id}
 };

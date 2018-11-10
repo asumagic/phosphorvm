@@ -19,7 +19,7 @@ void Form::process_variables()
 		auto it = special_var_names.find(var.name);
 		if (it != special_var_names.end())
 		{
-			var.special_var = SpecialVar(std::distance(special_var_names.begin(), it));
+			var.special_var = it->second;
 		}
 	}
 }

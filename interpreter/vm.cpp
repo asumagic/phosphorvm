@@ -249,7 +249,7 @@ void VM::execute(const Script& script)
 void VM::push_special(SpecialVar var)
 {
 	// argumentn
-	if (unsigned(var) != 0 && unsigned(var) <= 17)
+	if (unsigned(var) <= 16)
 	{
 		stack.push_raw(
 			&stack.raw[frames.top().stack_offset - Variable::stack_variable_size * unsigned(var)],
