@@ -170,7 +170,9 @@ void VM::execute(const Script& script)
 			auto func = CompFunc((*block >> 8) & 0xFF);
 			stack_dispatch_2([&](auto a, auto b) {
 				stack.push<bool>([](auto func, auto a, auto b) -> bool {
-					if constexpr (is_arith_like<decltype(a), decltype(b)>())
+					(void)func;
+
+					if constexpr (are_arithmetic<decltype(a), decltype(b)>())
 					{
 						switch (func)
 						{
