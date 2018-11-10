@@ -143,6 +143,8 @@ void VM::execute(const Script& script)
 					{
 						auto padding_bytes = sizeof(s64) - sizeof(src);
 
+						stack.push(src);
+
 						// TODO: check if this is fast enough. might be ok to
 						// leave padding uninitialized?
 						for (std::size_t i = 0; i < padding_bytes; ++i)
