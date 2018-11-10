@@ -26,7 +26,7 @@ enum class InstType : s32
 	all = -3,
 	noone = -4,
 	global = -5,
-	// TODO: figure out -6
+	special = -6,
 	local = -7
 };
 
