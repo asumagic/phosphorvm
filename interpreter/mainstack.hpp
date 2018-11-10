@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <fmt/color.h>
 #include <fmt/core.h>
+#include "../util/nametype.hpp"
 #include "../config.hpp"
 #include "vmtraits.hpp"
 
@@ -36,7 +37,13 @@ T MainStack::pop()
 
 		if constexpr (debug_mode)
 		{
-			fmt::print(fmt::color::dark_magenta, ">>> Popping {}\n", ret);
+			fmt::print(
+				fmt::color::dark_magenta,
+				">>> Popping {:20} <T = {:15}, sizeof(T) = {}>\n",
+				ret,
+				type_name<T>(),
+				sizeof(T)
+			);
 		}
 
 		return ret;
@@ -54,7 +61,13 @@ void MainStack::push(const T& value)
 	{
 		if constexpr (debug_mode)
 		{
-			fmt::print(fmt::color::maroon, "<<< Pushing {}\n", value);
+			fmt::print(
+				fmt::color::maroon,
+				"<<< Pushing {:20} <T = {:15}, sizeof(T) = {}>\n",
+				value,
+				type_name<T>(),
+				sizeof(T)
+			);
 		}
 
 		push_raw(&value, sizeof(T));
