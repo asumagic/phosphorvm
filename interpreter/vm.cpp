@@ -181,7 +181,7 @@ void VM::execute(const Script& script)
 			break;
 
 		case Instr::oppushi16:
-			stack.push<s16>(*block & 0xFFFF);
+			stack.push<s32>(s16(*block & 0xFFFF));
 			break;
 
 		case Instr::opcall: {
