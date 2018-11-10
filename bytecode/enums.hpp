@@ -6,7 +6,7 @@
 // of the enum. Clang emits a warning in disasm's switch because of the default
 // enum case when all enum cases are covered. Applies to the other enums too.
 
-enum class DataType
+enum class DataType : s8
 {
 	f64 = 0x0,
 	f32,
