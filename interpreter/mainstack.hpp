@@ -3,6 +3,8 @@
 #include <array>
 #include <cstring>
 #include <stdexcept>
+#include <fmt/color.h>
+#include <fmt/core.h>
 #include "../config.hpp"
 #include "vmtraits.hpp"
 
@@ -32,6 +34,11 @@ T MainStack::pop()
 		T ret;
 		std::memcpy(&ret, &raw[offset], sizeof(T));
 
+		if constexpr (debug_mode)
+		{
+			fmt::print(fmt::color::dark_magenta, ">>> Popping {}\n", ret);
+		}
+
 		return ret;
 	}
 
@@ -45,6 +52,11 @@ void MainStack::push(const T& value)
 {
 	if constexpr (std::is_arithmetic_v<T>)
 	{
+		if constexpr (debug_mode)
+		{
+			fmt::print(fmt::color::maroon, "<<< Pushing {}\n", value);
+		}
+
 		push_raw(&value, sizeof(T));
 	}
 	else
