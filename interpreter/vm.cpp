@@ -305,7 +305,7 @@ DataType VM::pop_variable_var_type(InstType inst_type)
 	switch (inst_type)
 	{
 	case InstType::stack_top_or_global:
-		return DataType(stack.pop<s8>());
+		return stack.pop<DataType>();
 
 	default:
 		throw std::runtime_error{"Unhandled variable type"};
