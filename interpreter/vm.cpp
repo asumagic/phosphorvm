@@ -93,6 +93,12 @@ void VM::execute(const Script& script)
 			});
 		};
 
+		auto branch = [&] {
+			auto offset = *block & 0xFFFFFF;
+			// TODO: make this nicer somehow? skipping block++ on the end
+			block += offset;
+		};
+
 		switch (Instr(opcode))
 		{
 		// TODO: check if multiplying strings with int is actually possible
@@ -139,9 +145,11 @@ void VM::execute(const Script& script)
 		// case Instr::opret: // TODO
 		// case Instr::opexit: // TODO
 		// case Instr::oppopz: // TODO
-		// case Instr::opb: // TODO
-		// case Instr::opbt: // TODO
-		// case Instr::opbf: // TODO
+
+		case Instr::opb: branch();
+		case Instr::opbt: if (stack.pop<bool>()) { branch(); }
+		case Instr::opbf: if (stack.pop<bool>()) { branch(); }
+
 		// case Instr::oppushenv: // TODO
 		// case Instr::oppopenv: // TODO
 
