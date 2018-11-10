@@ -18,6 +18,8 @@ struct MainStack
 	void push(const T& value);
 
 	void push_raw(const void* source, std::size_t bytes);
+
+	void skip(std::size_t count);
 };
 
 template<class T>
@@ -57,4 +59,9 @@ inline void MainStack::push_raw(const void* source, std::size_t bytes)
 {
 	std::memcpy(&raw[offset], source, bytes);
 	offset += bytes;
+}
+
+inline void MainStack::skip(std::size_t count)
+{
+	offset -= count;
 }
