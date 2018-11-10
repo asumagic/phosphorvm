@@ -24,7 +24,7 @@ void fail_impossible()
 
 void VM::execute(const Script& script)
 {
-	if (debug_mode)
+	if constexpr (debug_mode)
 	{
 		if (frames.offset > 32)
 		{
@@ -49,7 +49,7 @@ void VM::execute(const Script& script)
 		auto t1 = DataType((*block >> 16) & 0xF);
 		auto t2 = DataType((*block >> 20) & 0xF);
 
-		if (debug_mode)
+		if constexpr (debug_mode)
 		{
 			Frame& frame = frames.top();
 
