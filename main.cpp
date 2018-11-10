@@ -26,7 +26,7 @@ int main()
 		{
 			disasm(script);
 
-			if (script.name == "gml_Script_script_fibo")
+			if (script.name == "gml_Object_object0_Draw_0")
 			{
 				VM vm{main_form};
 				vm.execute(script);
