@@ -194,7 +194,28 @@ void VM::execute(const Script& script)
 		// case Instr::oppop: // TODO
 		// case Instr::oppushi16: // TODO
 		// case Instr::opdup: // TODO
-		// case Instr::opret: // TODO
+
+		case Instr::opret: {
+			std::move(
+				stack.raw.begin() + stack.offset - Variable::stack_variable_size,
+				stack.raw.begin() + stack.offset,
+				stack.raw.begin() + frames.top().stack_offset
+			);
+
+			stack.offset = frames.top().stack_offset + Variable::stack_variable_size;
+
+			if constexpr (debug_mode)
+			{
+				fmt::print(
+					fmt::color::blue_violet,
+					"Returning from {}\n\n",
+					script.name
+				);
+			}
+
+			return;
+		} break;
+
 		// case Instr::opexit: // TODO
 		// case Instr::oppopz: // TODO
 
