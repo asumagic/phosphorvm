@@ -85,10 +85,12 @@ void VM::execute(const Script& script)
 		auto pop_parameter = [&](auto handler, DataType type) {
 			if (type == DataType::var)
 			{
-				auto type = stack.pop<InstType>();
+				auto inst_type = InstType(stack.pop<s8>());
+				auto var_type = pop_variable_var_type(inst_type);
 				return dispatcher([&](auto v) {
-					handler(stack.pop<VariableReference<decltype(v)>>());
-				}, std::array{pop_variable_var_type(type)});
+					VariableReference<decltype(v)> var{inst_type, var_type};
+					return handler(pop_variable(var));
+				}, std::array{var_type});
 			}
 
 			return dispatcher(handler, std::array{type});
