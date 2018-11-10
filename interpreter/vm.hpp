@@ -46,17 +46,9 @@ public:
 		form{p_form}
 	{}
 
-	// Worry not, this is not meant to be readable!
-	//! Does some lame shit so it can call 'f' with all Left combinations of VM
-	//! types so it can dispatch the 'types' passed to it.
-	//! It builds up the 'Ts' parameter packs over subsequent calls.
-	// No idea if it even compiles to remotely efficient code.
-	// If it's inlined properly it should be fairly fast.
-	// There's another layer of dumb crap so I can just abuse lambdas in
-	// VM::execute. It passes a default-initialized list of the types rather
-	// than invoking f<Ts...>(); because you can't do that with C++20 templated
-	// lambdas.
-	// TODO: deduce Left from std::array size
+	//! Calls a function 'f' with parameter types corresponding to the given
+	//! 'types'. e.g. dispatcher(f, std::array{DataType::f32, DataType::f64})
+	//! will call f(0.0f, 0.0);
 	// TODO: make this usable to implement builtins sanely
 	// TODO: this is probably awful in terms of compile times, improve that
 	template<std::size_t Left, class F, class... Ts>
