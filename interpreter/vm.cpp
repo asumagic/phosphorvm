@@ -24,31 +24,49 @@ void fail_impossible()
 
 void VM::execute(const Script& script)
 {
+	if (debug_mode)
+	{
+		if (frames.offset > 32)
+		{
+			fmt::print("Reached debug max call depth size\n");
+			exit(0);
+		}
+
+		fmt::print(
+			fmt::color::red,
+			"\nExecuting function '{}' (call depth {})\n",
+			script.name,
+			frames.offset + 1
+		);
+	}
+
 	const Block* block = script.data.data();
 	const Block* end_block = block + script.data.size();
 
-	auto decode_type_pair = [&] {
-		return std::pair{
-			DataType((*block >> 16) & 0xF),
-			DataType((*block >> 12) & 0xF)
-		};
-	};
-
-	auto decode_opcode = [&] {
-		return *block >> 24;
-	};
-
 	while (block != end_block)
 	{
-		auto opcode = decode_opcode();
-		auto [t1, t2] = decode_type_pair();
+		auto opcode = *block >> 24;
+		auto t1 = DataType((*block >> 16) & 0xF);
+		auto t2 = DataType((*block >> 12) & 0xF);
 
-		fmt::print(
-			"Execution trace: at ${:08x} opcode ${:02x}. stack data: {:02x}\n",
-			std::distance(script.data.data(), block),
-			opcode,
-			fmt::join(std::vector(&stack.raw[0], &stack.raw[stack.offset]), " ")
-		);
+		if (debug_mode)
+		{
+			Frame& frame = frames.top();
+
+			fmt::print(
+				fmt::color::orange,
+				"Execution trace: ${:08x}: ${:02x}.",
+				std::distance(script.data.data(), block),
+				opcode
+			);
+
+			fmt::print(
+				fmt::color::gray,
+				" Stack frame data ({:5} bytes): {:02x}\n",
+				stack.offset - frame.stack_offset,
+				fmt::join(std::vector(&stack.raw[frame.stack_offset], &stack.raw[stack.offset]), " ")
+			);
+		}
 
 		auto vm_value = [&](auto v) {
 			if constexpr (is_var<decltype(v)>())
@@ -76,7 +94,7 @@ void VM::execute(const Script& script)
 			return dispatcher(handler, std::array{type});
 		};
 
-		auto stack_dispatch_2 = [&, t1=t1, t2=t2](auto handler) {
+		auto stack_dispatch_2 = [&](auto handler) {
 			pop_parameter([&](auto a) {
 				pop_parameter([&](auto b) {
 					handler(a, b);
@@ -166,7 +184,27 @@ void VM::execute(const Script& script)
 			stack.push<s16>(*block & 0xFFFF);
 			break;
 
-		// case Instr::opcall: // TODO
+		case Instr::opcall: {
+			Frame& frame = frames.push();
+			auto return_type = DataType((*block >> 16) & 0xFF);
+			auto argument_count = *block & 0xFFFF;
+			frame.stack_offset = stack.offset - argument_count * Variable::stack_variable_size;
+
+			// TODO: reduce indirection here
+			const auto& func = form.func.definitions[*(++block)];
+
+			if (func.is_builtin)
+			{
+				throw std::runtime_error{"Unhandled call to builtin"};
+			}
+			else
+			{
+				execute(*func.associated_script);
+			}
+
+			frames.pop();
+		} break;
+
 		// case Instr::opbreak: // TODO
 
 		default:
