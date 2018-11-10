@@ -5,6 +5,7 @@
 #include <utility>
 #include <type_traits>
 #include "vmtraits.hpp"
+#include "../util/nametype.hpp"
 
 #define BINOP_ARITH(name, op) case Instr::name : \
 	binop_arithmetic([&](auto a, auto b) { \
@@ -85,20 +86,34 @@ void VM::execute(const Script& script)
 		auto pop_parameter = [&](auto handler, DataType type) {
 			if (type == DataType::var)
 			{
-				auto inst_type = InstType(stack.pop<s8>());
-				auto var_type = pop_variable_var_type(inst_type);
+				auto inst_type = stack.pop<InstType>();
+				auto data_type = pop_variable_var_type(inst_type);
 				return dispatcher([&](auto v) {
-					VariableReference<decltype(v)> var{inst_type, var_type};
+					VariableReference<decltype(v)> var{inst_type, data_type};
 					return handler(pop_variable(var));
-				}, std::array{var_type});
+				}, std::array{data_type});
 			}
 
-			return dispatcher(handler, std::array{type});
+			return dispatcher([&](auto v) {
+				handler(stack.pop<decltype(v)>());
+			}, std::array{type});
 		};
 
 		auto stack_dispatch_2 = [&](auto handler) {
 			pop_parameter([&](auto a) {
 				pop_parameter([&](auto b) {
+					if constexpr (debug_mode)
+					{
+						fmt::print(
+							fmt::color::yellow_green,
+							"    Types for popping instr: a = {} (from {}), b = {} (from {})\n",
+							type_name<decltype(a)>(),
+							unsigned(t1),
+							type_name<decltype(b)>(),
+							unsigned(t2)
+						);
+					}
+
 					handler(a, b);
 				}, t2);
 			}, t1);
@@ -135,8 +150,8 @@ void VM::execute(const Script& script)
 							stack.push<u8>(0);
 						}
 
-						stack.push(s32(t1));
-						stack.push(s8(InstType::stack_top_or_global));
+						stack.push(t1);
+						stack.push(InstType::stack_top_or_global);
 					}
 					else if constexpr (std::is_arithmetic_v<decltype(dst)>
 									&& is_arithmetic_convertible<decltype(src)>())

@@ -28,7 +28,7 @@ struct MainStack
 template<class T>
 T MainStack::pop()
 {
-	if constexpr (std::is_arithmetic_v<T>)
+	if constexpr (numeric_type<T>::value)
 	{
 		offset -= sizeof(T);
 
@@ -40,7 +40,7 @@ T MainStack::pop()
 			fmt::print(
 				fmt::color::dark_magenta,
 				">>> Popping {:20} <T = {:15}, sizeof(T) = {}>\n",
-				ret,
+				typename numeric_type<T>::type(ret),
 				type_name<T>(),
 				sizeof(T)
 			);
@@ -57,14 +57,14 @@ T MainStack::pop()
 template<class T>
 void MainStack::push(const T& value)
 {
-	if constexpr (std::is_arithmetic_v<T>)
+	if constexpr (numeric_type<T>::value)
 	{
 		if constexpr (debug_mode)
 		{
 			fmt::print(
 				fmt::color::maroon,
 				"<<< Pushing {:20} <T = {:15}, sizeof(T) = {}>\n",
-				value,
+				typename numeric_type<T>::type(value),
 				type_name<T>(),
 				sizeof(T)
 			);
