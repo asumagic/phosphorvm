@@ -243,7 +243,7 @@ void VM::execute(const Script& script)
 
 		default:
 			fmt::print(fmt::color::red, "Unhandled op ${:02x}\n", opcode);
-			return;
+			throw std::runtime_error{"Reached unhandled operation in VM"};
 		}
 
 		++block;
