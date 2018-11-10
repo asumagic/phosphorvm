@@ -116,7 +116,7 @@ void VM::execute(const Script& script)
 		auto branch = [&] {
 			auto offset = *block & 0xFFFFFF;
 			// TODO: make this nicer somehow? skipping block++ on the end
-			block += offset;
+			block += offset - 1;
 		};
 
 		switch (Instr(opcode))
