@@ -84,8 +84,17 @@ public:
 	template<class T>
 	T pop_variable(VariableReference<T>& variable)
 	{
-		// TODO
-		return {};
+		switch (variable.inst_type)
+		{
+		case InstType::stack_top_or_global:
+			// At this time the only part of the stack variable that is left is
+			// the actual value, *including padding*, which we have to care about!
+			stack.skip(sizeof(s64) - sizeof(T));
+			return stack.pop<T>();
+
+		default:
+			throw std::runtime_error{"Unimplemented pop_variable for T"};
+		}
 	}
 
 	void execute(const Script& script);
