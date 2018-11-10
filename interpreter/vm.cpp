@@ -34,7 +34,7 @@ void VM::execute(const Script& script)
 
 		fmt::print(
 			fmt::color::red,
-			"\nExecuting function '{}' (call depth {})\n",
+			"\nExecuting function '{}' (call depth {})",
 			script.name,
 			frames.offset + 1
 		);
@@ -55,7 +55,7 @@ void VM::execute(const Script& script)
 
 			fmt::print(
 				fmt::color::orange,
-				"Execution trace: ${:08x}: ${:02x}.",
+				"\nExecution trace: ${:08x}: ${:02x}.",
 				std::distance(script.data.data(), block),
 				opcode
 			);
