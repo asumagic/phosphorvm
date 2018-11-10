@@ -198,9 +198,9 @@ void VM::execute(const Script& script)
 		// case Instr::opexit: // TODO
 		// case Instr::oppopz: // TODO
 
-		case Instr::opb: branch();
-		case Instr::opbt: if (stack.pop<bool>()) { branch(); }
-		case Instr::opbf: if (stack.pop<bool>()) { branch(); }
+		case Instr::opb: branch(); break;
+		case Instr::opbt: if (stack.pop<bool>()) { branch(); } break;
+		case Instr::opbf: if (!stack.pop<bool>()) { branch(); } break;
 
 		// case Instr::oppushenv: // TODO
 		// case Instr::oppopenv: // TODO
