@@ -252,7 +252,7 @@ void VM::push_special(SpecialVar var)
 	if (unsigned(var) <= 16)
 	{
 		stack.push_raw(
-			&stack.raw[frames.top().stack_offset - Variable::stack_variable_size * unsigned(var)],
+			&stack.raw[frames.top().stack_offset + Variable::stack_variable_size * unsigned(var)],
 			Variable::stack_variable_size
 		);
 
