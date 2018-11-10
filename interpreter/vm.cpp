@@ -119,6 +119,36 @@ void VM::execute(const Script& script)
 
 		switch (Instr(opcode))
 		{
+		case Instr::opconv:
+			pop_parameter([&](auto src) {
+				dispatcher([&](auto dst) {
+					if constexpr (std::is_same_v<decltype(dst), VariablePlaceholder>)
+					{
+						auto padding_bytes = sizeof(s64) - sizeof(src);
+
+						// TODO: check if this is fast enough. might be ok to
+						// leave padding uninitialized?
+						for (std::size_t i = 0; i < padding_bytes; ++i)
+						{
+							stack.push<u8>(0);
+						}
+
+						stack.push(s32(t1));
+						stack.push(s8(InstType::stack_top_or_global));
+					}
+					else if constexpr (std::is_arithmetic_v<decltype(dst)>
+									&& is_arithmetic_convertible<decltype(src)>())
+					{
+						stack.push<decltype(dst)>(vm_value(src));
+					}
+					else
+					{
+						throw std::runtime_error{"Unimplemented conversion types"};
+					}
+				}, std::array{t2});
+			}, t1);
+			break;
+
 		// TODO: check if multiplying strings with int is actually possible
 		BINOP_ARITH(opmul, *)
 		BINOP_ARITH(opdiv, /)
