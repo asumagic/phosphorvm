@@ -24,6 +24,16 @@ void fail_impossible()
 	__builtin_unreachable();
 }
 
+void VM::print_stack_frame()
+{
+	fmt::print(
+		fmt::color::gray,
+		"Stack frame data ({:5} bytes): {:02x}\n",
+		stack.offset() - frames.top().stack_offset,
+		fmt::join(std::vector(&stack.raw[frames.top().stack_offset], &stack.raw[stack.offset()]), " ")
+	);
+}
+
 void VM::execute(const Script& script)
 {
 	if constexpr (debug_mode)
@@ -51,17 +61,12 @@ void VM::execute(const Script& script)
 
 			fmt::print(
 				fmt::color::orange,
-				"\nExecution trace: ${:08x}: ${:02x}.",
+				"\nExecution trace: ${:08x}: ${:02x}. ",
 				reader.offset(),
 				u8(opcode)
 			);
 
-			fmt::print(
-				fmt::color::gray,
-				" Stack frame data ({:5} bytes): {:02x}\n",
-				stack.offset() - frame.stack_offset,
-				fmt::join(std::vector(&stack.raw[frame.stack_offset], &stack.raw[stack.offset()]), " ")
-			);
+			print_stack_frame();
 		}
 
 		auto pop_parameter = [&](auto handler, DataType type) {

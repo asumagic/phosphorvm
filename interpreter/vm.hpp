@@ -66,6 +66,8 @@ public:
 	template<class T>
 	auto value(T& value);
 
+	void print_stack_frame();
+
 	void execute(const Script& script);
 };
 
