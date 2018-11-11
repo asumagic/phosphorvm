@@ -18,6 +18,12 @@ struct vm_value_value_type { using value_type = T; };
 template<template<class> class TT, class T>
 struct vm_value_value_type<TT<T>> { using value_type = typename TT<T>::value_type; };
 
+template<class T>
+constexpr bool is_var()
+{
+	return is_instantiation_of<T, VariableReference>();
+}
+
 // Defines type to the underlying type of an enum if T is an enum; T otherwise.
 template<class T>
 class numeric_type
@@ -44,10 +50,22 @@ public:
 };
 
 template<class T>
-constexpr bool is_var()
+class data_type_for
 {
-	return is_instantiation_of<T, VariableReference>();
-}
+	static constexpr auto value_deducer() noexcept
+	{
+		if constexpr (std::is_same_v<T, s16>) { return DataType::i16; }
+		if constexpr (std::is_same_v<T, s32>) { return DataType::i32; }
+		if constexpr (std::is_same_v<T, s64>) { return DataType::i64; }
+		if constexpr (std::is_same_v<T, f32>) { return DataType::f32; }
+		if constexpr (std::is_same_v<T, f64>) { return DataType::f64; }
+		if constexpr (std::is_same_v<T, StringReference>) { return DataType::str; }
+		if constexpr (is_var<T>() || std::is_same_v<T, VariablePlaceholder>) { return DataType::var; }
+	}
+
+public:
+	static constexpr DataType value = value_deducer();
+};
 
 template<class T>
 constexpr bool is_arithmetic_convertible()

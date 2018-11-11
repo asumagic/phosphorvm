@@ -69,22 +69,6 @@ void VM::execute(const Script& script)
 			);
 		}
 
-		auto push_variable = [&](auto src) {
-			auto padding_bytes = sizeof(s64) - sizeof(src);
-
-			stack.push(src);
-
-			// TODO: check if this is fast enough. might be ok to
-			// leave padding uninitialized?
-			for (std::size_t i = 0; i < padding_bytes; ++i)
-			{
-				stack.push<u8>(0);
-			}
-
-			stack.push(t1);
-			stack.push(InstType::stack_top_or_global);
-		};
-
 		auto pop_parameter = [&](auto handler, DataType type) {
 			if (type == DataType::var)
 			{
@@ -135,7 +119,7 @@ void VM::execute(const Script& script)
 							);
 						}
 
-						push_variable(handler(value(a), value(b)));
+						push_stack_variable(handler(value(a), value(b)));
 					}
 					else
 					{
@@ -177,7 +161,7 @@ void VM::execute(const Script& script)
 				dispatcher([&](auto dst) {
 					if constexpr (std::is_same_v<decltype(dst), VariablePlaceholder>)
 					{
-						push_variable(src);
+						push_stack_variable(src);
 					}
 					else if constexpr (std::is_arithmetic_v<decltype(dst)>
 									&& is_arithmetic_convertible<decltype(src)>())

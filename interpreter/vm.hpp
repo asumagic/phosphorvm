@@ -55,6 +55,9 @@ public:
 
 	void push_special(SpecialVar var);
 
+	template<class T>
+	void push_stack_variable(const T& value);
+
 	DataType pop_variable_var_type(InstType inst_type);
 
 	template<class T>
@@ -91,6 +94,24 @@ void VM::dispatcher(F f, std::array<DataType, Left> types)
 		default: break;
 		}
 	}
+}
+
+template<class T>
+void VM::push_stack_variable(const T& value)
+{
+	auto padding_bytes = sizeof(s64) - sizeof(T);
+
+	stack.push(value);
+
+	// TODO: check if this is fast enough. might be ok to
+	// leave padding uninitialized?
+	for (std::size_t i = 0; i < padding_bytes; ++i)
+	{
+		stack.push<u8>(0);
+	}
+
+	stack.push(data_type_for<T>::value);
+	stack.push(InstType::stack_top_or_global);
 }
 
 template<class T>
