@@ -2,6 +2,7 @@
 
 #include "../bytecode/enums.hpp"
 #include "../bytecode/types.hpp"
+#include <optional>
 
 //! Type used as a placeholder in dispatcher so instructions can detect
 //! variables through type information. This may be passed to the 'f' parameter
@@ -39,4 +40,9 @@ struct VariableReference
 
 	InstType inst_type;
 	DataType data_type;
+
+	// This is necessary so we can cleanly pop 2 variables in one instruction
+	// by keeping the read value here. The point of VariableReference is to
+	// (hopefully) all get optimized out anyway.
+	std::optional<T> cached_value = {};
 };

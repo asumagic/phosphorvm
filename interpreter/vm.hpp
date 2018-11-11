@@ -119,17 +119,23 @@ void VM::push_stack_variable(const T& value)
 template<class T>
 T VM::pop_variable(VariableReference<T>& variable)
 {
-	switch (variable.inst_type)
+	if (!variable.cached_value)
 	{
-	case InstType::stack_top_or_global:
-		// At this time the only part of the stack variable that is left is
-		// the actual value, *including padding*, which we have to care about!
-		stack.skip(sizeof(s64) - sizeof(T));
-	return stack.pop<T>();
+		switch (variable.inst_type)
+		{
+		case InstType::stack_top_or_global:
+			// At this time the only part of the stack variable that is left is
+			// the actual value, *including padding*, which we have to care about!
+			stack.skip(sizeof(s64) - sizeof(T));
+			variable.cached_value = stack.pop<T>();
+			break;
 
-	default:
-		throw std::runtime_error{"Unimplemented pop_variable for T"};
+		default:
+			throw std::runtime_error{"Unimplemented pop_variable for T"};
+		}
 	}
+
+	return variable.cached_value.value();
 }
 
 template<class T>
