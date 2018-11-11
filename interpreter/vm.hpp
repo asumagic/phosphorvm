@@ -60,6 +60,9 @@ public:
 	template<class T>
 	T pop_variable(VariableReference<T>& variable);
 
+	template<class T>
+	auto value(T& value);
+
 	void execute(const Script& script);
 };
 
@@ -103,5 +106,21 @@ T VM::pop_variable(VariableReference<T>& variable)
 
 	default:
 		throw std::runtime_error{"Unimplemented pop_variable for T"};
+	}
+}
+
+template<class T>
+auto VM::value(T& value)
+{
+	if constexpr (is_var<T>())
+	{
+		return pop_variable(value);
+	}
+	else
+	{
+		// NB: This HAS to be in an else branch rather than just
+		// outside of the 'if' because otherwise the return type cannot
+		// be deduced because of the two returns. Eat that, clang-tidy!
+		return value;
 	}
 }

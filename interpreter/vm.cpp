@@ -69,20 +69,6 @@ void VM::execute(const Script& script)
 			);
 		}
 
-		auto vm_value = [&](auto v) {
-			if constexpr (is_var<decltype(v)>())
-			{
-				return pop_variable(v);
-			}
-			else
-			{
-				// NB: This HAS to be in an else branch rather than just
-				// outside of the 'if' because otherwise the return type cannot
-				// be deduced because of the two returns. Eat that, clang-tidy!
-				return v;
-			}
-		};
-
 		auto push_variable = [&](auto src) {
 			auto padding_bytes = sizeof(s64) - sizeof(src);
 
@@ -145,11 +131,11 @@ void VM::execute(const Script& script)
 							fmt::print(
 								fmt::color::yellow_green,
 								"    -> Variable<{}>\n",
-								type_name<decltype(handler(a, b))>()
+								type_name<decltype(handler(value(a), value(b)))>()
 							);
 						}
 
-						push_variable(handler(vm_value(a), vm_value(b)));
+						push_variable(handler(value(a), value(b)));
 					}
 					else
 					{
@@ -196,7 +182,7 @@ void VM::execute(const Script& script)
 					else if constexpr (std::is_arithmetic_v<decltype(dst)>
 									&& is_arithmetic_convertible<decltype(src)>())
 					{
-						stack.push<decltype(dst)>(vm_value(src));
+						stack.push<decltype(dst)>(value(src));
 					}
 					else
 					{
@@ -242,7 +228,7 @@ void VM::execute(const Script& script)
 					}
 
 					fail_impossible();
-				}(func, vm_value(a), vm_value(b)));
+				}(func, value(a), value(b)));
 			});
 		} break;
 
