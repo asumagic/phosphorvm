@@ -97,10 +97,10 @@ void Form::process_references()
 				if (debug_mode)
 				{
 					fmt::print(
-								"\tOverriden in '{}'\n",
-								script->name,
-								i
-								);
+						"\tOverriden in '{}'\n",
+						script->name,
+						i
+					);
 				}
 			}
 		}
