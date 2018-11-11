@@ -92,7 +92,7 @@ void VM::execute(const Script& script)
 			}, std::array{type});
 		};
 
-		auto stack_dispatch_2 = [&](auto handler) FORCE_INLINE {
+		auto op_pop2 = [&](auto handler) FORCE_INLINE {
 			pop_parameter([&](auto a) {
 				pop_parameter([&](auto b) {
 					if constexpr (debug_mode)
@@ -111,7 +111,7 @@ void VM::execute(const Script& script)
 		};
 
 		auto binop_arithmetic = [&](auto handler) FORCE_INLINE {
-			stack_dispatch_2([&](auto b, auto a) {
+			op_pop2([&](auto b, auto a) {
 				if constexpr (are_arithmetic_convertible<decltype(a), decltype(b)>())
 				{
 					if constexpr (is_var<decltype(a)>()
@@ -200,8 +200,8 @@ void VM::execute(const Script& script)
 
 		case Instr::opcmp: {
 			auto func = CompFunc((block >> 8) & 0xFF);
-			stack_dispatch_2([&](auto a, auto b) {
-				stack.push<bool>([](auto func, auto a, auto b) FORCE_INLINE -> bool {
+			op_pop2([&](auto a, auto b) {
+				stack.push([](auto func, auto a, auto b) FORCE_INLINE -> bool {
 					(void)func;
 
 					if constexpr (are_arithmetic<decltype(a), decltype(b)>())
