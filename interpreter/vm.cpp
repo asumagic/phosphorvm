@@ -4,6 +4,7 @@
 #include <fmt/color.h>
 #include <utility>
 #include <type_traits>
+#include "blockreader.hpp"
 #include "traits.hpp"
 #include "../util/nametype.hpp"
 
@@ -41,14 +42,14 @@ void VM::execute(const Script& script)
 		);
 	}
 
-	const Block* block = script.data.data();
-	const Block* end_block = block + script.data.size();
+	BlockReader reader{script};
 
-	while (block != end_block)
+	for (;;)
 	{
-		auto opcode = *block >> 24;
-		auto t1 = DataType((*block >> 16) & 0xF);
-		auto t2 = DataType((*block >> 20) & 0xF);
+		const auto block = reader.current_block();
+		const auto opcode = block >> 24;
+		const auto t1 = DataType((block >> 16) & 0xF);
+		const auto t2 = DataType((block >> 20) & 0xF);
 
 		if constexpr (debug_mode)
 		{
@@ -57,7 +58,7 @@ void VM::execute(const Script& script)
 			fmt::print(
 				fmt::color::orange,
 				"\nExecution trace: ${:08x}: ${:02x}.",
-				std::distance(script.data.data(), block),
+				reader.offset(),
 				opcode
 			);
 
@@ -139,7 +140,7 @@ void VM::execute(const Script& script)
 		};
 
 		auto branch = [&] {
-			auto offset = *block & 0xFFFFFF;
+			s32 offset = block & 0xFFFFFF;
 
 			if constexpr (debug_mode)
 			{
@@ -151,7 +152,7 @@ void VM::execute(const Script& script)
 			}
 
 			// TODO: make this nicer somehow? skipping block++ on the end
-			block += offset - 1;
+			reader.relative_jump(offset - 1);
 		};
 
 		switch (Instr(opcode))
@@ -192,7 +193,7 @@ void VM::execute(const Script& script)
 		// case Instr::opshr: // TODO
 
 		case Instr::opcmp: {
-			auto func = CompFunc((*block >> 8) & 0xFF);
+			auto func = CompFunc((block >> 8) & 0xFF);
 			stack_dispatch_2([&](auto a, auto b) {
 				stack.push<bool>([](auto func, auto a, auto b) -> bool {
 					(void)func;
@@ -257,20 +258,20 @@ void VM::execute(const Script& script)
 		//case Instr::oppushglb:
 
 		case Instr::oppushspc:
-			push_special(SpecialVar(*(++block) & 0x00FFFFFF));
+			push_special(SpecialVar(reader.next_block() & 0x00FFFFFF));
 			break;
 
 		case Instr::oppushi16:
-			stack.push<s32>(s16(*block & 0xFFFF));
+			stack.push<s32>(s16(block & 0xFFFF));
 			break;
 
 		case Instr::opcall: {
 			Frame& frame = frames.push();
-			auto argument_count = *block & 0xFFFF;
+			auto argument_count = block & 0xFFFF;
 			frame.stack_offset = stack.offset() - argument_count * Variable::stack_variable_size;
 
 			// TODO: reduce indirection here
-			const auto& func = form.func.definitions[*(++block)];
+			const auto& func = form.func.definitions[reader.next_block()];
 
 			if (func.is_builtin)
 			{
@@ -291,7 +292,7 @@ void VM::execute(const Script& script)
 			throw std::runtime_error{"Reached unhandled operation in VM"};
 		}
 
-		++block;
+		reader.next_block();
 	}
 }
 
