@@ -12,6 +12,10 @@ add_executable(${PROJECT_NAME}
 	"main.cpp"
 )
 
+set(RELEASE_OPTIONS
+	"-O3"
+)
+
 target_compile_options(${PROJECT_NAME} PUBLIC
 	"-std=c++1z"
 	"-Wall"
@@ -19,6 +23,7 @@ target_compile_options(${PROJECT_NAME} PUBLIC
 	"-Wpedantic"
 	"-Wno-missing-braces"
 	"-ggdb"
+	$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>
 )
 
 target_link_libraries(${PROJECT_NAME}
