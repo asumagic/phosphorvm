@@ -6,6 +6,7 @@
 #include <type_traits>
 #include "blockreader.hpp"
 #include "traits.hpp"
+#include "../util/cast.hpp"
 #include "../util/compilersupport.hpp"
 #include "../util/nametype.hpp"
 
@@ -68,7 +69,7 @@ void VM::execute(const Script& script)
 				fmt::color::orange,
 				"\nExecution trace: ${:08x}: ${:02x}. ",
 				reader.offset(),
-				u8(opcode)
+				enum_value(opcode)
 			);
 
 			print_stack_frame();
