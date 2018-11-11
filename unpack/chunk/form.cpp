@@ -62,7 +62,11 @@ void Form::process_references()
 			{
 				if (def.special_var != SpecialVar::none)
 				{
-					fmt::print("\tNote: Variable has special type {}\n", unsigned(def.special_var));
+					if constexpr (debug_mode)
+					{
+						fmt::print("\tNote: Variable has special type {}\n", unsigned(def.special_var));
+					}
+
 					new_id = s32(def.special_var);
 				}
 			}
