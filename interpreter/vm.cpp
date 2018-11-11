@@ -30,7 +30,13 @@ void VM::print_stack_frame()
 		fmt::color::gray,
 		"Stack frame data ({:5} bytes): {:02x}\n",
 		stack.offset() - frames.top().stack_offset,
-		fmt::join(std::vector(&stack.raw[frames.top().stack_offset], &stack.raw[stack.offset()]), " ")
+		fmt::join(
+			std::vector<u8>(
+				&stack.raw[frames.top().stack_offset],
+				&stack.raw[stack.offset()]
+			),
+			" "
+		)
 	);
 }
 
