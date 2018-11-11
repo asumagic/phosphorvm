@@ -11,7 +11,7 @@
 #include "../util/nametype.hpp"
 
 #define BINOP_ARITH(name, op) case Instr::name : \
-	binop_arithmetic([&](auto a, auto b) { \
+	op_arithmetic2([&](auto a, auto b) { \
 		return a op b; \
 	}); \
 	break;
@@ -75,7 +75,7 @@ void VM::execute(const Script& script)
 			print_stack_frame();
 		}
 
-		auto pop_parameter = [&](auto handler, DataType type) FORCE_INLINE {
+		auto pop_dispatch = [&](auto handler, DataType type) FORCE_INLINE {
 			if (type == DataType::var)
 			{
 				auto inst_type = stack.pop<InstType>();
@@ -93,8 +93,8 @@ void VM::execute(const Script& script)
 		};
 
 		auto op_pop2 = [&](auto handler) FORCE_INLINE {
-			pop_parameter([&](auto a) {
-				pop_parameter([&](auto b) {
+			pop_dispatch([&](auto a) {
+				pop_dispatch([&](auto b) {
 					if constexpr (debug_mode)
 					{
 						fmt::print(
@@ -110,7 +110,7 @@ void VM::execute(const Script& script)
 			}, t1);
 		};
 
-		auto binop_arithmetic = [&](auto handler) FORCE_INLINE {
+		auto op_arithmetic2 = [&](auto handler) FORCE_INLINE {
 			op_pop2([&](auto b, auto a) {
 				if constexpr (are_arithmetic_convertible<decltype(a), decltype(b)>())
 				{
@@ -164,7 +164,7 @@ void VM::execute(const Script& script)
 		switch (opcode)
 		{
 		case Instr::opconv:
-			pop_parameter([&](auto src) FORCE_INLINE {
+			pop_dispatch([&](auto src) FORCE_INLINE {
 				dispatcher([&](auto dst) FORCE_INLINE {
 					if constexpr (std::is_same_v<decltype(dst), VariablePlaceholder>)
 					{
