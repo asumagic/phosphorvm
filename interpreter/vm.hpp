@@ -38,7 +38,7 @@ class VM
 
 	MainStack stack;
 	FrameStack frames;
-	ContextStack context;
+	ContextStack contexts;
 
 public:
 	VM(Form& p_form) :
