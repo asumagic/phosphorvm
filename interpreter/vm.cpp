@@ -41,7 +41,7 @@ void VM::execute(const Script& script)
 	for (;;)
 	{
 		const auto block = reader.current_block();
-		const auto opcode = block >> 24;
+		const auto opcode = Instr(block >> 24);
 		const auto t1 = DataType((block >> 16) & 0xF);
 		const auto t2 = DataType((block >> 20) & 0xF);
 
@@ -53,7 +53,7 @@ void VM::execute(const Script& script)
 				fmt::color::orange,
 				"\nExecution trace: ${:08x}: ${:02x}.",
 				reader.offset(),
-				opcode
+				u8(opcode)
 			);
 
 			fmt::print(
@@ -149,7 +149,7 @@ void VM::execute(const Script& script)
 			reader.relative_jump(offset - 1);
 		};
 
-		switch (Instr(opcode))
+		switch (opcode)
 		{
 		case Instr::opconv:
 			pop_parameter([&](auto src) {
@@ -282,7 +282,7 @@ void VM::execute(const Script& script)
 		// case Instr::opbreak: // TODO
 
 		default:
-			fmt::print(fmt::color::red, "Unhandled op ${:02x}\n", opcode);
+			fmt::print(fmt::color::red, "Unhandled op ${:02x}\n", u8(opcode));
 			throw std::runtime_error{"Reached unhandled operation in VM"};
 		}
 

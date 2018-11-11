@@ -78,7 +78,7 @@ enum class SpecialVar
 	none
 };
 
-enum class Instr
+enum class Instr : u8
 {
 	opconv    = 0x07,
 	opmul     = 0x08,
