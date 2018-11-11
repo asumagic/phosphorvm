@@ -35,7 +35,7 @@ void VM::print_stack_frame()
 				&stack.raw[frames.top().stack_offset],
 				&stack.raw[stack.offset()]
 			),
-			" "
+			""
 		)
 	);
 }
