@@ -24,7 +24,10 @@ int main()
 
 		for (auto& script : main_form.code.elements)
 		{
-			disasm(script);
+			if constexpr (debug_mode)
+			{
+				disasm(script);
+			}
 
 			if (script.name == "gml_Script_script_fibo")
 			{
