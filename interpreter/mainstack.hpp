@@ -7,7 +7,7 @@
 #include <fmt/core.h>
 #include "../util/nametype.hpp"
 #include "../config.hpp"
-#include "vmtraits.hpp"
+#include "traits.hpp"
 
 struct MainStack
 {

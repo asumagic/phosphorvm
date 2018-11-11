@@ -4,7 +4,7 @@
 #include <fmt/color.h>
 #include <utility>
 #include <type_traits>
-#include "vmtraits.hpp"
+#include "traits.hpp"
 #include "../util/nametype.hpp"
 
 #define BINOP_ARITH(name, op) case Instr::name : \
@@ -105,7 +105,7 @@ void VM::execute(const Script& script)
 
 		auto binop_arithmetic = [&](auto handler) {
 			stack_dispatch_2([&](auto a, auto b) {
-				if constexpr (is_arith_like<decltype(a), decltype(b)>())
+				if constexpr (are_arithmetic_convertible<decltype(a), decltype(b)>())
 				{
 					if constexpr (is_var<decltype(a)>()
 							   || is_var<decltype(b)>())
