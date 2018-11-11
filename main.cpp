@@ -18,7 +18,7 @@ int main()
 	Reader reader{file.data(), file.data() + file.size()};
 	reader >> main_form;
 
-	if (debug_mode)
+	//if (debug_mode)
 	{
 		Disassembler disasm{main_form};
 
@@ -26,10 +26,14 @@ int main()
 		{
 			disasm(script);
 
-			if (script.name == "gml_Object_object0_Draw_0")
+			if (script.name == "gml_Script_script_fibo")
 			{
 				VM vm{main_form};
+				vm.push_stack_variable(s32(35));
 				vm.execute(script);
+
+				fmt::print("FINAL STACK: \n");
+				vm.print_stack_frame();
 
 				return 0;
 			}
