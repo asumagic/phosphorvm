@@ -51,51 +51,57 @@ public:
 	// TODO: make this usable to implement builtins sanely
 	// TODO: this is probably awful in terms of compile times, improve that
 	template<std::size_t Left, class F, class... Ts>
-	void dispatcher(F f, std::array<DataType, Left> types)
-	{
-		if constexpr (Left == 0)
-		{
-			(void)types; // inhibit unused parameter warning
-			f(Ts{}...);
-		}
-		else
-		{
-			std::array<DataType, Left - 1> new_array;
-			std::copy(types.begin() + 1, types.end(), new_array.begin());
-
-			switch(types[0])
-			{
-			case DataType::f64: DISPATCH_NEXT(f64) break;
-			case DataType::f32: DISPATCH_NEXT(f32) break;
-			case DataType::i64: DISPATCH_NEXT(s64) break;
-			case DataType::i32: DISPATCH_NEXT(s32) break;
-			case DataType::i16: DISPATCH_NEXT(s16) break;
-			case DataType::str: DISPATCH_NEXT(StringReference) break;
-			case DataType::var: DISPATCH_NEXT(VariablePlaceholder) break;
-			default: break;
-			}
-		}
-	}
+	void dispatcher(F f, std::array<DataType, Left> types);
 
 	void push_special(SpecialVar var);
 
 	DataType pop_variable_var_type(InstType inst_type);
 
 	template<class T>
-	T pop_variable(VariableReference<T>& variable)
-	{
-		switch (variable.inst_type)
-		{
-		case InstType::stack_top_or_global:
-			// At this time the only part of the stack variable that is left is
-			// the actual value, *including padding*, which we have to care about!
-			stack.skip(sizeof(s64) - sizeof(T));
-			return stack.pop<T>();
-
-		default:
-			throw std::runtime_error{"Unimplemented pop_variable for T"};
-		}
-	}
+	T pop_variable(VariableReference<T>& variable);
 
 	void execute(const Script& script);
 };
+
+template<std::size_t Left, class F, class... Ts>
+void VM::dispatcher(F f, std::array<DataType, Left> types)
+{
+	if constexpr (Left == 0)
+	{
+		(void)types; // inhibit unused parameter warning
+		f(Ts{}...);
+	}
+	else
+	{
+		std::array<DataType, Left - 1> new_array;
+		std::copy(types.begin() + 1, types.end(), new_array.begin());
+
+		switch(types[0])
+		{
+		case DataType::f64: DISPATCH_NEXT(f64) break;
+		case DataType::f32: DISPATCH_NEXT(f32) break;
+		case DataType::i64: DISPATCH_NEXT(s64) break;
+		case DataType::i32: DISPATCH_NEXT(s32) break;
+		case DataType::i16: DISPATCH_NEXT(s16) break;
+		case DataType::str: DISPATCH_NEXT(StringReference) break;
+		case DataType::var: DISPATCH_NEXT(VariablePlaceholder) break;
+		default: break;
+		}
+	}
+}
+
+template<class T>
+T VM::pop_variable(VariableReference<T>& variable)
+{
+	switch (variable.inst_type)
+	{
+	case InstType::stack_top_or_global:
+		// At this time the only part of the stack variable that is left is
+		// the actual value, *including padding*, which we have to care about!
+		stack.skip(sizeof(s64) - sizeof(T));
+	return stack.pop<T>();
+
+	default:
+		throw std::runtime_error{"Unimplemented pop_variable for T"};
+	}
+}
