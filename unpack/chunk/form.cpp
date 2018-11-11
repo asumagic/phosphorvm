@@ -14,12 +14,29 @@ void Form::finalize_bytecode()
 
 void Form::process_variables()
 {
-	for (auto& var : vari.definitions)
+	for (std::size_t i = 0; i < vari.definitions.size(); ++i)
 	{
+		auto& var = vari.definitions[i];
 		auto it = special_var_names.find(var.name);
 		if (it != special_var_names.end())
 		{
 			var.special_var = it->second;
+
+			if (i != std::size_t(it->second))
+			{
+				if constexpr (debug_mode)
+				{
+					fmt::print(
+						"Swapped VARI[{}] ({}) with VARI[{}] ({}) to map to the proper SpecialVar\n",
+						i,
+						var.name,
+						std::size_t(it->second),
+						vari.definitions[std::size_t(it->second)].name
+					);
+				}
+
+				std::swap(vari.definitions[std::size_t(it->second)], var);
+			}
 		}
 	}
 }
@@ -48,27 +65,11 @@ void Form::process_references()
 			if (debug_mode && def.occurrences != 0)
 			{
 				fmt::print(
-							"Processing reference '{}' (id {}, {} occurrences)\n",
-							def.name,
-							i,
-							def.occurrences
-							);
-			}
-
-			s32 new_id = i;
-
-			// HACK: somewhat hacky to handle it this way
-			if constexpr (std::is_same_v<std::decay_t<decltype(def)>, VariableDefinition>)
-			{
-				if (def.special_var != SpecialVar::none)
-				{
-					if constexpr (debug_mode)
-					{
-						fmt::print("\tNote: Variable has special type {}\n", unsigned(def.special_var));
-					}
-
-					new_id = s32(def.special_var);
-				}
+					"Processing reference '{}' (id {}, {} occurrences)\n",
+					def.name,
+					i,
+					def.occurrences
+				);
 			}
 
 			for (unsigned j = 0; j < def.occurrences; ++j)
@@ -92,7 +93,7 @@ void Form::process_references()
 				address += (block[1] & 0x00FFFFFF);
 
 				// Write the reference to the found block
-				block[1] = (block[1] & 0xFF000000) | new_id;
+				block[1] = (block[1] & 0xFF000000) | i;
 
 				if (debug_mode)
 				{
