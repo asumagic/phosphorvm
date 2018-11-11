@@ -9,5 +9,5 @@ struct Frame
 
 	//! Offset in the MainStack as the function gets called - i.e. one byte
 	//! after the last pushed variable.
-	std::size_t stack_offset;
+	std::size_t stack_offset = 0;
 };
