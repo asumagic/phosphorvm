@@ -6,6 +6,7 @@
 #include <type_traits>
 #include "blockreader.hpp"
 #include "traits.hpp"
+#include "../util/compilersupport.hpp"
 #include "../util/nametype.hpp"
 
 #define BINOP_ARITH(name, op) case Instr::name : \
@@ -73,7 +74,7 @@ void VM::execute(const Script& script)
 			print_stack_frame();
 		}
 
-		auto pop_parameter = [&](auto handler, DataType type) {
+		auto pop_parameter = [&](auto handler, DataType type) FORCE_INLINE {
 			if (type == DataType::var)
 			{
 				auto inst_type = stack.pop<InstType>();
@@ -90,7 +91,7 @@ void VM::execute(const Script& script)
 			}, std::array{type});
 		};
 
-		auto stack_dispatch_2 = [&](auto handler) {
+		auto stack_dispatch_2 = [&](auto handler) FORCE_INLINE {
 			pop_parameter([&](auto a) {
 				pop_parameter([&](auto b) {
 					if constexpr (debug_mode)
@@ -108,7 +109,7 @@ void VM::execute(const Script& script)
 			}, t1);
 		};
 
-		auto binop_arithmetic = [&](auto handler) {
+		auto binop_arithmetic = [&](auto handler) FORCE_INLINE {
 			stack_dispatch_2([&](auto b, auto a) {
 				if constexpr (are_arithmetic_convertible<decltype(a), decltype(b)>())
 				{
@@ -143,7 +144,7 @@ void VM::execute(const Script& script)
 			});
 		};
 
-		auto branch = [&] {
+		auto branch = [&]() FORCE_INLINE {
 			s32 offset = block & 0xFFFFFF;
 
 			if constexpr (debug_mode)
@@ -162,8 +163,8 @@ void VM::execute(const Script& script)
 		switch (opcode)
 		{
 		case Instr::opconv:
-			pop_parameter([&](auto src) {
-				dispatcher([&](auto dst) {
+			pop_parameter([&](auto src) FORCE_INLINE {
+				dispatcher([&](auto dst) FORCE_INLINE {
 					if constexpr (std::is_same_v<decltype(dst), VariablePlaceholder>)
 					{
 						push_stack_variable(src);
@@ -199,7 +200,7 @@ void VM::execute(const Script& script)
 		case Instr::opcmp: {
 			auto func = CompFunc((block >> 8) & 0xFF);
 			stack_dispatch_2([&](auto a, auto b) {
-				stack.push<bool>([](auto func, auto a, auto b) -> bool {
+				stack.push<bool>([](auto func, auto a, auto b) FORCE_INLINE -> bool {
 					(void)func;
 
 					if constexpr (are_arithmetic<decltype(a), decltype(b)>())

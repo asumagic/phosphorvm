@@ -6,6 +6,7 @@
 #include "variable.hpp"
 #include "../config.hpp"
 #include "../unpack/chunk/form.hpp"
+#include "../util/compilersupport.hpp"
 #include "../bytecode/types.hpp"
 #include <tuple>
 #include <unordered_map>
@@ -72,6 +73,7 @@ public:
 };
 
 template<std::size_t Left, class F, class... Ts>
+FORCE_INLINE
 void VM::dispatcher(F f, std::array<DataType, Left> types)
 {
 	if constexpr (Left == 0)
@@ -99,6 +101,7 @@ void VM::dispatcher(F f, std::array<DataType, Left> types)
 }
 
 template<class T>
+FORCE_INLINE
 void VM::push_stack_variable(const T& value)
 {
 	auto padding_bytes = sizeof(s64) - sizeof(T);
@@ -117,6 +120,7 @@ void VM::push_stack_variable(const T& value)
 }
 
 template<class T>
+FORCE_INLINE
 T VM::pop_variable(VariableReference<T>& variable)
 {
 	if (!variable.cached_value)
@@ -139,6 +143,7 @@ T VM::pop_variable(VariableReference<T>& variable)
 }
 
 template<class T>
+FORCE_INLINE
 auto VM::value(T& value)
 {
 	if constexpr (is_var<T>())
