@@ -46,6 +46,7 @@ std::string Disassembler::instance_name(InstId id)
 		case InstType::all:                 return "all";
 		case InstType::noone:               return "noone";
 		case InstType::global:              return "global";
+		case InstType::special:             return "special";
 		case InstType::local:               return "local";
 	}
 
