@@ -266,7 +266,6 @@ void VM::execute(const Script& script)
 
 		case Instr::opcall: {
 			Frame& frame = frames.push();
-			auto return_type = DataType((*block >> 16) & 0xFF);
 			auto argument_count = *block & 0xFFFF;
 			frame.stack_offset = stack.offset() - argument_count * Variable::stack_variable_size;
 
