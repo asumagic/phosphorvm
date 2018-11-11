@@ -201,9 +201,7 @@ void VM::execute(const Script& script)
 		case Instr::opcmp: {
 			auto func = CompFunc((block >> 8) & 0xFF);
 			op_pop2([&](auto a, auto b) {
-				stack.push([](auto func, auto a, auto b) FORCE_INLINE -> bool {
-					(void)func;
-
+				stack.push([]([[maybe_unused]] auto func, auto a, auto b) FORCE_INLINE -> bool {
 					if constexpr (are_arithmetic<decltype(a), decltype(b)>())
 					{
 						switch (func)

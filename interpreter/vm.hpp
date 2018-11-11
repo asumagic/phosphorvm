@@ -74,11 +74,10 @@ public:
 
 template<std::size_t Left, class F, class... Ts>
 FORCE_INLINE
-void VM::dispatcher(F f, std::array<DataType, Left> types)
+void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types)
 {
 	if constexpr (Left == 0)
 	{
-		(void)types; // inhibit unused parameter warning
 		f(Ts{}...);
 	}
 	else
