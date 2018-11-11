@@ -28,12 +28,6 @@ void VM::execute(const Script& script)
 {
 	if constexpr (debug_mode)
 	{
-		if (frames.offset > 32)
-		{
-			fmt::print("Reached debug max call depth size\n");
-			exit(0);
-		}
-
 		fmt::print(
 			fmt::color::red,
 			"\nExecuting function '{}' (call depth {})",
