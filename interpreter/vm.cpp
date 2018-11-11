@@ -63,8 +63,6 @@ void VM::execute(const Script& script)
 
 		if constexpr (debug_mode)
 		{
-			Frame& frame = frames.top();
-
 			fmt::print(
 				fmt::color::orange,
 				"\nExecution trace: ${:08x}: ${:02x}. ",
@@ -110,7 +108,7 @@ void VM::execute(const Script& script)
 		};
 
 		auto binop_arithmetic = [&](auto handler) {
-			stack_dispatch_2([&](auto a, auto b) {
+			stack_dispatch_2([&](auto b, auto a) {
 				if constexpr (are_arithmetic_convertible<decltype(a), decltype(b)>())
 				{
 					if constexpr (is_var<decltype(a)>()
