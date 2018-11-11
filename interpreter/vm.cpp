@@ -148,6 +148,7 @@ void VM::execute(const Script& script)
 								type_name<decltype(handler(a, b))>()
 							);
 						}
+
 						push_variable(handler(a, b));
 					}
 					else
