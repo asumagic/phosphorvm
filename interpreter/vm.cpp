@@ -9,7 +9,7 @@
 
 #define BINOP_ARITH(name, op) case Instr::name : \
 	binop_arithmetic([&](auto a, auto b) { \
-		return vm_value(a) op vm_value(b); \
+		return a op b; \
 	}); \
 	break;
 
@@ -149,7 +149,7 @@ void VM::execute(const Script& script)
 							);
 						}
 
-						push_variable(handler(a, b));
+						push_variable(handler(vm_value(a), vm_value(b)));
 					}
 					else
 					{
