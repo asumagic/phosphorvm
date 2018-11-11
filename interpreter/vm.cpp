@@ -64,8 +64,8 @@ void VM::execute(const Script& script)
 			fmt::print(
 				fmt::color::gray,
 				" Stack frame data ({:5} bytes): {:02x}\n",
-				stack.offset - frame.stack_offset,
-				fmt::join(std::vector(&stack.raw[frame.stack_offset], &stack.raw[stack.offset]), " ")
+				stack.offset() - frame.stack_offset,
+				fmt::join(std::vector(&stack.raw[frame.stack_offset], &stack.raw[stack.offset()]), " ")
 			);
 		}
 
@@ -222,12 +222,12 @@ void VM::execute(const Script& script)
 
 		case Instr::opret: {
 			std::move(
-				stack.raw.begin() + stack.offset - Variable::stack_variable_size,
-				stack.raw.begin() + stack.offset,
+				stack.raw.begin() + stack.offset() - Variable::stack_variable_size,
+				stack.raw.begin() + stack.offset(),
 				stack.raw.begin() + frames.top().stack_offset
 			);
 
-			stack.offset = frames.top().stack_offset + Variable::stack_variable_size;
+			stack.skip(stack.offset() - frames.top().stack_offset - Variable::stack_variable_size);
 
 			if constexpr (debug_mode)
 			{
@@ -268,7 +268,7 @@ void VM::execute(const Script& script)
 			Frame& frame = frames.push();
 			auto return_type = DataType((*block >> 16) & 0xFF);
 			auto argument_count = *block & 0xFFFF;
-			frame.stack_offset = stack.offset - argument_count * Variable::stack_variable_size;
+			frame.stack_offset = stack.offset() - argument_count * Variable::stack_variable_size;
 
 			// TODO: reduce indirection here
 			const auto& func = form.func.definitions[*(++block)];

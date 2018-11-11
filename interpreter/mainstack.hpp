@@ -9,9 +9,11 @@
 #include "../config.hpp"
 #include "traits.hpp"
 
-struct MainStack
+class MainStack
 {
-	std::size_t offset = 0;
+	std::size_t _offset = 0;
+
+public:
 	std::array<char, max_stack_depth> raw;
 
 	template<class T>
@@ -23,6 +25,8 @@ struct MainStack
 	void push_raw(const void* source, std::size_t bytes);
 
 	void skip(std::size_t count);
+
+	std::size_t offset() const;
 };
 
 template<class T>
@@ -30,10 +34,10 @@ T MainStack::pop()
 {
 	if constexpr (numeric_type<T>::value)
 	{
-		offset -= sizeof(T);
+		_offset -= sizeof(T);
 
 		T ret;
-		std::memcpy(&ret, &raw[offset], sizeof(T));
+		std::memcpy(&ret, &raw[_offset], sizeof(T));
 
 		if constexpr (debug_mode)
 		{
@@ -82,11 +86,25 @@ void MainStack::push(const T& value)
 
 inline void MainStack::push_raw(const void* source, std::size_t bytes)
 {
-	std::memcpy(&raw[offset], source, bytes);
-	offset += bytes;
+	std::memcpy(&raw[_offset], source, bytes);
+	_offset += bytes;
 }
 
 inline void MainStack::skip(std::size_t count)
 {
-	offset -= count;
+	_offset -= count;
+
+	if constexpr (debug_mode)
+	{
+		fmt::print(
+			fmt::color::dark_magenta,
+			">>> Skipping {:4} bytes\n",
+			count
+		);
+	}
+}
+
+inline std::size_t MainStack::offset() const
+{
+	return _offset;
 }
