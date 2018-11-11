@@ -169,6 +169,16 @@ void VM::execute(const Script& script)
 
 		auto branch = [&] {
 			auto offset = *block & 0xFFFFFF;
+
+			if constexpr (debug_mode)
+			{
+				fmt::print(
+					fmt::color::yellow_green,
+					"    Branching with offset {} blocks\n",
+					offset
+				);
+			}
+
 			// TODO: make this nicer somehow? skipping block++ on the end
 			block += offset - 1;
 		};
