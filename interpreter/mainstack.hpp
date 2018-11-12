@@ -24,7 +24,9 @@ public:
 
 	void push_raw(const void* source, std::size_t bytes);
 
-	void skip(std::size_t count);
+	//! Skips 'count' bytes downward (i.e. pop). Negative values are accepted
+	//! and skip the stack pointer upward.
+	void skip(long count);
 
 	std::size_t offset() const;
 };
@@ -90,17 +92,28 @@ inline void MainStack::push_raw(const void* source, std::size_t bytes)
 	_offset += bytes;
 }
 
-inline void MainStack::skip(std::size_t count)
+inline void MainStack::skip(long count)
 {
 	_offset -= count;
 
 	if constexpr (check(debug::vm_verbose_stack))
 	{
-		fmt::print(
-			fmt::color::dark_magenta,
-			">>> Skipping {:4} bytes\n",
-			count
-		);
+		if (count > 0)
+		{
+			fmt::print(
+				fmt::color::dark_magenta,
+				">>> Skipping {:4} bytes downward\n",
+				count
+			);
+		}
+		else if (count < 0)
+		{
+			fmt::print(
+				fmt::color::maroon,
+				"<<< Skipping {:4} bytes upward\n",
+				-count
+			);
+		}
 	}
 }
 

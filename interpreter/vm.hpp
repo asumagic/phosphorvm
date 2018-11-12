@@ -106,14 +106,7 @@ void VM::push_stack_variable(const T& value)
 	auto padding_bytes = sizeof(s64) - sizeof(T);
 
 	stack.push(value);
-
-	// TODO: check if this is fast enough. might be ok to
-	// leave padding uninitialized?
-	for (std::size_t i = 0; i < padding_bytes; ++i)
-	{
-		stack.push<u8>(0);
-	}
-
+	stack.skip(-padding_bytes);
 	stack.push(data_type_for<T>::value);
 	stack.push(InstType::stack_top_or_global);
 }
