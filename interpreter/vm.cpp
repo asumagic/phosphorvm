@@ -12,7 +12,11 @@
 
 #define BINOP_ARITH(name, op) case Instr::name : \
 	op_arithmetic2([&](auto a, auto b) { \
-		return a op b; \
+		if constexpr (are_arithmetic<decltype(a), decltype(b)>()) \
+		{ \
+			return a op b; \
+		} \
+		fail_impossible(); \
 	}); \
 	break;
 
@@ -112,17 +116,18 @@ void VM::execute(const Script& script)
 
 		auto op_arithmetic2 = [&](auto handler) FORCE_INLINE {
 			op_pop2([&](auto b, auto a) {
-				if constexpr (are_arithmetic_convertible<decltype(a), decltype(b)>())
+				using ReturnType = decltype(handler(value(a), value(b)));
+
+				if constexpr (!std::is_void_v<ReturnType>)
 				{
-					if constexpr (is_var<decltype(a)>()
-							   || is_var<decltype(b)>())
+					if constexpr (is_var<decltype(a)>() || is_var<decltype(b)>())
 					{
 						if constexpr (debug_mode)
 						{
 							fmt::print(
 								fmt::color::yellow_green,
-								"    -> Variable<{}>\n",
-								type_name<decltype(handler(value(a), value(b)))>()
+									"    -> Variable<{}>\n",
+									type_name<ReturnType>()
 							);
 						}
 
@@ -183,12 +188,43 @@ void VM::execute(const Script& script)
 			}, t1);
 			break;
 
-		// TODO: check if multiplying strings with int is actually possible
-		BINOP_ARITH(opmul, *)
+		case Instr::opmul: {
+			op_arithmetic2([&](auto a, auto b) {
+				if constexpr (std::is_integral_v<decltype(a)>
+						   && std::is_same_v<decltype(b), StringReference>)
+				{
+					// TODO
+				}
+
+				if constexpr (are_arithmetic<decltype(a), decltype(b)>())
+				{
+					return a * b;
+				}
+
+				fail_impossible();
+			});
+
+		} break;
+
 		BINOP_ARITH(opdiv, /)
 		// case Instr::oprem: // TODO
 		// case Instr::opmod: // TODO
-		BINOP_ARITH(opadd, +) // TODO: you can add strings together, too
+
+		case Instr::opadd: {
+			op_arithmetic2([&](auto a, auto b) {
+				if constexpr (std::is_same_v<decltype(a), StringReference>
+						   && std::is_same_v<decltype(b), StringReference>)
+				{
+					// TODO
+				}
+
+				if constexpr (are_arithmetic<decltype(a), decltype(b)>())
+				{
+					return a + b;
+				}
+			});
+		} break;
+
 		BINOP_ARITH(opsub, -)
 		//BINOP_ARITH(opand, &)
 		//BINOP_ARITH(opor,  |)
