@@ -22,7 +22,7 @@
 
 void fail_impossible()
 {
-	if constexpr (debug_mode)
+	if constexpr (check(debug::vm_safer))
 	{
 		throw std::logic_error{"VM state should never be reached"};
 	}
@@ -48,7 +48,7 @@ void VM::print_stack_frame()
 
 void VM::execute(const Script& script)
 {
-	if constexpr (debug_mode)
+	if constexpr (check(debug::vm_verbose_calls))
 	{
 		fmt::print(
 			fmt::color::red,
@@ -67,7 +67,7 @@ void VM::execute(const Script& script)
 		const auto t1 = DataType((block >> 16) & 0xF);
 		const auto t2 = DataType((block >> 20) & 0xF);
 
-		if constexpr (debug_mode)
+		if constexpr (check(debug::vm_verbose_instructions))
 		{
 			fmt::print(
 				fmt::color::orange,
@@ -99,7 +99,7 @@ void VM::execute(const Script& script)
 		auto op_pop2 = [&](auto handler) FORCE_INLINE {
 			pop_dispatch([&](auto a) {
 				pop_dispatch([&](auto b) {
-					if constexpr (debug_mode)
+					if constexpr (check(debug::vm_verbose_instructions))
 					{
 						fmt::print(
 							fmt::color::yellow_green,
@@ -122,7 +122,7 @@ void VM::execute(const Script& script)
 				{
 					if constexpr (is_var<decltype(a)>() || is_var<decltype(b)>())
 					{
-						if constexpr (debug_mode)
+						if constexpr (check(debug::vm_verbose_instructions))
 						{
 							fmt::print(
 								fmt::color::yellow_green,
@@ -135,12 +135,12 @@ void VM::execute(const Script& script)
 					}
 					else
 					{
-						if constexpr (debug_mode)
+						if constexpr (check(debug::vm_verbose_instructions))
 						{
 							fmt::print(
 								fmt::color::yellow_green,
 								"    -> {}\n",
-								type_name<decltype(handler(a, b))>()
+								type_name<ReturnType>()
 							);
 						}
 
@@ -153,7 +153,7 @@ void VM::execute(const Script& script)
 		auto branch = [&]() FORCE_INLINE {
 			s32 offset = block & 0xFFFFFF;
 
-			if constexpr (debug_mode)
+			if constexpr (check(debug::vm_verbose_instructions))
 			{
 				fmt::print(
 					fmt::color::yellow_green,
@@ -288,7 +288,7 @@ void VM::execute(const Script& script)
 
 			stack.skip(stack.offset() - frames.top().stack_offset - Variable::stack_variable_size);
 
-			if constexpr (debug_mode)
+			if constexpr (check(debug::vm_verbose_calls))
 			{
 				fmt::print(
 					fmt::color::blue_violet,

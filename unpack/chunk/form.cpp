@@ -24,7 +24,7 @@ void Form::process_variables()
 
 			if (i != std::size_t(it->second))
 			{
-				if constexpr (debug_mode)
+				if constexpr (check(debug::verbose_postprocess))
 				{
 					fmt::print(
 						"Swapped VARI[{}] ({}) with VARI[{}] ({}) to map to the proper SpecialVar\n",
@@ -62,7 +62,7 @@ void Form::process_references()
 			auto& def = chunk.definitions[i];
 			auto address = def.first_address;
 
-			if (debug_mode && def.occurrences != 0)
+			if (check(debug::verbose_postprocess) && def.occurrences != 0)
 			{
 				fmt::print(
 					"Processing reference '{}' (id {}, {} occurrences)\n",
@@ -95,7 +95,7 @@ void Form::process_references()
 				// Write the reference to the found block
 				block[1] = (block[1] & 0xFF000000) | i;
 
-				if (debug_mode)
+				if (check(debug::verbose_postprocess))
 				{
 					fmt::print(
 						"\tOverriden in '{}'\n",
@@ -148,7 +148,7 @@ void user_reader(Form& form, Reader& reader)
 	while (reader.pos != reader.end)
 	{
 		const ChunkHeader header = reader();
-		if (debug_mode)
+		if constexpr (check(debug::verbose_unpack))
 		{
 			header.debug_print();
 		}
@@ -160,7 +160,7 @@ void user_reader(Form& form, Reader& reader)
 			field.header = header;
 			reader >> field;
 
-			if (debug_mode)
+			if constexpr (check(debug::verbose_unpack))
 			{
 				field.debug_print();
 			}

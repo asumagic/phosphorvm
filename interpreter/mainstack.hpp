@@ -39,7 +39,7 @@ T MainStack::pop()
 		T ret;
 		std::memcpy(&ret, &raw[_offset], sizeof(T));
 
-		if constexpr (debug_mode)
+		if constexpr (check(debug::vm_verbose_stack))
 		{
 			fmt::print(
 				fmt::color::dark_magenta,
@@ -63,7 +63,7 @@ void MainStack::push(const T& value)
 {
 	if constexpr (numeric_type<T>::value)
 	{
-		if constexpr (debug_mode)
+		if constexpr (check(debug::vm_verbose_stack))
 		{
 			fmt::print(
 				fmt::color::maroon,
@@ -94,7 +94,7 @@ inline void MainStack::skip(std::size_t count)
 {
 	_offset -= count;
 
-	if constexpr (debug_mode)
+	if constexpr (check(debug::vm_verbose_stack))
 	{
 		fmt::print(
 			fmt::color::dark_magenta,

@@ -18,7 +18,7 @@ struct FrameStack
 
 inline Frame& FrameStack::push()
 {
-	if constexpr (debug_mode)
+	if constexpr (check(debug::vm_safer))
 	{
 		if (offset >= frames.size())
 		{
@@ -32,7 +32,7 @@ inline Frame& FrameStack::push()
 
 inline void FrameStack::pop()
 {
-	if constexpr (debug_mode)
+	if constexpr (check(debug::vm_safer))
 	{
 		if (offset == 0)
 		{

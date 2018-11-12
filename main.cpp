@@ -18,28 +18,23 @@ int main()
 	Reader reader{file.data(), file.data() + file.size()};
 	reader >> main_form;
 
-	//if (debug_mode)
+	for (auto& script : main_form.code.elements)
 	{
-		Disassembler disasm{main_form};
-
-		for (auto& script : main_form.code.elements)
+		if constexpr (check(debug::disassemble))
 		{
-			if constexpr (debug_mode)
-			{
-				disasm(script);
-			}
+			Disassembler{main_form}(script);
+		}
 
-			if (script.name == "gml_Script_script_fibo")
-			{
-				VM vm{main_form};
-				vm.push_stack_variable(s32(35));
-				vm.execute(script);
+		if (script.name == "gml_Script_script_fibo")
+		{
+			VM vm{main_form};
+			vm.push_stack_variable(s32(35));
+			vm.execute(script);
 
-				fmt::print("FINAL STACK: \n");
-				vm.print_stack_frame();
+			fmt::print("FINAL STACK: \n");
+			vm.print_stack_frame();
 
-				return 0;
-			}
+			return 0;
 		}
 	}
 }

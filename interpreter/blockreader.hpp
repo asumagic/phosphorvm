@@ -23,9 +23,9 @@ public:
 };
 
 BlockReader::BlockReader(const Script& script) :
-    _main_block{script.data.data()},
-    _offset{0},
-    _end{script.data.size()}
+	_main_block{script.data.data()},
+	_offset{0},
+	_end{script.data.size()}
 {}
 
 const Block& BlockReader::current_block() const
@@ -37,7 +37,7 @@ const Block& BlockReader::next_block()
 {
 	++_offset;
 
-	if constexpr (debug_mode)
+	if constexpr (check(debug::vm_safer))
 	{
 		if (_offset >= _end)
 		{
