@@ -247,7 +247,10 @@ void VM::execute(const Script& script)
 		} break;
 
 		// case Instr::opexit: // TODO
-		// case Instr::oppopz: // TODO
+
+		case Instr::oppopz: {
+			pop_dispatch([]([[maybe_unused]] auto v){}, t1);
+		} break;
 
 		case Instr::opb: branch(); break;
 		case Instr::opbt: if (stack.pop<bool>()) { branch(); } break;
