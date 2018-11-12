@@ -231,8 +231,26 @@ void VM::execute(const Script& script)
 		//BINOP_ARITH(opxor, ^)
 		// case Instr::opneg: // TODO
 		// case Instr::opnot: // TODO
-		// case Instr::opshl: // TODO
-		// case Instr::opshr: // TODO
+
+		case Instr::opshl: {
+			op_arithmetic2([&](auto a, auto b) {
+				if constexpr (std::is_integral_v<decltype(a)>
+						   && std::is_integral_v<decltype(b)>)
+				{
+					return a << b;
+				}
+			});
+		} break;
+
+		case Instr::opshr: {
+			op_arithmetic2([&](auto a, auto b) {
+				if constexpr (std::is_integral_v<decltype(a)>
+						   && std::is_integral_v<decltype(b)>)
+				{
+					return a >> b;
+				}
+			});
+		} break;
 
 		case Instr::opcmp: {
 			auto func = CompFunc((block >> 8) & 0xFF);
