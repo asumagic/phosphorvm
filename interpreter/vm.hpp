@@ -35,14 +35,14 @@ void fail_impossible();
 
 class VM
 {
-	Form& form;
+	const Form& form;
 
 	MainStack stack;
 	FrameStack frames;
 	ContextStack contexts;
 
 public:
-	VM(Form& p_form) :
+	VM(const Form& p_form) :
 		form{p_form}
 	{}
 
