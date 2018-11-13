@@ -56,7 +56,7 @@ T MainStack::pop()
 		return ret;
 	}
 
-	fail_impossible("Unimplemented MainStack::push for current type");
+	maybe_unreachable("Unimplemented MainStack::push for current type");
 }
 
 template<class T>
@@ -79,7 +79,7 @@ void MainStack::push(const T& value)
 	}
 	else
 	{
-		fail_impossible("Unimplemented MainStack::push for current type");
+		maybe_unreachable("Unimplemented MainStack::push for current type");
 	}
 }
 

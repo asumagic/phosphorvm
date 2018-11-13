@@ -28,7 +28,7 @@ constexpr bool
 	vm_verbose_calls = false,
 
 	//! Trades performance for safety. This includes:
-	//! - Turning fail_impossible() calls from __builtin_unreachable to an
+	//! - Turning maybe_unreachable() calls from __builtin_unreachable to an
 	//!   exception.
 	//! - Checking the boundaries for the block reader.
 	//! - Checking stack limits (main stack, call stack, ...).

@@ -16,7 +16,7 @@
 		{ \
 			return a op b; \
 		} \
-		fail_impossible(); \
+		maybe_unreachable(); \
 	}); \
 	break;
 
@@ -172,7 +172,7 @@ void VM::execute(const Script& script)
 					}
 					else
 					{
-						fail_impossible("Unimplemented conversion types");
+						maybe_unreachable("Unimplemented conversion types");
 					}
 				}, std::array{t2});
 			}, t1);
@@ -191,7 +191,7 @@ void VM::execute(const Script& script)
 					return a * b;
 				}
 
-				fail_impossible("Multiply op should be impossible");
+				maybe_unreachable("Multiply op should be impossible");
 			});
 
 		} break;
@@ -256,11 +256,11 @@ void VM::execute(const Script& script)
 						case CompFunc::neq: return a != b;
 						case CompFunc::gte: return a >= b;
 						case CompFunc::gt:  return a >  b;
-						default: fail_impossible();
+						default: maybe_unreachable();
 						}
 					}
 
-					fail_impossible("Comparison should be impossible");
+					maybe_unreachable("Comparison should be impossible");
 				}(func, value(a), value(b)));
 			});
 		} break;
@@ -326,7 +326,7 @@ void VM::execute(const Script& script)
 
 			if (func.is_builtin)
 			{
-				fail_impossible("Builtins are not implemented");
+				maybe_unreachable("Builtins are not implemented");
 			}
 			else
 			{
@@ -340,7 +340,7 @@ void VM::execute(const Script& script)
 
 		default:
 			fmt::print(fmt::color::red, "Unhandled op ${:02x}\n", u8(opcode));
-			fail_impossible("Reached unhandled operation in VM");
+			maybe_unreachable("Reached unhandled operation in VM");
 		}
 
 		reader.next_block();
@@ -369,6 +369,6 @@ DataType VM::pop_variable_var_type(InstType inst_type)
 		return stack.pop<DataType>();
 
 	default:
-		fail_impossible("Unhandled variable type");
+		maybe_unreachable("Unhandled variable type");
 	}
 }

@@ -89,7 +89,7 @@ void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types)
 		case DataType::i16: DISPATCH_NEXT(s16) break;
 		case DataType::str: DISPATCH_NEXT(StringReference) break;
 		case DataType::var: DISPATCH_NEXT(VariablePlaceholder) break;
-		default: fail_impossible();
+		default: maybe_unreachable();
 		}
 	}
 }
