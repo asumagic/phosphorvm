@@ -20,16 +20,6 @@
 	}); \
 	break;
 
-void fail_impossible()
-{
-	if constexpr (check(debug::vm_safer))
-	{
-		throw std::logic_error{"VM state should never be reached"};
-	}
-
-	__builtin_unreachable();
-}
-
 void VM::print_stack_frame()
 {
 	fmt::print(
@@ -182,7 +172,7 @@ void VM::execute(const Script& script)
 					}
 					else
 					{
-						throw std::runtime_error{"Unimplemented conversion types"};
+						fail_impossible("Unimplemented conversion types");
 					}
 				}, std::array{t2});
 			}, t1);
@@ -201,7 +191,7 @@ void VM::execute(const Script& script)
 					return a * b;
 				}
 
-				fail_impossible();
+				fail_impossible("Multiply op should be impossible");
 			});
 
 		} break;
@@ -270,7 +260,7 @@ void VM::execute(const Script& script)
 						}
 					}
 
-					fail_impossible();
+					fail_impossible("Comparison should be impossible");
 				}(func, value(a), value(b)));
 			});
 		} break;
@@ -336,7 +326,7 @@ void VM::execute(const Script& script)
 
 			if (func.is_builtin)
 			{
-				throw std::runtime_error{"Unhandled call to builtin"};
+				fail_impossible("Builtins are not implemented");
 			}
 			else
 			{
@@ -350,7 +340,7 @@ void VM::execute(const Script& script)
 
 		default:
 			fmt::print(fmt::color::red, "Unhandled op ${:02x}\n", u8(opcode));
-			throw std::runtime_error{"Reached unhandled operation in VM"};
+			fail_impossible("Reached unhandled operation in VM");
 		}
 
 		reader.next_block();
@@ -379,6 +369,6 @@ DataType VM::pop_variable_var_type(InstType inst_type)
 		return stack.pop<DataType>();
 
 	default:
-		throw std::runtime_error{"Unhandled variable type"};
+		fail_impossible("Unhandled variable type");
 	}
 }

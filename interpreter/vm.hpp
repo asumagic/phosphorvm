@@ -7,6 +7,7 @@
 #include "../config.hpp"
 #include "../unpack/chunk/form.hpp"
 #include "../util/compilersupport.hpp"
+#include "../util/errormanagement.hpp"
 #include "../bytecode/types.hpp"
 #include <tuple>
 #include <unordered_map>
@@ -26,12 +27,6 @@
 
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
-
-//! Call to designate a normally unreachable spot.
-//! With debug_mode set, throws an exception. Otherwise, uses
-//! __builtin_unreachble (effectively becoming an optimization).
-[[noreturn]]
-void fail_impossible();
 
 class VM
 {

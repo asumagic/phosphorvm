@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <fmt/color.h>
 #include <fmt/core.h>
+#include "../util/errormanagement.hpp"
 #include "../util/nametype.hpp"
 #include "../config.hpp"
 #include "traits.hpp"
@@ -55,9 +56,7 @@ T MainStack::pop()
 		return ret;
 	}
 
-	throw std::runtime_error{
-		"Unimplemented MainStack::pop for current type"
-	};
+	fail_impossible("Unimplemented MainStack::push for current type");
 }
 
 template<class T>
@@ -80,9 +79,7 @@ void MainStack::push(const T& value)
 	}
 	else
 	{
-		throw std::runtime_error{
-			"Unimplemented MainStack::push for current type"
-		};
+		fail_impossible("Unimplemented MainStack::push for current type");
 	}
 }
 
