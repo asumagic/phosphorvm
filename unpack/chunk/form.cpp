@@ -79,10 +79,10 @@ void Form::process_references()
 				if (script == nullptr)
 				{
 					fmt::print(
-								fmt::color::yellow,
-								"\tCould not find reference occurrence for '{}'\n",
-								def.name
-								);
+						fmt::color::yellow,
+						"\tCould not find reference occurrence for '{}'\n",
+						def.name
+					);
 					break;
 				}
 
