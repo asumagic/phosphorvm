@@ -116,12 +116,12 @@ void Form::process_functions()
 	for (auto& f : func.definitions)
 	{
 		auto pos = std::find_if(
-					scpt.elements.begin(),
-					scpt.elements.end(),
-					[&](ScriptDefinition& def) {
+			scpt.elements.begin(),
+			scpt.elements.end(),
+			[&](ScriptDefinition& def) {
 				return f.name == def.name;
-	}
-				);
+			}
+		);
 
 		if (pos != scpt.elements.end())
 		{
