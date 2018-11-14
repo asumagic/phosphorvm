@@ -50,7 +50,7 @@ void Form::process_references()
 				for (auto& script : code.elements)
 				{
 					if (address >= script.file_offset
-							&& address < script.file_offset + script.data.size() * 4)
+					 && address < script.file_offset + script.data.size() * 4)
 					{
 						return &script;
 					}
