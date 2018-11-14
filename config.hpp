@@ -9,14 +9,14 @@ constexpr bool
 	debug_everything = false,
 
 	//! Provides a lot of information on the unpacked data.win file.
-	verbose_unpack = false,
+	verbose_unpack = true,
 
 	//! Provide debug information for bytecode post-processing (reference
 	//! processing, etc.).
-	verbose_postprocess = false,
+	verbose_postprocess = true,
 
 	//! Disassembles the bytecode program.
-	disassemble = false,
+	disassemble = true,
 
 	//! Prints a debug message on every single instruction in the VM.
 	vm_verbose_instructions = false,
@@ -32,7 +32,7 @@ constexpr bool
 	//!   exception.
 	//! - Checking the boundaries for the block reader.
 	//! - Checking stack limits (main stack, call stack, ...).
-	vm_safer = false;
+	vm_safer = true;
 }
 
 constexpr bool check(const bool flag)
