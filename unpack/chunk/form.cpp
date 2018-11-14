@@ -43,7 +43,7 @@ void Form::process_variables()
 
 void Form::process_references()
 {
-	auto process_references_for = [&](auto& chunk) {
+	auto process_references_for = [&](auto& chunk, auto on_reference_found) {
 		for (s32 i = 0; std::size_t(i) < chunk.definitions.size(); ++i)
 		{
 			auto find_code_from_address = [this](auto address) -> Script* {
@@ -86,6 +86,8 @@ void Form::process_references()
 					break;
 				}
 
+				on_reference_found(def, *script);
+
 				// Find the relevant block from the offset
 				Block* block = &script->data[(address - script->file_offset) / 4];
 
@@ -107,8 +109,14 @@ void Form::process_references()
 		}
 	};
 
-	process_references_for(vari);
-	process_references_for(func);
+	process_references_for(vari, [](VariableDefinition& def, Script& script) {
+		if (def.instance_type == -1 && s32(def.unknown) == -6)
+		{
+			++script.local_count;
+		}
+	});
+
+	process_references_for(func, [](FunctionDefinition&, Script&) {});
 }
 
 void Form::process_functions()

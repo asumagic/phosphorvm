@@ -9,6 +9,8 @@ struct Script
 	std::size_t file_offset;
 	std::vector<Block> data;
 
+	std::size_t local_count = 0;
+
 	void debug_print() const
 	{
 		fmt::print("\tCode entry for '{}'\n", name);
