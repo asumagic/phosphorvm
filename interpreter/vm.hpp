@@ -9,13 +9,6 @@
 #include "../util/compilersupport.hpp"
 #include "../util/errormanagement.hpp"
 #include "../bytecode/types.hpp"
-#include <tuple>
-#include <unordered_map>
-#include <stack>
-
-// Seriously, don't bother looking at this unless you want to get rid of your
-// sanity for good. This is the worst pile of garbage hacks since the creation
-// of the Win32 API.
 
 #define DISPATCH_NEXT(appended_type) \
 	dispatcher< \
