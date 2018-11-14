@@ -42,9 +42,10 @@ void VM::execute(const Script& script)
 	{
 		fmt::print(
 			fmt::color::red,
-			"\nExecuting function '{}' (call depth {})",
+			"\nExecuting function '{}' (call depth {}, initial stack frame size {})",
 			script.name,
-			frames.offset + 1
+			frames.offset + 1,
+			stack.offset() - frames.top().stack_offset
 		);
 	}
 
@@ -302,7 +303,7 @@ void VM::execute(const Script& script)
 			{
 				fmt::print(
 					fmt::color::blue_violet,
-					"Returning from {}\n\n",
+					"\nReturning from {}\n\n",
 					script.name
 				);
 			}
