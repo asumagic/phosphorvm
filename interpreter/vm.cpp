@@ -140,6 +140,16 @@ void VM::execute(const Script& script)
 			});
 		};
 
+		auto op_arithmetic_integral2 = [&](auto handler) FORCE_INLINE {
+			op_arithmetic2([&](auto a, auto b) {
+				if constexpr (std::is_integral_v<decltype(a)>
+						   && std::is_integral_v<decltype(b)>)
+				{
+					return handler(a, b);
+				}
+			});
+		};
+
 		auto branch = [&]() FORCE_INLINE {
 			s32 offset = block & 0xFFFFFF;
 
@@ -216,9 +226,19 @@ void VM::execute(const Script& script)
 		} break;
 
 		BINOP_ARITH(opsub, -)
-		//BINOP_ARITH(opand, &)
-		//BINOP_ARITH(opor,  |)
-		//BINOP_ARITH(opxor, ^)
+
+		case Instr::opand:
+			op_arithmetic_integral2([&](auto a, auto b) { return a & b; });
+			break;
+
+		case Instr::opor:
+			op_arithmetic_integral2([&](auto a, auto b) { return a | b; });
+			break;
+
+		case Instr::opxor:
+			op_arithmetic_integral2([&](auto a, auto b) { return a ^ b; });
+			break;
+
 		// case Instr::opneg: // TODO
 		// case Instr::opnot: // TODO
 
