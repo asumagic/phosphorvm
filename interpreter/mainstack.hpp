@@ -3,12 +3,13 @@
 #include <array>
 #include <cstring>
 #include <stdexcept>
+#include <type_traits>
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include "../util/errormanagement.hpp"
 #include "../util/nametype.hpp"
 #include "../config.hpp"
-#include "traits.hpp"
+#include "traits/datatype.hpp"
 
 class MainStack
 {

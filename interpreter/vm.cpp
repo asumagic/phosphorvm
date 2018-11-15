@@ -9,6 +9,7 @@
 #include "../util/cast.hpp"
 #include "../util/compilersupport.hpp"
 #include "../util/nametype.hpp"
+#include "variablereference.hpp"
 
 #define BINOP_ARITH(name, op) case Instr::name : \
 	op_arithmetic2([&](auto a, auto b) { \
@@ -76,9 +77,7 @@ void VM::execute(const Script& script)
 				auto inst_type = stack.pop<InstType>();
 				auto data_type = pop_variable_var_type(inst_type);
 				return dispatcher([&](auto v) {
-					VariableReference<decltype(v)> var{inst_type, data_type};
-					read_variable(var);
-					return handler(var);
+					return handler(VariableReference<decltype(v)>{inst_type}.read(*this));
 				}, std::array{data_type});
 			}
 
@@ -286,7 +285,15 @@ void VM::execute(const Script& script)
 			});
 		} break;
 
-		// case Instr::oppop: // TODO
+		case Instr::oppop: {
+			pop_dispatch([&](auto v) {
+				auto inst_type = InstType((block >> 16) & 0xFF);
+				VariableReference<decltype(value(v))> dst{inst_type};
+				//AAAAAAA read variable ref and thing
+				//write_variable(dst);
+			}, t1);
+		} break;
+
 		// case Instr::oppushi16: // TODO
 		// case Instr::opdup: // TODO
 
@@ -330,7 +337,7 @@ void VM::execute(const Script& script)
 		//case Instr::oppushglb:
 
 		case Instr::oppushspc:
-			push_special(SpecialVar(reader.next_block() & 0x00FFFFFF));
+			read_special(SpecialVar(reader.next_block() & 0x00FFFFFF));
 			break;
 
 		case Instr::oppushi16:
@@ -341,6 +348,7 @@ void VM::execute(const Script& script)
 			Frame& frame = frames.push();
 			auto argument_count = block & 0xFFFF;
 			frame.stack_offset = stack.offset() - argument_count * Variable::stack_variable_size;
+			frame.max_local_count = script.local_count;
 
 			// TODO: reduce indirection here
 			const auto& func = form.func.definitions[reader.next_block()];
@@ -368,13 +376,14 @@ void VM::execute(const Script& script)
 	}
 }
 
-void VM::push_special(SpecialVar var)
+void VM::read_special(SpecialVar var)
 {
 	// argumentn
 	if (unsigned(var) <= 16)
 	{
+		Frame& frame = frames.top();
 		stack.push_raw(
-			&stack.raw[frames.top().stack_offset + Variable::stack_variable_size * unsigned(var)],
+			&stack.raw[frame.stack_offset + Variable::stack_variable_size * (frame.max_local_count + unsigned(var))],
 			Variable::stack_variable_size
 		);
 

@@ -2,7 +2,7 @@
 
 #include <type_traits>
 #include "common.hpp"
-#include "../variable.hpp"
+#include "../variablereference.hpp"
 
 template<class T>
 constexpr bool is_var()

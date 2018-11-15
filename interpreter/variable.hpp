@@ -2,17 +2,14 @@
 
 #include "../bytecode/enums.hpp"
 #include "../bytecode/types.hpp"
-#include <optional>
+#include "string.hpp"
 
 //! Type used as a placeholder in dispatcher so instructions can detect
 //! variables through type information. This may be passed to the 'f' parameter
 //! called by VM:hell only when ResolveVariableReferences is false.
 // It doesn't even have InstType information because we may have to peek the
 // stack in order to read that value, which may be the unwanted behavior.
-// pop<VariablePlaceholder> should successfully skip the value, however.
 struct VariablePlaceholder {};
-
-struct StringReference {};
 
 struct Variable
 {
@@ -31,18 +28,4 @@ struct Variable
 
 	constexpr static std::size_t stack_variable_size =
 		sizeof(InstType) + sizeof(VarType) + sizeof(s64);
-};
-
-template<class T>
-struct VariableReference
-{
-	using value_type = T;
-
-	InstType inst_type;
-	DataType data_type;
-
-	// This is necessary so we can cleanly pop 2 variables in one instruction
-	// by keeping the read value here. The point of VariableReference is to
-	// (hopefully) all get optimized out anyway.
-	std::optional<T> cached_value = {};
 };

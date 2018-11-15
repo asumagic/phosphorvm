@@ -1,6 +1,6 @@
 #pragma once
 
-#include <type_traits>
+#include "common.hpp"
 #include "../../bytecode/enums.hpp"
 #include "../../bytecode/types.hpp"
 
@@ -15,7 +15,7 @@ class data_type_for
 		if constexpr (std::is_same_v<T, f32>) { return DataType::f32; }
 		if constexpr (std::is_same_v<T, f64>) { return DataType::f64; }
 		if constexpr (std::is_same_v<T, StringReference>) { return DataType::str; }
-		if constexpr (is_var<T>() || std::is_same_v<T, VariablePlaceholder>) { return DataType::var; }
+		return DataType::var;
 	}
 
 public:
