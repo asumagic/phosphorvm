@@ -49,8 +49,11 @@ public:
 
 	DataType pop_variable_var_type(InstType inst_type);
 
+	//! Reads the value into a variable reference. This is potentially
+	//! destructive as stack variables will be popped by this. This requires
+	//! having initialized 'variable' with instance type and var type.
 	template<class T>
-	T pop_variable(VariableReference<T>& variable);
+	T read_variable(VariableReference<T>& variable);
 
 	template<class T>
 	auto value(T& value);
@@ -101,7 +104,7 @@ void VM::push_stack_variable(const T& value)
 
 template<class T>
 FORCE_INLINE
-T VM::pop_variable(VariableReference<T>& variable)
+T VM::read_variable(VariableReference<T>& variable)
 {
 	if (!variable.cached_value)
 	{
@@ -128,7 +131,7 @@ auto VM::value(T& value)
 {
 	if constexpr (is_var<T>())
 	{
-		return pop_variable(value);
+		return read_variable(value);
 	}
 	else
 	{

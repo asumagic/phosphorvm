@@ -77,7 +77,7 @@ void VM::execute(const Script& script)
 				auto data_type = pop_variable_var_type(inst_type);
 				return dispatcher([&](auto v) {
 					VariableReference<decltype(v)> var{inst_type, data_type};
-					pop_variable(var);
+					read_variable(var);
 					return handler(var);
 				}, std::array{data_type});
 			}
