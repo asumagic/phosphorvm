@@ -115,7 +115,7 @@ T VM::pop_variable(VariableReference<T>& variable)
 			break;
 
 		default:
-			throw std::runtime_error{"Unimplemented pop_variable for T"};
+			maybe_unreachable("Unimplemented pop_variable for T");
 		}
 	}
 
