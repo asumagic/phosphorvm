@@ -6,7 +6,7 @@ namespace debug
 {
 constexpr bool
 	//! Override, which enables all flag checks.
-	debug_everything = true,
+	debug_everything = false,
 
 	//! Provides a lot of information on the unpacked data.win file.
 	verbose_unpack = true,
