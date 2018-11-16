@@ -116,8 +116,8 @@ void VM::execute(const Script& script)
 						{
 							fmt::print(
 								fmt::color::yellow_green,
-									"    -> Variable<{}>\n",
-									type_name<ReturnType>()
+								"    -> Variable<{}>\n",
+								type_name<ReturnType>()
 							);
 						}
 
