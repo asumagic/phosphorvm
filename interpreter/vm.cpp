@@ -77,7 +77,9 @@ void VM::execute(const Script& script)
 				auto inst_type = stack.pop<InstType>();
 				auto data_type = pop_variable_var_type(inst_type);
 				return dispatcher([&](auto v) {
-					return handler(VariableReference<decltype(v)>{inst_type}.read(*this));
+					VariableReference<decltype(v)> var{inst_type};
+					var.read(*this);
+					return handler(var);
 				}, std::array{data_type});
 			}
 
@@ -136,6 +138,13 @@ void VM::execute(const Script& script)
 
 						stack.push(handler(a, b));
 					}
+				}
+				else
+				{
+					maybe_unreachable(
+						"Provided function does not handle arithmetic between"
+						"the two provided types"
+					);
 				}
 			});
 		};
