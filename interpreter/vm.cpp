@@ -43,10 +43,11 @@ void VM::execute(const Script& script)
 	{
 		fmt::print(
 			fmt::color::red,
-			"\nExecuting function '{}' (call depth {}, initial stack frame size {})",
+			"\nExecuting function '{}' ({}th nested call, {} bytes allocated on stakc, {} locals)",
 			script.name,
 			frames.offset + 1,
-			stack.offset() - frames.top().stack_offset
+			stack.offset() - frames.top().stack_offset,
+			frames.top().max_local_count
 		);
 	}
 
