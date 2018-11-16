@@ -72,6 +72,9 @@ void Form::process_references()
 				);
 			}
 
+			Script* last_script = nullptr;
+			std::size_t same_script_count = 0;
+
 			for (unsigned j = 0; j < def.occurrences; ++j)
 			{
 				Script* script = find_code_from_address(address);
@@ -86,7 +89,28 @@ void Form::process_references()
 					break;
 				}
 
-				on_reference_found(def, *script);
+				if (script != last_script)
+				{
+					if constexpr (check(debug::verbose_postprocess))
+					{
+						fmt::print(
+							"\tOverriden in '{}'\n",
+							script->name,
+							i
+						);
+
+						if (same_script_count != 0)
+						{
+							fmt::print("\t... {} times\n", same_script_count);
+						}
+					}
+
+					on_reference_found(def, *script);
+				}
+				else
+				{
+					++same_script_count;
+				}
 
 				// Find the relevant block from the offset
 				Block* block = &script->data[(address - script->file_offset) / 4];
@@ -97,14 +121,7 @@ void Form::process_references()
 				// Write the reference to the found block
 				block[1] = (block[1] & 0xFF000000) | i;
 
-				if (check(debug::verbose_postprocess))
-				{
-					fmt::print(
-						"\tOverriden in '{}'\n",
-						script->name,
-						i
-					);
-				}
+				last_script = script;
 			}
 		}
 	};
