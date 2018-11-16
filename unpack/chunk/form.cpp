@@ -110,7 +110,7 @@ void Form::process_references()
 	};
 
 	process_references_for(vari, [](VariableDefinition& def, Script& script) {
-		if (def.instance_type == -1 && s32(def.unknown) >= 0)
+		if (def.instance_type == -7 && s32(def.unknown) >= 0)
 		{
 			++script.local_count;
 		}
