@@ -358,7 +358,7 @@ void VM::execute(const Script& script)
 			Frame& frame = frames.push();
 			auto argument_count = block & 0xFFFF;
 			frame.stack_offset = stack.offset() - argument_count * Variable::stack_variable_size;
-			frame.max_local_count = script.local_count;
+
 
 			// TODO: reduce indirection here
 			const auto& func = form.func.definitions[reader.next_block()];
@@ -369,7 +369,9 @@ void VM::execute(const Script& script)
 			}
 			else
 			{
-				execute(*func.associated_script);
+				Script& called_script = *func.associated_script;
+				frame.max_local_count = called_script.local_count;
+				execute(called_script);
 			}
 
 			frames.pop();
