@@ -101,7 +101,7 @@ void Form::process_references()
 
 						if (same_script_count != 0)
 						{
-							fmt::print("\t... {} times\n", same_script_count);
+							fmt::print("\t... {} times\n", same_script_count + 1);
 						}
 					}
 
