@@ -27,6 +27,10 @@ constexpr bool
 	//! Prints a debug message when entering/leaving any function.
 	vm_verbose_calls = false,
 
+	//! Initializes stacks with a recognizable pattern to help detect
+	//! uninitialized stack usage.
+	vm_debug_stack = true,
+
 	//! Trades performance for safety. This includes:
 	//! - Turning maybe_unreachable() calls from __builtin_unreachable to an
 	//!   exception.
