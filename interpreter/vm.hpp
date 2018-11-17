@@ -12,8 +12,12 @@
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-struct VM
+class VM
 {
+	std::size_t local_offset(s32 var_id) const;
+
+public:
+	// TODO: make those private
 	const Form& form;
 
 	MainStack stack;
@@ -33,7 +37,6 @@ struct VM
 	//! 'types'. e.g. dispatcher(f, std::array{DataType::f32, DataType::f64})
 	//! will call f(0.0f, 0.0);
 	// TODO: make this usable to implement builtins sanely
-	// TODO: this is probably awful in terms of compile times, improve that
 	template<std::size_t Left, class F, class... Ts>
 	void dispatcher(F f, std::array<DataType, Left> types);
 
@@ -41,8 +44,6 @@ struct VM
 
 	template<class T>
 	void push_stack_variable(const T& value);
-
-	DataType pop_variable_var_type(InstType inst_type);
 
 	template<class T>
 	auto value(T& value);

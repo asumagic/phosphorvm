@@ -14,6 +14,7 @@ struct FrameStack
 	Frame& push();
 	void pop();
 	Frame& top();
+	const Frame& top() const;
 };
 
 inline Frame& FrameStack::push()
@@ -44,6 +45,11 @@ inline void FrameStack::pop()
 }
 
 inline Frame& FrameStack::top()
+{
+	return frames[offset];
+}
+
+inline const Frame& FrameStack::top() const
 {
 	return frames[offset];
 }

@@ -231,7 +231,7 @@ void Disassembler::operator()(const Script& script)
 
 		// TODO: pop.i16.var seems to cause issues
 		case Instr::oppop: {
-			mnemonic = fmt::format("pop.{}.{}", type_suffix(t1), type_suffix(t2));
+			mnemonic = fmt::format("popv.{}", type_suffix(t2));
 			params = resolve_variable_name(*(block_ptr++));
 		} break;
 

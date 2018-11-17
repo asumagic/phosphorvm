@@ -89,7 +89,8 @@ void Form::process_references()
 					break;
 				}
 
-				if (script != last_script)
+				if (last_script != nullptr
+				&& (script != last_script || j == def.occurrences - 1))
 				{
 					if constexpr (check(debug::verbose_postprocess))
 					{
@@ -105,7 +106,7 @@ void Form::process_references()
 						}
 					}
 
-					on_reference_found(def, *script);
+					on_reference_found(def, *last_script);
 				}
 				else
 				{

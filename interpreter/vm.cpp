@@ -21,16 +21,22 @@
 	}); \
 	break;
 
+std::size_t VM::local_offset(s32 var_id) const
+{
+	const Frame& frame = frames.top();
+	return frame.stack_offset + (frame.argument_count + var_id) * Variable::stack_variable_size;
+}
+
 void VM::print_stack_frame()
 {
 	fmt::print(
 		fmt::color::gray,
 		"Stack frame data ({:5} bytes): {:02x}\n",
-		stack.offset() - frames.top().stack_offset,
+		stack.offset - frames.top().stack_offset,
 		fmt::join(
 			std::vector<u8>(
 				&stack.raw[frames.top().stack_offset],
-				&stack.raw[stack.offset()]
+				&stack.raw[stack.offset]
 			),
 			""
 		)
@@ -46,7 +52,7 @@ void VM::execute(const Script& script)
 			"\nExecuting function '{}' ({}th nested call, {} bytes allocated on stack)",
 			script.name,
 			frames.offset + 1,
-			stack.offset() - frames.top().stack_offset
+			stack.offset - frames.top().stack_offset
 		);
 	}
 
@@ -74,10 +80,9 @@ void VM::execute(const Script& script)
 		auto pop_dispatch = [&](auto handler, DataType type) FORCE_INLINE {
 			if (type == DataType::var)
 			{
-				auto inst_type = stack.pop<InstType>();
-				auto data_type = pop_variable_var_type(inst_type);
+				auto data_type = stack.pop<DataType>();
 				return dispatcher([&](auto v) {
-					VariableReference<decltype(v)> var{inst_type};
+					VariableReference<decltype(v)> var;
 					var.read(*this);
 					return handler(var);
 				}, std::array{data_type});
@@ -297,10 +302,11 @@ void VM::execute(const Script& script)
 		case Instr::oppop: {
 			pop_dispatch([&](auto v) {
 				auto inst_type = InstType((block >> 16) & 0xFF);
-				VariableReference<decltype(value(v))> dst{inst_type};
+				auto reference = reader.next_block();
+				VariableReference<decltype(value(v))> dst{inst_type, s32(reference & 0xFFFFFF)};
 				//AAAAAAA read variable ref and thing
 				//write_variable(dst);
-			}, t1);
+			}, t2);
 		} break;
 
 		// case Instr::oppushi16: // TODO
@@ -308,12 +314,12 @@ void VM::execute(const Script& script)
 
 		case Instr::opret: {
 			std::move(
-				stack.raw.begin() + stack.offset() - Variable::stack_variable_size,
-				stack.raw.begin() + stack.offset(),
+				stack.raw.begin() + stack.offset - Variable::stack_variable_size,
+				stack.raw.begin() + stack.offset,
 				stack.raw.begin() + frames.top().stack_offset
 			);
 
-			stack.skip(stack.offset() - frames.top().stack_offset - Variable::stack_variable_size);
+			stack.skip(stack.offset - frames.top().stack_offset - Variable::stack_variable_size);
 
 			if constexpr (check(debug::vm_verbose_calls))
 			{
@@ -340,9 +346,41 @@ void VM::execute(const Script& script)
 		// case Instr::oppushenv: // TODO
 		// case Instr::oppopenv: // TODO
 
-		//case Instr::oppushcst: break;
+		case Instr::oppushcst:
+		{
+			dispatcher([&](auto v) {
+				if constexpr (std::is_arithmetic_v<decltype(v)>)
+				{
+					if (t1 == DataType::i16)
+					{
+						stack.push(s32(block & 0xFFFF));
+					}
+					else
+					{
+						maybe_unreachable("Arithmetic type not implemented for pushcst");
+					}
+				}
+				/*else if constexpr (std::is_same_v<decltype(v), VariablePlaceholder>)
+				{
+					auto info = InstType(s16(block & 0xFFFF));
 
-		//case Instr::oppushloc:
+					dispatcher([&](auto v) {
+						VariableReference<decltype(v)> ref;
+						push_stack_variable(ref.read(*this));
+					}, std::array{info.data_type});
+				}*/
+				else
+				{
+					maybe_unreachable("Type not implemented for pushcst");
+				}
+			}, std::array{t1});
+		} break;
+
+		/*case Instr::oppushloc: {
+			// TODO: be able to read data type then value in here
+			//push_stack_variable();
+		} break;*/
+
 		//case Instr::oppushglb:
 
 		case Instr::oppushspc:
@@ -355,8 +393,8 @@ void VM::execute(const Script& script)
 
 		case Instr::opcall: {
 			Frame& frame = frames.push();
-			auto argument_count = block & 0xFFFF;
-			frame.stack_offset = stack.offset() - argument_count * Variable::stack_variable_size;
+			frame.argument_count = block & 0xFFFF;
+			frame.stack_offset = stack.offset - frame.argument_count * Variable::stack_variable_size;
 
 			// TODO: reduce indirection here
 			const auto& func = form.func.definitions[reader.next_block()];
@@ -398,17 +436,5 @@ void VM::read_special(SpecialVar var)
 		);
 
 		return;
-	}
-}
-
-DataType VM::pop_variable_var_type(InstType inst_type)
-{
-	switch (inst_type)
-	{
-	case InstType::stack_top_or_global:
-		return stack.pop<DataType>();
-
-	default:
-		maybe_unreachable("Unhandled variable type");
 	}
 }

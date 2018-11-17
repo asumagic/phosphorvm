@@ -3,7 +3,7 @@
 #include "../bytecode/types.hpp"
 #include "../bytecode/enums.hpp"
 
-struct VM;
+class VM;
 
 using Builtin = int(*)(VM&);
 

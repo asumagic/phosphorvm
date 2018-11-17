@@ -47,7 +47,6 @@ void VM::push_stack_variable(const T& value)
 	stack.push(value);
 	stack.skip(-padding_bytes);
 	stack.push(data_type_for<T>::value);
-	stack.push(InstType::stack_top_or_global);
 }
 
 template<class T>

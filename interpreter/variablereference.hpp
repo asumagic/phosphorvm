@@ -9,7 +9,7 @@ template<class T>
 class VariableReference
 {
 	InstType _inst_type;
-	s32 _var_id = 0;
+	s32 _var_id;
 
 	//! Can be used in two ways:
 	//! - Storing the value for a temporary VariableReference for reading
@@ -19,7 +19,7 @@ class VariableReference
 public:
 	using value_type = T;
 
-	VariableReference(InstType inst_type);
+	VariableReference(InstType inst_type = InstType::stack_top_or_global, s32 var_id = 0);
 
 	//! Reads the value into 'stored_value'. This can alter the VM state
 	//! because it will pop stack variables.
@@ -27,8 +27,9 @@ public:
 };
 
 template<class T>
-VariableReference<T>::VariableReference(InstType inst_type) :
-	_inst_type{inst_type}
+VariableReference<T>::VariableReference(InstType inst_type, s32 var_id) :
+	_inst_type{inst_type},
+	_var_id{var_id}
 {}
 
 template<class T>

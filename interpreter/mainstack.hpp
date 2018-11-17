@@ -11,12 +11,10 @@
 #include "../config.hpp"
 #include "traits/datatype.hpp"
 
-class MainStack
+struct MainStackReader
 {
-	std::size_t _offset = 0;
-
-public:
-	std::array<char, max_stack_depth> raw;
+	std::size_t offset;
+	std::array<char, max_stack_depth>& raw_ref;
 
 	template<class T>
 	T pop();
@@ -29,19 +27,49 @@ public:
 	//! Skips 'count' bytes downward (i.e. pop). Negative values are accepted
 	//! and skip the stack pointer upward.
 	void skip(long count);
-
-	std::size_t offset() const;
 };
 
+class MainStack : public MainStackReader
+{
+public:
+	MainStack();
+
+	std::array<char, max_stack_depth> raw;
+
+	void seek(MainStackReader reader);
+
+	MainStackReader temporary_reader();
+	MainStackReader temporary_reader(std::size_t _offset);
+};
+
+inline MainStack::MainStack() :
+	MainStackReader{0, raw}
+{}
+
+inline void MainStack::seek(MainStackReader reader)
+{
+	offset = reader.offset;
+}
+
+inline MainStackReader MainStack::temporary_reader()
+{
+	return {*this};
+}
+
+inline MainStackReader MainStack::temporary_reader(std::size_t offset)
+{
+	return {offset, raw};
+}
+
 template<class T>
-T MainStack::pop()
+T MainStackReader::pop()
 {
 	if constexpr (numeric_type<T>::value)
 	{
-		_offset -= sizeof(T);
+		offset -= sizeof(T);
 
 		T ret;
-		std::memcpy(&ret, &raw[_offset], sizeof(T));
+		std::memcpy(&ret, &raw_ref[offset], sizeof(T));
 
 		if constexpr (check(debug::vm_verbose_stack))
 		{
@@ -61,7 +89,7 @@ T MainStack::pop()
 }
 
 template<class T>
-void MainStack::push(const T& value)
+void MainStackReader::push(const T& value)
 {
 	if constexpr (numeric_type<T>::value)
 	{
@@ -84,15 +112,15 @@ void MainStack::push(const T& value)
 	}
 }
 
-inline void MainStack::push_raw(const void* source, std::size_t bytes)
+inline void MainStackReader::push_raw(const void* source, std::size_t bytes)
 {
-	std::memcpy(&raw[_offset], source, bytes);
-	_offset += bytes;
+	std::memcpy(&raw_ref[offset], source, bytes);
+	offset += bytes;
 }
 
-inline void MainStack::skip(long count)
+inline void MainStackReader::skip(long count)
 {
-	_offset -= count;
+	offset -= count;
 
 	if constexpr (check(debug::vm_verbose_stack))
 	{
@@ -113,9 +141,4 @@ inline void MainStack::skip(long count)
 			);
 		}
 	}
-}
-
-inline std::size_t MainStack::offset() const
-{
-	return _offset;
 }
