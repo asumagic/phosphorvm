@@ -43,11 +43,10 @@ void VM::execute(const Script& script)
 	{
 		fmt::print(
 			fmt::color::red,
-			"\nExecuting function '{}' ({}th nested call, {} bytes allocated on stack, {} locals)",
+			"\nExecuting function '{}' ({}th nested call, {} bytes allocated on stack)",
 			script.name,
 			frames.offset + 1,
-			stack.offset() - frames.top().stack_offset,
-			frames.top().max_local_count
+			stack.offset() - frames.top().stack_offset
 		);
 	}
 
@@ -359,7 +358,6 @@ void VM::execute(const Script& script)
 			auto argument_count = block & 0xFFFF;
 			frame.stack_offset = stack.offset() - argument_count * Variable::stack_variable_size;
 
-
 			// TODO: reduce indirection here
 			const auto& func = form.func.definitions[reader.next_block()];
 
@@ -370,7 +368,7 @@ void VM::execute(const Script& script)
 			else
 			{
 				Script& called_script = *func.associated_script;
-				frame.max_local_count = called_script.local_count;
+				stack.skip(-called_script.local_count * Variable::stack_variable_size);
 				execute(called_script);
 			}
 
@@ -395,7 +393,7 @@ void VM::read_special(SpecialVar var)
 	{
 		Frame& frame = frames.top();
 		stack.push_raw(
-			&stack.raw[frame.stack_offset + Variable::stack_variable_size * (frame.max_local_count + unsigned(var))],
+			&stack.raw[frame.stack_offset + Variable::stack_variable_size * unsigned(var)],
 			Variable::stack_variable_size
 		);
 
