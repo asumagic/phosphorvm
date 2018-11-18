@@ -58,6 +58,8 @@ void VM::execute(const Script& script)
 
 	BlockReader reader{script};
 
+	bool compare_flag = false;
+
 	for (;;)
 	{
 		const auto block = reader.current_block();
@@ -80,12 +82,11 @@ void VM::execute(const Script& script)
 		auto pop_dispatch = [&](auto handler, DataType type) FORCE_INLINE {
 			if (type == DataType::var)
 			{
-				auto data_type = stack.pop<DataType>();
 				return dispatcher([&](auto v) {
 					VariableReference<decltype(v)> var;
 					var.read(*this);
 					return handler(var);
-				}, std::array{data_type});
+				}, std::array{stack.pop<DataType>()});
 			}
 
 			return dispatcher([&](auto v) {
@@ -277,23 +278,26 @@ void VM::execute(const Script& script)
 		case Instr::opcmp: {
 			auto func = CompFunc((block >> 8) & 0xFF);
 			op_pop2([&](auto a, auto b) {
-				stack.push([]([[maybe_unused]] auto func, auto a, auto b) FORCE_INLINE -> bool {
-					if constexpr (are<std::is_arithmetic>(a, b))
-					{
-						switch (func)
-						{
-						case CompFunc::lt:  return a <  b;
-						case CompFunc::lte: return a <= b;
-						case CompFunc::eq:  return a == b;
-						case CompFunc::neq: return a != b;
-						case CompFunc::gte: return a >= b;
-						case CompFunc::gt:  return a >  b;
-						default: maybe_unreachable();
-						}
-					}
+				auto va = value(a);
+				auto vb = value(b);
 
+				if constexpr (are<std::is_arithmetic>(va, vb))
+				{
+					switch (func)
+					{
+					case CompFunc::lt:  compare_flag = va <  vb; break;
+					case CompFunc::lte: compare_flag = va <= vb; break;
+					case CompFunc::eq:  compare_flag = va == vb; break;
+					case CompFunc::neq: compare_flag = va != vb; break;
+					case CompFunc::gte: compare_flag = va >= vb; break;
+					case CompFunc::gt:  compare_flag = va >  vb; break;
+					default: maybe_unreachable();
+					}
+				}
+				else
+				{
 					maybe_unreachable("Comparison should be impossible");
-				}(func, value(a), value(b)));
+				}
 			});
 		} break;
 
@@ -338,8 +342,8 @@ void VM::execute(const Script& script)
 		} break;
 
 		case Instr::opb: branch(); break;
-		case Instr::opbt: if (stack.pop<bool>()) { branch(); } break;
-		case Instr::opbf: if (!stack.pop<bool>()) { branch(); } break;
+		case Instr::opbt: if (compare_flag) { branch(); } break;
+		case Instr::opbf: if (!compare_flag) { branch(); } break;
 
 		// case Instr::oppushenv: // TODO
 		// case Instr::oppopenv: // TODO
