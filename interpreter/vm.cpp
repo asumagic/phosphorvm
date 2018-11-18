@@ -266,7 +266,7 @@ void VM::execute(const Script& script)
 			op_arithmetic_numeric2([&](auto a, auto b) {
 				return a - b;
 			});
-		}
+		} break;
 
 		case Instr::opand:
 			op_arithmetic_integral2([&](auto a, auto b) { return a & b; });
