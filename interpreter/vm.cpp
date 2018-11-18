@@ -238,10 +238,10 @@ void VM::execute(const Script& script)
 		} break;
 
 		case Instr::opdiv: {
-			op_arithmetic_numeric2([&](auto a, auto b)) {
+			op_arithmetic_numeric2([&](auto a, auto b) {
 				// TODO: what to do on /0?
 				return a / b;
-			}
+			});
 		} break;
 
 		// case Instr::oprem: // TODO
