@@ -190,7 +190,7 @@ void VM::execute(const Script& script)
 						push_stack_variable(src);
 					}
 					else if constexpr (std::is_arithmetic_v<decltype(dst)>
-									&& is_arithmetic_convertible<decltype(src)>())
+									&& std::is_arithmetic_v<decltype(value(src))>)
 					{
 						stack.push<decltype(dst)>(value(src));
 					}
