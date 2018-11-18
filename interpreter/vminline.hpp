@@ -33,7 +33,7 @@ void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types)
 		std::array<DataType, Left - 1> new_array;
 		std::copy(types.begin() + 1, types.end(), new_array.begin());
 
-		switch(types[0])
+		switch(types.front())
 		{
 		case DataType::f64: DISPATCH_NEXT(f64) break;
 		case DataType::f32: DISPATCH_NEXT(f32) break;
