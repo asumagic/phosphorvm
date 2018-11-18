@@ -2,7 +2,7 @@
 
 #include "../bytecode/enums.hpp"
 #include "../bytecode/types.hpp"
-#include "vm.hpp"
+#include "../util/errormanagement.hpp"
 #include <optional>
 
 template<class T>
@@ -21,9 +21,8 @@ public:
 
 	VariableReference(InstType inst_type = InstType::stack_top_or_global, s32 var_id = 0);
 
-	//! Reads the value into 'stored_value'. This can alter the VM state
-	//! because it will pop stack variables.
-	T read(VM& vm);
+	void set_read_value(const T& value);
+	T& get_read_value();
 };
 
 template<class T>
@@ -33,22 +32,17 @@ VariableReference<T>::VariableReference(InstType inst_type, s32 var_id) :
 {}
 
 template<class T>
-T VariableReference<T>::read(VM& vm)
+void VariableReference<T>::set_read_value(const T& value)
+{
+	_stored_value = value;
+}
+
+template<class T>
+T& VariableReference<T>::get_read_value()
 {
 	if (!_stored_value)
 	{
-		switch (_inst_type)
-		{
-		case InstType::stack_top_or_global:
-			// At this time the only part of the stack variable that is left is
-			// the actual value, *including padding*, which we have to care about!
-			vm.stack.skip(sizeof(s64) - sizeof(T));
-			_stored_value = vm.stack.pop<T>();
-			break;
-
-		default:
-			maybe_unreachable("Unimplemented pop_variable for T");
-		}
+		maybe_unreachable("Tried to get_read_value, but never set that value");
 	}
 
 	return _stored_value.value();

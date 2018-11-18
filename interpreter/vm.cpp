@@ -88,9 +88,7 @@ void VM::execute(const Script& script)
 			if (type == DataType::var)
 			{
 				return dispatcher([&](auto v) {
-					VariableReference<decltype(v)> var;
-					var.read(*this);
-					return handler(var);
+					return handler(read_variable_reference<decltype(v)>());
 				}, std::array{stack.pop<DataType>()});
 			}
 

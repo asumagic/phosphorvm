@@ -60,11 +60,31 @@ void VM::push_stack_variable(const T& value)
 
 template<class T>
 FORCE_INLINE
+VariableReference<T> VM::read_variable_reference(InstType inst_type, VarId var_id)
+{
+	VariableReference<T> ret{inst_type, var_id};
+
+	switch (inst_type)
+	{
+	case InstType::stack_top_or_global:
+		stack.skip(sizeof(s64) - sizeof(T));
+		ret.set_read_value(stack.pop<T>());
+		break;
+
+	default:
+		maybe_unreachable("Unimplemented read_variable_reference for InstType");
+	}
+
+	return ret;
+}
+
+template<class T>
+FORCE_INLINE
 auto VM::value(T& value)
 {
 	if constexpr (is_var<T>())
 	{
-		return value.read(*this);
+		return value.get_read_value();
 	}
 	else
 	{

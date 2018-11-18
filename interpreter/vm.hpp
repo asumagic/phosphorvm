@@ -3,6 +3,7 @@
 #include "contextstack.hpp"
 #include "framestack.hpp"
 #include "mainstack.hpp"
+#include "variablereference.hpp"
 #include "../config.hpp"
 #include "../unpack/chunk/form.hpp"
 #include "../util/compilersupport.hpp"
@@ -14,17 +15,16 @@ template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 class VM
 {
-	std::size_t argument_offset(ArgId arg_id = 0) const;
-	std::size_t local_offset(VarId var_id = 0) const;
-
-public:
-	// TODO: make those private
 	const Form& form;
 
 	MainStack stack;
 	FrameStack frames;
 	ContextStack contexts;
 
+	std::size_t argument_offset(ArgId arg_id = 0) const;
+	std::size_t local_offset(VarId var_id = 0) const;
+
+public:
 	VM(const Form& p_form);
 
 	//! Calls a function 'f' with parameter types corresponding to the given
@@ -38,6 +38,12 @@ public:
 
 	template<class T>
 	void push_stack_variable(const T& value);
+
+	template<class T>
+	VariableReference<T> read_variable_reference(
+		InstType inst_type = InstType::stack_top_or_global,
+		VarId var_id = 0
+	);
 
 	template<class T>
 	auto value(T& value);
