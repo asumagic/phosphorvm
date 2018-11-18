@@ -94,8 +94,9 @@ void VM::execute(const Script& script)
 		};
 
 		auto op_pop2 = [&](auto handler) FORCE_INLINE {
-			pop_dispatch([&](auto a) {
-				pop_dispatch([&](auto b) {
+			// Parameters are correctly reversed here
+			pop_dispatch([&](auto b) {
+				pop_dispatch([&](auto a) {
 					if constexpr (check(debug::vm_verbose_instructions))
 					{
 						fmt::print(
@@ -112,7 +113,7 @@ void VM::execute(const Script& script)
 		};
 
 		auto op_arithmetic2 = [&](auto handler) FORCE_INLINE {
-			op_pop2([&](auto b, auto a) {
+			op_pop2([&](auto a, auto b) {
 				using ReturnType = decltype(handler(value(a), value(b)));
 
 				if constexpr (!std::is_void_v<ReturnType>)
