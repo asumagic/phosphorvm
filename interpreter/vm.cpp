@@ -28,7 +28,8 @@ std::size_t VM::argument_offset(ArgId arg_id) const
 
 std::size_t VM::local_offset(VarId var_id) const
 {
-	return argument_offset(frames.top().argument_count) + var_id * Variable::stack_variable_size;
+	auto first_local_offset = argument_offset(frames.top().argument_count);
+	return first_local_offset + var_id * Variable::stack_variable_size;
 }
 
 void VM::print_stack_frame()
