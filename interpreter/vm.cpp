@@ -84,6 +84,10 @@ void VM::execute(const Script& script)
 			print_stack_frame();
 		}
 
+		//! Calls a handler providing it a value of the given type popped from
+		//! the stack.
+		//! When encountering variables, will provide a VariableReference<T>
+		//! with T being the variable type as read on the stack.
 		auto pop_dispatch = [&](auto handler, DataType type) FORCE_INLINE {
 			if (type == DataType::var)
 			{
@@ -97,6 +101,7 @@ void VM::execute(const Script& script)
 			}, std::array{type});
 		};
 
+		//! Executes 'handler' as an instruction that pops two parameters.
 		auto op_pop2 = [&](auto handler) FORCE_INLINE {
 			// Parameters are correctly reversed here
 			pop_dispatch([&](auto b) {
@@ -116,6 +121,9 @@ void VM::execute(const Script& script)
 			}, t1);
 		};
 
+		//! Executes 'handler' as an arithmetic instruction.
+		//! When either of the parameters is of variable type, the resulting
+		//! type is always a stack variable.
 		auto op_arithmetic2 = [&](auto handler) FORCE_INLINE {
 			op_pop2([&](auto a, auto b) {
 				using ReturnType = decltype(handler(value(a), value(b)));
@@ -159,6 +167,9 @@ void VM::execute(const Script& script)
 			});
 		};
 
+		//! Executes 'handler' as an arithmetic instruction, but filters
+		//! non-integral parameters.
+		//! @see op_arithmetic2
 		auto op_arithmetic_integral2 = [&](auto handler) FORCE_INLINE {
 			op_arithmetic2([&](auto a, auto b) {
 				if constexpr (are<std::is_integral>(a, b))
@@ -168,6 +179,8 @@ void VM::execute(const Script& script)
 			});
 		};
 
+		//! Jumps to another instruction with an offset defined by the current
+		//! block.
 		auto branch = [&]() FORCE_INLINE {
 			s32 offset = block & 0xFFFFFF;
 
