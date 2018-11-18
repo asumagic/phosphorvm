@@ -11,6 +11,15 @@
 		appended_type \
 	>(f, new_array);
 
+inline VM::VM(const Form& p_form) :
+	form{p_form}
+{
+	if constexpr (check(debug::vm_debug_stack))
+	{
+		std::fill(stack.raw.begin(), stack.raw.end(), 0xAB);
+	}
+}
+
 template<std::size_t Left, class F, class... Ts>
 FORCE_INLINE
 void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types)

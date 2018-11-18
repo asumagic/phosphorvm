@@ -24,14 +24,7 @@ public:
 	FrameStack frames;
 	ContextStack contexts;
 
-	VM(const Form& p_form) :
-		form{p_form}
-	{
-		if constexpr (check(debug::vm_debug_stack))
-		{
-			std::fill(stack.raw.begin(), stack.raw.end(), 0xAB);
-		}
-	}
+	VM(const Form& p_form);
 
 	//! Calls a function 'f' with parameter types corresponding to the given
 	//! 'types'. e.g. dispatcher(f, std::array{DataType::f32, DataType::f64})
