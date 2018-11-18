@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "../../bytecode/enums.hpp"
 #include "../../bytecode/types.hpp"
+#include "../string.hpp"
 
 template<class T>
 class data_type_for

@@ -13,7 +13,7 @@
 
 #define BINOP_ARITH(name, op) case Instr::name : \
 	op_arithmetic2([&](auto a, auto b) { \
-		if constexpr (are_arithmetic<decltype(a), decltype(b)>()) \
+		if constexpr (are<std::is_arithmetic>(a, b)) \
 		{ \
 			return a op b; \
 		} \
@@ -210,7 +210,7 @@ void VM::execute(const Script& script)
 					// TODO
 				}
 
-				if constexpr (are_arithmetic<decltype(a), decltype(b)>())
+				if constexpr (are<std::is_arithmetic>(a, b))
 				{
 					return a * b;
 				}
@@ -232,7 +232,7 @@ void VM::execute(const Script& script)
 					// TODO
 				}
 
-				if constexpr (are_arithmetic<decltype(a), decltype(b)>())
+				if constexpr (are<std::is_arithmetic>(a, b))
 				{
 					return a + b;
 				}
@@ -258,8 +258,7 @@ void VM::execute(const Script& script)
 
 		case Instr::opshl: {
 			op_arithmetic2([&](auto a, auto b) {
-				if constexpr (std::is_integral_v<decltype(a)>
-						   && std::is_integral_v<decltype(b)>)
+				if constexpr (are<std::is_integral>(a, b))
 				{
 					return a << b;
 				}
@@ -268,8 +267,7 @@ void VM::execute(const Script& script)
 
 		case Instr::opshr: {
 			op_arithmetic2([&](auto a, auto b) {
-				if constexpr (std::is_integral_v<decltype(a)>
-						   && std::is_integral_v<decltype(b)>)
+				if constexpr (are<std::is_integral>(a, b))
 				{
 					return a >> b;
 				}
@@ -280,7 +278,7 @@ void VM::execute(const Script& script)
 			auto func = CompFunc((block >> 8) & 0xFF);
 			op_pop2([&](auto a, auto b) {
 				stack.push([]([[maybe_unused]] auto func, auto a, auto b) FORCE_INLINE -> bool {
-					if constexpr (are_arithmetic<decltype(a), decltype(b)>())
+					if constexpr (are<std::is_arithmetic>(a, b))
 					{
 						switch (func)
 						{

@@ -2,11 +2,21 @@
 
 #include <type_traits>
 
-//! Returns true when all values of the parameter pack are arithmetic.
-template<class... Ts>
-constexpr bool are_arithmetic()
+//! Returns true when all values of the parameter pack match the TT trait.
+//! Values can be optionally passed to automatically deduce Ts.
+//! Example usages:
+//! - are<std::is_arithmetic, A, B, C>()
+//! - are<std::is_arithmetic>(a, b, c);
+template<template<class> class TT, class... Ts>
+constexpr bool are()
 {
-	return (std::is_arithmetic_v<Ts> && ...);
+	return (TT<Ts>::value && ...);
+}
+
+template<template<class> class TT, class... Ts>
+constexpr bool are(const Ts&...)
+{
+	return (TT<Ts>::value && ...);
 }
 
 //! Inherits from std::true_type when TT is a template instanciation of T.

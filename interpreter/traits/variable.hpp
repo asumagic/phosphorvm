@@ -27,9 +27,3 @@ constexpr bool is_arithmetic_convertible()
 
 	return false;
 }
-
-template<class... Ts>
-constexpr bool are_arithmetic_convertible()
-{
-	return (is_arithmetic_convertible<Ts>() && ...);
-}
