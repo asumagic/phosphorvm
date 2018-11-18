@@ -9,7 +9,7 @@
 #include "../util/cast.hpp"
 #include "../util/compilersupport.hpp"
 #include "../util/nametype.hpp"
-#include "variablereference.hpp"
+#include "variableoperand.hpp"
 
 #define BINOP_ARITH(name, op) case Instr::name : \
 	op_arithmetic2([&](auto a, auto b) { \
@@ -316,15 +316,15 @@ void VM::execute(const Script& script)
 			});
 		} break;
 
-		case Instr::oppop: {
+		/*case Instr::oppop: {
 			pop_dispatch([&](auto v) {
 				auto inst_type = InstType((block >> 16) & 0xFF);
 				auto reference = reader.next_block();
-				VariableReference<decltype(value(v))> dst{inst_type, s32(reference & 0xFFFFFF)};
+				ReadVariableReference<decltype(value(v))> dst{inst_type, s32(reference & 0xFFFFFF)};
 				//AAAAAAA read variable ref and thing
 				//write_variable(dst);
 			}, t2);
-		} break;
+		} break;*/
 
 		// case Instr::oppushi16: // TODO
 		// case Instr::opdup: // TODO

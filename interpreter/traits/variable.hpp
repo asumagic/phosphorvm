@@ -2,10 +2,10 @@
 
 #include <type_traits>
 #include "common.hpp"
-#include "../variablereference.hpp"
+#include "../variableoperand.hpp"
 
 template<class T>
 constexpr bool is_var()
 {
-	return is_instantiation_of<T, VariableReference>();
+	return is_instantiation_of<T, VariableOperand>();
 }

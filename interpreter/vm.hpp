@@ -4,7 +4,7 @@
 #include "framestack.hpp"
 #include "mainstack.hpp"
 #include "traits/variable.hpp"
-#include "variablereference.hpp"
+#include "variableoperand.hpp"
 #include "../config.hpp"
 #include "../unpack/chunk/form.hpp"
 #include "../util/compilersupport.hpp"
@@ -49,7 +49,7 @@ public:
 	void push_stack_variable(const T& value);
 
 	template<class T>
-	VariableReference<T> read_variable_reference(
+	VariableOperand<T> read_variable_reference(
 		InstType inst_type = InstType::stack_top_or_global,
 		VarId var_id = 0
 	);
@@ -111,22 +111,17 @@ void VM::push_stack_variable(const T& value)
 
 template<class T>
 FORCE_INLINE
-VariableReference<T> VM::read_variable_reference(InstType inst_type, VarId var_id)
+VariableOperand<T> VM::read_variable_reference(InstType inst_type, VarId var_id)
 {
-	VariableReference<T> ret{inst_type, var_id};
-
 	switch (inst_type)
 	{
 	case InstType::stack_top_or_global:
 		stack.skip(sizeof(s64) - sizeof(T));
-		ret.set_read_value(stack.pop<T>());
-		break;
+		return {stack.pop<T>()};
 
 	default:
 		maybe_unreachable("Unimplemented read_variable_reference for InstType");
 	}
-
-	return ret;
 }
 
 template<class T>
@@ -135,7 +130,7 @@ auto VM::value(T& value)
 {
 	if constexpr (is_var<T>())
 	{
-		return value.get_read_value();
+		return value.value;
 	}
 	else
 	{
