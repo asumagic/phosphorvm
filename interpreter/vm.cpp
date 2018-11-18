@@ -120,7 +120,7 @@ void VM::execute(const Script& script)
 
 				if constexpr (!std::is_void_v<ReturnType>)
 				{
-					if constexpr (is_var<decltype(a)>() || is_var<decltype(b)>())
+					if constexpr (is_var(a) || is_var(b))
 					{
 						if constexpr (check(debug::vm_verbose_instructions))
 						{
