@@ -21,10 +21,14 @@
 	}); \
 	break;
 
+std::size_t VM::argument_offset(ArgId arg_id) const
+{
+	return frames.top().stack_offset + arg_id * Variable::stack_variable_size;
+}
+
 std::size_t VM::local_offset(VarId var_id) const
 {
-	const Frame& frame = frames.top();
-	return frame.stack_offset + (frame.argument_count + var_id) * Variable::stack_variable_size;
+	return argument_offset(frames.top().argument_count) + var_id * Variable::stack_variable_size;
 }
 
 void VM::print_stack_frame()
@@ -431,9 +435,8 @@ void VM::read_special(SpecialVar var)
 	// argumentn
 	if (unsigned(var) <= 16)
 	{
-		Frame& frame = frames.top();
 		stack.push_raw(
-			&stack.raw[frame.stack_offset + Variable::stack_variable_size * unsigned(var)],
+			&stack.raw[argument_offset(unsigned(var))],
 			Variable::stack_variable_size
 		);
 

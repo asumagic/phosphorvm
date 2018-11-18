@@ -14,7 +14,8 @@ template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 class VM
 {
-	std::size_t local_offset(VarId var_id) const;
+	std::size_t argument_offset(ArgId arg_id = 0) const;
+	std::size_t local_offset(VarId var_id = 0) const;
 
 public:
 	// TODO: make those private
