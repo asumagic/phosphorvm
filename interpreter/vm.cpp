@@ -156,8 +156,7 @@ void VM::execute(const Script& script)
 
 		auto op_arithmetic_integral2 = [&](auto handler) FORCE_INLINE {
 			op_arithmetic2([&](auto a, auto b) {
-				if constexpr (std::is_integral_v<decltype(a)>
-						   && std::is_integral_v<decltype(b)>)
+				if constexpr (are<std::is_integral>(a, b))
 				{
 					return handler(a, b);
 				}
