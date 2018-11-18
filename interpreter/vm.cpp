@@ -11,16 +11,6 @@
 #include "../util/nametype.hpp"
 #include "variableoperand.hpp"
 
-#define BINOP_ARITH(name, op) case Instr::name : \
-	op_arithmetic2([&](auto a, auto b) { \
-		if constexpr (are<std::is_arithmetic>(a, b)) \
-		{ \
-			return a op b; \
-		} \
-		maybe_unreachable(); \
-	}); \
-	break;
-
 std::size_t VM::argument_offset(ArgId arg_id) const
 {
 	return frames.top().stack_offset + arg_id * Variable::stack_variable_size;
@@ -168,6 +158,17 @@ void VM::execute(const Script& script)
 		};
 
 		//! Executes 'handler' as an arithmetic instruction, but filters
+		//! non-numeric parameters.
+		auto op_arithmetic_numeric2 = [&](auto handler) FORCE_INLINE {
+			op_arithmetic2([&](auto a, auto b) {
+				if constexpr (are<std::is_arithmetic>(a, b))
+				{
+					return handler(value(a), value(b));
+				}
+			});
+		};
+
+		//! Executes 'handler' as an arithmetic instruction, but filters
 		//! non-integral parameters.
 		//! @see op_arithmetic2
 		auto op_arithmetic_integral2 = [&](auto handler) FORCE_INLINE {
@@ -236,7 +237,13 @@ void VM::execute(const Script& script)
 
 		} break;
 
-		BINOP_ARITH(opdiv, /)
+		case Instr::opdiv: {
+			op_arithmetic_numeric2([&](auto a, auto b)) {
+				// TODO: what to do on /0?
+				return a / b;
+			}
+		} break;
+
 		// case Instr::oprem: // TODO
 		// case Instr::opmod: // TODO
 
@@ -255,7 +262,11 @@ void VM::execute(const Script& script)
 			});
 		} break;
 
-		BINOP_ARITH(opsub, -)
+		case Instr::opsub: {
+			op_arithmetic_numeric2([&](auto a, auto b) {
+				return a - b;
+			});
+		}
 
 		case Instr::opand:
 			op_arithmetic_integral2([&](auto a, auto b) { return a & b; });
