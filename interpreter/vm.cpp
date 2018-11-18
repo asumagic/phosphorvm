@@ -193,8 +193,7 @@ void VM::execute(const Script& script)
 					{
 						push_stack_variable(src);
 					}
-					else if constexpr (std::is_arithmetic_v<decltype(dst)>
-									&& std::is_arithmetic_v<decltype(value(src))>)
+					else if constexpr (are<std::is_arithmetic, decltype(dst), decltype(value(src))>())
 					{
 						stack.push<decltype(dst)>(value(src));
 					}
