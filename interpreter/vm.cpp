@@ -21,7 +21,7 @@
 	}); \
 	break;
 
-std::size_t VM::local_offset(s32 var_id) const
+std::size_t VM::local_offset(VarId var_id) const
 {
 	const Frame& frame = frames.top();
 	return frame.stack_offset + (frame.argument_count + var_id) * Variable::stack_variable_size;

@@ -17,3 +17,4 @@ using f64 = double;
 
 using Block = u32;
 using InstId = s16;
+using VarId = s32;
