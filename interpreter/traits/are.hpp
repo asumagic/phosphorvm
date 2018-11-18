@@ -16,5 +16,5 @@ constexpr bool are()
 template<template<class> class TT, class... Ts>
 constexpr bool are(const Ts&...)
 {
-	return (TT<Ts>::value && ...);
+	return are<TT, Ts...>();
 }
