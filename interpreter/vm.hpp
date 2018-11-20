@@ -46,12 +46,23 @@ public:
 	void read_special(SpecialVar var);
 
 	template<class T>
+	void push_stack_variable(const T& value, MainStackReader& reader);
+
+	template<class T>
 	void push_stack_variable(const T& value);
 
 	template<class T>
-	VariableOperand<T> read_variable_reference(
+	VariableOperand<T> read_variable_parameter(
 		InstType inst_type = InstType::stack_top_or_global,
 		VarId var_id = 0
+	);
+
+	template<class T>
+	void write_variable(
+		InstType inst_type,
+		VarId var_id,
+		VarType var_type,
+		T value
 	);
 
 	template<class T>
@@ -100,18 +111,25 @@ void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types)
 
 template<class T>
 FORCE_INLINE
-void VM::push_stack_variable(const T& value)
+void VM::push_stack_variable(const T& value, MainStackReader& reader)
 {
 	auto padding_bytes = sizeof(s64) - sizeof(T);
 
-	stack.push(value);
-	stack.skip(-padding_bytes);
-	stack.push(data_type_for<T>::value);
+	reader.push(value);
+	reader.skip(-padding_bytes);
+	reader.push(data_type_for<T>::value);
 }
 
 template<class T>
 FORCE_INLINE
-VariableOperand<T> VM::read_variable_reference(InstType inst_type, VarId var_id)
+void VM::push_stack_variable(const T& value)
+{
+	push_stack_variable(value, stack);
+}
+
+template<class T>
+FORCE_INLINE
+VariableOperand<T> VM::read_variable_parameter(InstType inst_type, VarId var_id)
 {
 	switch (inst_type)
 	{
@@ -121,6 +139,34 @@ VariableOperand<T> VM::read_variable_reference(InstType inst_type, VarId var_id)
 
 	default:
 		maybe_unreachable("Unimplemented read_variable_reference for InstType");
+	}
+}
+
+template<class T>
+FORCE_INLINE
+void VM::write_variable(
+	InstType inst_type,
+	VarId var_id,
+	VarType var_type,
+	T value
+)
+{
+	switch (inst_type)
+	{
+	case InstType::stack_top_or_global:
+		maybe_unreachable("Impossible to write_variable with this inst_type");
+
+	case InstType::local: {
+		MainStackReader reader{
+			local_offset(form.vari.definitions[var_id].unknown),
+			stack.raw
+		};
+
+		push_stack_variable(value, reader);
+	} break;
+
+	default:
+		maybe_unreachable("Unimplemented write_variable for this inst_type");
 	}
 }
 

@@ -19,7 +19,7 @@ std::size_t VM::argument_offset(ArgId arg_id) const
 std::size_t VM::local_offset(VarId var_id) const
 {
 	auto first_local_offset = argument_offset(frames.top().argument_count);
-	return first_local_offset + var_id * Variable::stack_variable_size;
+	return first_local_offset + (var_id - 1) * Variable::stack_variable_size;
 }
 
 void VM::print_stack_frame()
@@ -82,7 +82,7 @@ void VM::execute(const Script& script)
 			if (type == DataType::var)
 			{
 				return dispatcher([&](auto v) {
-					return handler(read_variable_reference<decltype(v)>());
+					return handler(read_variable_parameter<decltype(v)>());
 				}, std::array{stack.pop<DataType>()});
 			}
 
@@ -327,15 +327,19 @@ void VM::execute(const Script& script)
 			});
 		} break;
 
-		/*case Instr::oppop: {
+		case Instr::oppop: {
 			pop_dispatch([&](auto v) {
-				auto inst_type = InstType((block >> 16) & 0xFF);
+				auto inst_type = InstType(s16(block & 0xFFFF));
 				auto reference = reader.next_block();
-				ReadVariableReference<decltype(value(v))> dst{inst_type, s32(reference & 0xFFFFFF)};
-				//AAAAAAA read variable ref and thing
-				//write_variable(dst);
+
+				write_variable(
+					inst_type,
+					reference & 0xFFFFFF,
+					VarType(reference >> 24),
+					v
+				);
 			}, t2);
-		} break;*/
+		} break;
 
 		// case Instr::oppushi16: // TODO
 		// case Instr::opdup: // TODO
@@ -404,10 +408,13 @@ void VM::execute(const Script& script)
 			}, std::array{t1});
 		} break;
 
-		/*case Instr::oppushloc: {
-			// TODO: be able to read data type then value in here
-			//push_stack_variable();
-		} break;*/
+		case Instr::oppushloc: {
+			auto reference = reader.next_block();
+			stack.push_raw(
+				&stack.raw[local_offset(form.vari.definitions[reference & 0xFFFFFF].unknown - 1)],
+				Variable::stack_variable_size
+			);
+		} break;
 
 		//case Instr::oppushglb:
 
