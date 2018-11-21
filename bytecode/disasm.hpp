@@ -7,7 +7,7 @@ class Disassembler
 {
 	const Form& _form;
 
-	const Block* block_ptr;
+	const Block* _block_ptr;
 
 public:
 	Disassembler(const Form& form) :

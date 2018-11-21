@@ -99,11 +99,11 @@ void Disassembler::operator()(const Script& script)
 
 	fmt::print(fmt::color::orange, "\nDisassembly of '{}': {} blocks ({} bytes)\n", script.name, program.size(), program.size() * 4);
 
-	block_ptr = script.data.data();
+	_block_ptr = script.data.data();
 
-	while (block_ptr != &(*script.data.end()))
+	while (_block_ptr != &(*script.data.end()))
 	{
-		const Block* main_block_ptr = block_ptr++;
+		const Block* main_block_ptr = _block_ptr++;
 		auto main_block = *main_block_ptr;
 
 		auto op = (main_block >> 24) & 0xFF;
@@ -122,8 +122,8 @@ void Disassembler::operator()(const Script& script)
 		std::string mnemonic = "<unimpl>", params, comment;
 
 		auto read_block_operand = [&](auto& into) {
-			std::memcpy(&into, block_ptr, sizeof(decltype(into)));
-			block_ptr += sizeof(std::decay_t<decltype(into)>) / sizeof(Block);
+			std::memcpy(&into, _block_ptr, sizeof(decltype(into)));
+			_block_ptr += sizeof(std::decay_t<decltype(into)>) / sizeof(Block);
 			return into;
 		};
 
@@ -198,7 +198,7 @@ void Disassembler::operator()(const Script& script)
 			mnemonic = "pushspc";
 			params = "<bad>";
 
-			auto reference_block = *(block_ptr++);
+			auto reference_block = *(_block_ptr++);
 
 			auto& defs = _form.vari.definitions;
 			auto it = std::find_if(defs.begin(), defs.end(), [&](auto& def) {
@@ -214,7 +214,7 @@ void Disassembler::operator()(const Script& script)
 				// HACK: move back to the older block_ptr then read it as a
 				// regular variable name if reading the special var fails
 
-				--block_ptr;
+				--_block_ptr;
 				params = fmt::format("<unimpl:{}>", push_param(t1));
 			}
 		} break;
@@ -232,12 +232,12 @@ void Disassembler::operator()(const Script& script)
 		// TODO: pop.i16.var seems to cause issues
 		case Instr::oppop: {
 			mnemonic = fmt::format("popv.{}", type_suffix(t2));
-			params = resolve_variable_name(*(block_ptr++));
+			params = resolve_variable_name(*(_block_ptr++));
 		} break;
 
 		case Instr::opcall: {
 			mnemonic = fmt::format("call.{}", type_suffix(t1));
-			params = resolve_function_name(*(block_ptr++));
+			params = resolve_function_name(*(_block_ptr++));
 		} break;
 
 		case Instr::opbreak: {
@@ -258,7 +258,7 @@ void Disassembler::operator()(const Script& script)
 
 		comment.insert(0, fmt::format(
 			"${:08x} ",
-			fmt::join(std::vector<Block>(main_block_ptr, block_ptr), "'")
+			fmt::join(std::vector<Block>(main_block_ptr, _block_ptr), "'")
 		));
 
 		if (mnemonic_warning)
