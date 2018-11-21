@@ -5,6 +5,7 @@
 #include <utility>
 #include <type_traits>
 #include "blockreader.hpp"
+#include "../bytecode/disasm.hpp"
 #include "traits.hpp"
 #include "../util/cast.hpp"
 #include "../util/compilersupport.hpp"
@@ -49,7 +50,7 @@ void VM::execute(const Script& script)
 	{
 		fmt::print(
 			fmt::color::red,
-			"\nExecuting function '{}' ({}th nested call, {} bytes allocated on stack)",
+			"Executing function '{}' ({}th nested call, {} bytes allocated on stack)\n",
 			script.name,
 			frames.offset + 1,
 			stack.offset - frames.top().stack_offset
@@ -69,9 +70,12 @@ void VM::execute(const Script& script)
 
 		if constexpr (check(debug::vm_verbose_instructions))
 		{
+			Disassembler disasm{form};
+
 			fmt::print(
 				fmt::color::orange,
-				"\nExecution trace: ${:08x}: ${:02x}. ",
+				"{:80}\n",
+				disasm.disassemble_block(&script.data[reader.offset()], &script).as_plain_string(),
 				reader.offset(),
 				enum_value(opcode)
 			);
