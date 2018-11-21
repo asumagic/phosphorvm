@@ -72,6 +72,8 @@ void VM::execute(const Script& script)
 		{
 			Disassembler disasm{form};
 
+			print_stack_frame();
+
 			fmt::print(
 				fmt::color::orange,
 				"{:80}\n",
@@ -79,8 +81,6 @@ void VM::execute(const Script& script)
 				reader.offset(),
 				enum_value(opcode)
 			);
-
-			print_stack_frame();
 		}
 
 		//! Calls a handler providing it a value of the given type popped from
