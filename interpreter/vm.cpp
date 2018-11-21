@@ -22,6 +22,11 @@ std::size_t VM::local_offset(VarId var_id) const
 	return first_local_offset + (var_id - 1) * Variable::stack_variable_size;
 }
 
+VarId VM::local_id_from_reference(u32 reference) const
+{
+	return form.vari.definitions[reference & 0x00FFFFFF].unknown - 1;
+}
+
 void VM::print_stack_frame()
 {
 	fmt::print(
@@ -392,15 +397,24 @@ void VM::execute(const Script& script)
 						maybe_unreachable("Arithmetic type not implemented for pushcst");
 					}
 				}
-				/*else if constexpr (std::is_same_v<decltype(v), VariablePlaceholder>)
+				else if constexpr (std::is_same_v<decltype(v), VariablePlaceholder>)
 				{
-					auto info = InstType(s16(block & 0xFFFF));
+					auto inst_type = InstType(s16(block & 0xFFFF));
+					auto reference = reader.next_block();
 
-					dispatcher([&](auto v) {
-						VariableReference<decltype(v)> ref;
-						push_stack_variable(ref.read(*this));
-					}, std::array{info.data_type});
-				}*/
+					switch (inst_type)
+					{
+					case InstType::local:
+						stack.push_raw(
+							&stack.raw[local_offset(local_id_from_reference(reference))],
+							Variable::stack_variable_size
+						);
+						break;
+
+					default:
+						maybe_unreachable("InstType not implemented for pushcst");
+					}
+				}
 				else
 				{
 					maybe_unreachable("Type not implemented for pushcst");
@@ -411,7 +425,7 @@ void VM::execute(const Script& script)
 		case Instr::oppushloc: {
 			auto reference = reader.next_block();
 			stack.push_raw(
-				&stack.raw[local_offset(form.vari.definitions[reference & 0xFFFFFF].unknown - 1)],
+				&stack.raw[local_offset(local_id_from_reference(reference))],
 				Variable::stack_variable_size
 			);
 		} break;

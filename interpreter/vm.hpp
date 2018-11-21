@@ -33,6 +33,8 @@ class VM
 	std::size_t argument_offset(ArgId arg_id = 0) const;
 	std::size_t local_offset(VarId var_id = 0) const;
 
+	VarId local_id_from_reference(u32 reference) const;
+
 public:
 	VM(const Form& p_form);
 
@@ -157,10 +159,7 @@ void VM::write_variable(
 		maybe_unreachable("Impossible to write_variable with this inst_type");
 
 	case InstType::local: {
-		MainStackReader reader{
-			local_offset(form.vari.definitions[var_id].unknown),
-			stack.raw
-		};
+		MainStackReader reader = stack.temporary_reader(local_offset(local_id_from_reference(var_id)));
 
 		push_stack_variable(value, reader);
 	} break;
