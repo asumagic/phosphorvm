@@ -3,11 +3,17 @@
 #include "../unpack/decode.hpp"
 #include <vector>
 
+struct DisassembledInstruction
+{
+	std::string location, mnemonic = "<unknown>", params, comment;
+	const Block *begin_block, *end_block;
+
+	std::string as_plain_string() const;
+};
+
 class Disassembler
 {
 	const Form& _form;
-
-	const Block* _block_ptr;
 
 public:
 	Disassembler(const Form& form) :
@@ -21,6 +27,8 @@ public:
 	std::string get_string(s32 id);
 	std::string resolve_variable_name(s32 id);
 	std::string resolve_function_name(s32 id);
+
+	DisassembledInstruction disassemble_block(const Block* block, const Script* script = nullptr);
 
 	void operator()(const Script& script);
 };
