@@ -58,6 +58,15 @@ inline MainStackReader MainStack::temporary_reader()
 
 inline MainStackReader MainStack::temporary_reader(std::size_t offset)
 {
+	if constexpr (check(debug::vm_verbose_stack))
+	{
+		fmt::print(
+			fmt::color::aquamarine,
+			"*** Created temporary reader at offset {}\n",
+			offset
+		);
+	}
+
 	return {offset, raw};
 }
 
