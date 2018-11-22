@@ -20,7 +20,7 @@ std::size_t VM::argument_offset(ArgId arg_id) const
 std::size_t VM::local_offset(VarId var_id) const
 {
 	auto first_local_offset = argument_offset(frames.top().argument_count);
-	return first_local_offset + (var_id - 1) * Variable::stack_variable_size;
+	return first_local_offset + var_id * Variable::stack_variable_size;
 }
 
 VarId VM::local_id_from_reference(u32 reference) const
@@ -114,7 +114,6 @@ void VM::execute(const Script& script)
 							type_name<decltype(b)>()
 						);
 					}
-
 					handler(a, b);
 				}, t2);
 			}, t1);
@@ -140,7 +139,9 @@ void VM::execute(const Script& script)
 							);
 						}
 
-						push_stack_variable(handler(value(a), value(b)));
+						auto va = value(a);
+						auto vb = value(b);
+						push_stack_variable(handler(va, vb));
 					}
 					else
 					{
@@ -172,7 +173,9 @@ void VM::execute(const Script& script)
 			op_arithmetic2([&](auto a, auto b) {
 				if constexpr (are<std::is_arithmetic>(a, b))
 				{
-					return handler(value(a), value(b));
+					auto va = value(a);
+					auto vb = value(b);
+					return handler(va, vb);
 				}
 			});
 		};
@@ -192,7 +195,7 @@ void VM::execute(const Script& script)
 		//! Jumps to another instruction with an offset defined by the current
 		//! block.
 		auto branch = [&]() FORCE_INLINE {
-			s32 offset = block & 0xFFFFFF;
+			s16 offset = block & 0xFFFF;
 
 			if constexpr (check(debug::vm_verbose_instructions))
 			{
@@ -345,7 +348,7 @@ void VM::execute(const Script& script)
 					inst_type,
 					reference & 0xFFFFFF,
 					VarType(reference >> 24),
-					v
+					value(v)
 				);
 			}, t2);
 		} break;
