@@ -25,7 +25,7 @@ int main()
 			Disassembler{main_form}(script);
 		}
 
-		if (script.name == "gml_Script_script_fibo")
+		/*if (script.name == "gml_Script_script_fibo")
 		{
 			VM vm{main_form};
 			vm.push_stack_variable(s32(35));
@@ -33,9 +33,9 @@ int main()
 
 			fmt::print("FINAL STACK: \n");
 			vm.print_stack_frame();
-		}
+		}*/
 
-		if (script.name == "gml_Object_object0_Create_0")
+		if (script.name == "gml_Object_object1_Create_0")
 		{
 			VM vm{main_form};
 
