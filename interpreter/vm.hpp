@@ -72,6 +72,8 @@ public:
 
 	void print_stack_frame();
 
+	void call(const FunctionDefinition& func, std::size_t argument_count = 0);
+
 	void execute(const Script& script);
 };
 

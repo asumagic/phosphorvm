@@ -41,7 +41,27 @@ void VM::print_stack_frame()
 			),
 			""
 		)
-	);
+			);
+}
+
+void VM::call(const FunctionDefinition& func, std::size_t argument_count)
+{
+	Frame& frame = frames.push();
+	frame.argument_count = argument_count;
+	frame.stack_offset = stack.offset - frame.argument_count * Variable::stack_variable_size;
+
+	if (func.is_builtin)
+	{
+		maybe_unreachable("Builtins are not implemented yet");
+	}
+	else
+	{
+		Script& called_script = *func.associated_script;
+		stack.skip(-called_script.local_count * Variable::stack_variable_size);
+		execute(called_script);
+	}
+
+	frames.pop();
 }
 
 void VM::execute(const Script& script)
@@ -455,25 +475,9 @@ void VM::execute(const Script& script)
 			break;
 
 		case Instr::opcall: {
-			Frame& frame = frames.push();
-			frame.argument_count = block & 0xFFFF;
-			frame.stack_offset = stack.offset - frame.argument_count * Variable::stack_variable_size;
-
-			// TODO: reduce indirection here
-			const auto& func = form.func.definitions[reader.next_block()];
-
-			if (func.is_builtin)
-			{
-				maybe_unreachable("Builtins are not implemented");
-			}
-			else
-			{
-				Script& called_script = *func.associated_script;
-				stack.skip(-called_script.local_count * Variable::stack_variable_size);
-				execute(called_script);
-			}
-
-			frames.pop();
+			std::size_t argument_count = block & 0xFFFF;
+			auto& func = form.func.definitions[reader.next_block()];
+			call(func, argument_count);
 		} break;
 
 		// case Instr::opbreak: // TODO
