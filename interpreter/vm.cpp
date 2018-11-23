@@ -476,7 +476,10 @@ void VM::execute(const Script& script)
 			maybe_unreachable("Reached unhandled operation in VM");
 		}
 
-		reader.next_block();
+		if (reader.next_block() == 0)
+		{
+			return;
+		}
 	}
 }
 
