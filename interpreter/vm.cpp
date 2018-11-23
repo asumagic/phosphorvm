@@ -401,7 +401,14 @@ void VM::execute(const Script& script)
 					}
 					else
 					{
-						maybe_unreachable("Arithmetic type not implemented for pushcst");
+						stack.push_raw(&reader.next_block(), sizeof(v));
+
+						// Move to the last block of the instruction
+						// TODO: reader.skip() or something
+						for (unsigned i = 0; i < (sizeof(v) / 4) - 1; ++i)
+						{
+							reader.next_block();
+						}
 					}
 				}
 				else if constexpr (std::is_same_v<decltype(v), VariablePlaceholder>)
