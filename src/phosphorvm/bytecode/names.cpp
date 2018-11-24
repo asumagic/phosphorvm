@@ -1,4 +1,4 @@
-#include "names.hpp"
+#include "phosphorvm/bytecode/names.hpp"
 
 const std::unordered_map<std::string_view, SpecialVar> special_var_names {
 	{"argument0",           SpecialVar::argument0},

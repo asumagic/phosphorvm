@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.hpp"
-#include "../decode.hpp"
+#include "phosphorvm/unpack/chunk/common.hpp"
+#include "phosphorvm/unpack/decode.hpp"
 
 struct Form
 {

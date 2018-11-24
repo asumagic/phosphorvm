@@ -1,9 +1,9 @@
-#include "bind.hpp"
+#include "phosphorvm/interpreter/builtins/bind.hpp"
 
 #include <fmt/core.h>
 #include <fmt/color.h>
-#include "../../config.hpp"
-#include "../../unpack/chunk/function.hpp"
+#include "phosphorvm/config.hpp"
+#include "phosphorvm/unpack/chunk/function.hpp"
 
 Bindings::Bindings(const Func& funcs) :
 	_funcs{funcs}

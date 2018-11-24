@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../bytecode/enums.hpp"
-#include "../bytecode/types.hpp"
-#include "string.hpp"
+#include "phosphorvm/bytecode/enums.hpp"
+#include "phosphorvm/bytecode/types.hpp"
+#include "phosphorvm/interpreter/string.hpp"
 
 //! Type used as a placeholder in dispatcher so instructions can detect
 //! variables through type information. This may be passed to the 'f' parameter

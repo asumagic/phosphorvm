@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../bytecode/types.hpp"
-#include "reader.hpp"
 #include <vector>
+#include "phosphorvm/bytecode/types.hpp"
+#include "phosphorvm/unpack/reader.hpp"
 
 constexpr auto string_ascii = [] (auto& target) {
 	return [&target] (auto& reader) {

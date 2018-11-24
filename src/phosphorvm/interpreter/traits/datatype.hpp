@@ -1,9 +1,9 @@
 #pragma once
 
-#include "common.hpp"
-#include "../../bytecode/enums.hpp"
-#include "../../bytecode/types.hpp"
-#include "../string.hpp"
+#include "phosphorvm/bytecode/enums.hpp"
+#include "phosphorvm/bytecode/types.hpp"
+#include "phosphorvm/interpreter/string.hpp"
+#include "phosphorvm/interpreter/traits/common.hpp"
 
 template<class T>
 class data_type_for

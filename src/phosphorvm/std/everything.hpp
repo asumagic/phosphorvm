@@ -1,7 +1,7 @@
 #pragma once
 
-#include "debug.hpp"
-#include "../interpreter/builtins/bind.hpp"
+#include "phosphorvm/interpreter/builtins/bind.hpp"
+#include "phosphorvm/std/debug.hpp"
 
 inline void bind_everything(Bindings& bindings)
 {

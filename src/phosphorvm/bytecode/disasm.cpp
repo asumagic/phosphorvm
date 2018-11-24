@@ -1,9 +1,9 @@
-#include "disasm.hpp"
-#include "types.hpp"
-#include "enums.hpp"
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <string_view>
+#include "phosphorvm/bytecode/disasm.hpp"
+#include "phosphorvm/bytecode/types.hpp"
+#include "phosphorvm/bytecode/enums.hpp"
 
 std::string DisassembledInstruction::as_plain_string() const
 {

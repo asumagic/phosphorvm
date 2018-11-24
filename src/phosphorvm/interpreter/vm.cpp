@@ -4,14 +4,14 @@
 #include <fmt/color.h>
 #include <utility>
 #include <type_traits>
-#include "blockreader.hpp"
-#include "../bytecode/disasm.hpp"
-#include "traits.hpp"
-#include "../util/cast.hpp"
-#include "../util/compilersupport.hpp"
-#include "../util/nametype.hpp"
-#include "variableoperand.hpp"
-#include "vmstate.hpp"
+#include "phosphorvm/bytecode/disasm.hpp"
+#include "phosphorvm/interpreter/blockreader.hpp"
+#include "phosphorvm/interpreter/traits.hpp"
+#include "phosphorvm/interpreter/variableoperand.hpp"
+#include "phosphorvm/interpreter/vmstate.hpp"
+#include "phosphorvm/util/cast.hpp"
+#include "phosphorvm/util/compilersupport.hpp"
+#include "phosphorvm/util/nametype.hpp"
 
 VarId VM::local_id_from_reference(u32 reference) const
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common.hpp"
-#include "code.hpp"
-#include "../../interpreter/builtin.hpp"
+#include "phosphorvm/interpreter/builtin.hpp"
+#include "phosphorvm/unpack/chunk/code.hpp"
+#include "phosphorvm/unpack/chunk/common.hpp"
 
 // See VariableDefinition for an explanation on some of the fields below
 struct FunctionDefinition

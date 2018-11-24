@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdexcept>
-#include "../config.hpp"
+#include "phosphorvm/config.hpp"
 
 //! Call to designate a normally unreachable spot.
 //! With debug_mode set, throws an exception. Otherwise, uses

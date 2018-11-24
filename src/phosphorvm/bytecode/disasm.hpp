@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../unpack/decode.hpp"
 #include <vector>
+#include "phosphorvm/unpack/decode.hpp"
 
 struct DisassembledInstruction
 {

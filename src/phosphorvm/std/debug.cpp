@@ -1,5 +1,5 @@
-#include "debug.hpp"
-#include "../interpreter/vm.hpp"
+#include "phosphorvm/interpreter/vm.hpp"
+#include "phosphorvm/std/debug.hpp"
 
 void show_message(VM& vm)
 {

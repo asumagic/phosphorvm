@@ -2,6 +2,6 @@
 
 #include <type_traits>
 
-#include "traits/common.hpp"
-#include "traits/variable.hpp"
-#include "traits/datatype.hpp"
+#include "phosphorvm/interpreter/traits/common.hpp"
+#include "phosphorvm/interpreter/traits/variable.hpp"
+#include "phosphorvm/interpreter/traits/datatype.hpp"

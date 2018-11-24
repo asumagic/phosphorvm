@@ -1,10 +1,10 @@
 #pragma once
 
 #include <fmt/core.h>
-#include "../gmreader.hpp"
-#include "../except.hpp"
-#include "../../config.hpp"
-#include "../../bytecode/types.hpp"
+#include "phosphorvm/bytecode/types.hpp"
+#include "phosphorvm/config.hpp"
+#include "phosphorvm/unpack/gmreader.hpp"
+#include "phosphorvm/unpack/except.hpp"
 
 struct ChunkHeader
 {

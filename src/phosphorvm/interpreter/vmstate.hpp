@@ -1,8 +1,8 @@
 #pragma once
 
-#include "blockreader.hpp"
-#include "../bytecode/enums.hpp"
-#include "../bytecode/types.hpp"
+#include "phosphorvm/interpreter/blockreader.hpp"
+#include "phosphorvm/bytecode/enums.hpp"
+#include "phosphorvm/bytecode/types.hpp"
 
 struct VMState
 {

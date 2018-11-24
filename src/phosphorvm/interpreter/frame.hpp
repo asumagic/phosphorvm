@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_map>
-#include "variable.hpp"
+#include "phosphorvm/interpreter/variable.hpp"
 
 struct Frame
 {

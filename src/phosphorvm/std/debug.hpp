@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../interpreter/builtins/bind.hpp"
+#include "phosphorvm/interpreter/builtins/bind.hpp"
 
 void show_message(VM& vm);
 

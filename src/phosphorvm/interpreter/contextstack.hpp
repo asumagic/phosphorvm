@@ -1,8 +1,8 @@
 #pragma once
 
 #include <array>
-#include "../config.hpp"
-#include "context.hpp"
+#include "phosphorvm/config.hpp"
+#include "phosphorvm/interpreter/context.hpp"
 
 // TODO: should this be merged with framestack if there is more context to keep
 // than just the instance id etc?

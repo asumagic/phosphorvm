@@ -1,5 +1,5 @@
 #pragma once
 
-#include "are.hpp"
-#include "isinstanciationof.hpp"
-#include "numerictype.hpp"
+#include "phosphorvm/interpreter/traits/are.hpp"
+#include "phosphorvm/interpreter/traits/isinstanciationof.hpp"
+#include "phosphorvm/interpreter/traits/numerictype.hpp"

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "chunk.hpp"
-#include "../gmreader.hpp"
 #include <vector>
+#include "phosphorvm/unpack/chunk/chunk.hpp"
+#include "phosphorvm/unpack/gmreader.hpp"
 
 template<class T>
 struct List

@@ -16,7 +16,7 @@ target_include_directories(
 	${PROJECT_NAME}
 	PRIVATE
 
-	"${PROJECT_SRC_DIR}/src/phosphorvm"
+	".."
 )
 
 set(RELEASE_OPTIONS

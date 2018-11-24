@@ -1,6 +1,6 @@
 #pragma once
 
-#include "variable.hpp"
+#include "phosphorvm/interpreter/variable.hpp"
 #include <unordered_map>
 
 class Instance

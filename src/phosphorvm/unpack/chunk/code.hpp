@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.hpp"
+#include "phosphorvm/unpack/chunk/common.hpp"
 
 //! Script code entry, which contains bytecode data and related metadata.
 struct Script

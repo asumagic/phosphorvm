@@ -1,7 +1,7 @@
-#include "form.hpp"
+#include "phosphorvm/unpack/chunk/form.hpp"
 
 #include <fmt/color.h>
-#include "../../bytecode/names.hpp"
+#include "phosphorvm/bytecode/names.hpp"
 
 // TODO: perform this lazily
 void Form::finalize_bytecode()

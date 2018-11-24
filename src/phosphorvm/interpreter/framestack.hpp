@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../config.hpp"
-#include "frame.hpp"
+#include "phosphorvm/config.hpp"
+#include "phosphorvm/interpreter/frame.hpp"
 #include <array>
 #include <stdexcept>
 

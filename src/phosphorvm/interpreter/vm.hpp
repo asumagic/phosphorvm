@@ -1,16 +1,17 @@
 #pragma once
 
-#include "contextstack.hpp"
-#include "framestack.hpp"
-#include "mainstack.hpp"
-#include "traits/variable.hpp"
-#include "variableoperand.hpp"
-#include "../config.hpp"
-#include "../std/everything.hpp"
-#include "../unpack/chunk/form.hpp"
-#include "../util/compilersupport.hpp"
-#include "../util/errormanagement.hpp"
-#include "../bytecode/types.hpp"
+#include "phosphorvm/bytecode/enums.hpp"
+#include "phosphorvm/bytecode/types.hpp"
+#include "phosphorvm/config.hpp"
+#include "phosphorvm/interpreter/contextstack.hpp"
+#include "phosphorvm/interpreter/framestack.hpp"
+#include "phosphorvm/interpreter/mainstack.hpp"
+#include "phosphorvm/interpreter/traits/variable.hpp"
+#include "phosphorvm/interpreter/variableoperand.hpp"
+#include "phosphorvm/std/everything.hpp"
+#include "phosphorvm/unpack/chunk/form.hpp"
+#include "phosphorvm/util/compilersupport.hpp"
+#include "phosphorvm/util/errormanagement.hpp"
 
 #define DISPATCH_NEXT(appended_type) \
 	dispatcher< \

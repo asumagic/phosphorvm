@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "../builtin.hpp"
+#include "phosphorvm/interpreter/builtin.hpp"
 
 struct Func;
 struct FunctionDefinition;

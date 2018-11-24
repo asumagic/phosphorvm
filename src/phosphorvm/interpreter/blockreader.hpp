@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../unpack/chunk/code.hpp"
-#include "../bytecode/types.hpp"
-#include "../config.hpp"
 #include <stdexcept>
+#include "phosphorvm/bytecode/types.hpp"
+#include "phosphorvm/config.hpp"
+#include "phosphorvm/unpack/chunk/code.hpp"
 
 class BlockReader
 {

@@ -2,14 +2,14 @@
 
 #include <array>
 #include <cstring>
+#include <fmt/core.h>
+#include <fmt/color.h>
 #include <stdexcept>
 #include <type_traits>
-#include <fmt/color.h>
-#include <fmt/core.h>
-#include "../util/errormanagement.hpp"
-#include "../util/nametype.hpp"
-#include "../config.hpp"
-#include "traits/datatype.hpp"
+#include "phosphorvm/config.hpp"
+#include "phosphorvm/interpreter/traits/datatype.hpp"
+#include "phosphorvm/util/errormanagement.hpp"
+#include "phosphorvm/util/nametype.hpp"
 
 struct MainStackReader
 {

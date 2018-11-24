@@ -1,8 +1,8 @@
 #pragma once
 
 #include <type_traits>
-#include "common.hpp"
-#include "../variableoperand.hpp"
+#include "phosphorvm/interpreter/traits/common.hpp"
+#include "phosphorvm/interpreter/variableoperand.hpp"
 
 //! Returns true when T is a VariableOperand.
 //! A value can be optionally passed to automatically deduce T.

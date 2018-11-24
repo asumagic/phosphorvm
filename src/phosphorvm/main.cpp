@@ -1,8 +1,8 @@
 #include <fmt/core.h>
-#include "unpack/decode.hpp"
-#include "unpack/mmap.hpp"
-#include "bytecode/disasm.hpp"
-#include "interpreter/vm.hpp"
+#include "phosphorvm/bytecode/disasm.hpp"
+#include "phosphorvm/interpreter/vm.hpp"
+#include "phosphorvm/unpack/decode.hpp"
+#include "phosphorvm/unpack/mmap.hpp"
 
 int main()
 {
