@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdexcept>
-#include "pvm/bytecode/types.hpp"
+#include "pvm/bc/types.hpp"
 #include "pvm/config.hpp"
 #include "pvm/unpack/chunk/code.hpp"
 

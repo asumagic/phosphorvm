@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string_view>
-#include "pvm/bytecode/enums.hpp"
-#include "pvm/bytecode/types.hpp"
+#include "pvm/bc/enums.hpp"
+#include "pvm/bc/types.hpp"
 
 class VM;
 

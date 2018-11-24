@@ -4,7 +4,7 @@
 #include <fmt/color.h>
 #include <utility>
 #include <type_traits>
-#include "pvm/bytecode/disasm.hpp"
+#include "pvm/bc/disasm.hpp"
 #include "pvm/interpreter/blockreader.hpp"
 #include "pvm/interpreter/traits.hpp"
 #include "pvm/interpreter/variableoperand.hpp"

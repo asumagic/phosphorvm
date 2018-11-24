@@ -1,7 +1,7 @@
 #pragma once
 
 #include <fmt/core.h>
-#include "pvm/bytecode/types.hpp"
+#include "pvm/bc/types.hpp"
 #include "pvm/config.hpp"
 #include "pvm/unpack/gmreader.hpp"
 #include "pvm/unpack/except.hpp"

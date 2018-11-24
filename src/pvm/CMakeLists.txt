@@ -1,8 +1,8 @@
 add_executable(
 	${PROJECT_NAME}
 
-	"bytecode/disasm.cpp"
-	"bytecode/names.cpp"
+	"bc/disasm.cpp"
+	"bc/names.cpp"
 	"interpreter/builtins/bind.cpp"
 	"interpreter/vm.cpp"
 	"std/debug.cpp"

@@ -1,5 +1,5 @@
 #include <fmt/core.h>
-#include "pvm/bytecode/disasm.hpp"
+#include "pvm/bc/disasm.hpp"
 #include "pvm/interpreter/vm.hpp"
 #include "pvm/unpack/decode.hpp"
 #include "pvm/unpack/mmap.hpp"

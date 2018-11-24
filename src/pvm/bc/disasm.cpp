@@ -1,9 +1,9 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <string_view>
-#include "pvm/bytecode/disasm.hpp"
-#include "pvm/bytecode/types.hpp"
-#include "pvm/bytecode/enums.hpp"
+#include "pvm/bc/disasm.hpp"
+#include "pvm/bc/types.hpp"
+#include "pvm/bc/enums.hpp"
 
 std::string DisassembledInstruction::as_plain_string() const
 {

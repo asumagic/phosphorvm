@@ -1,7 +1,7 @@
 #pragma once
 
-#include "pvm/bytecode/enums.hpp"
-#include "pvm/bytecode/types.hpp"
+#include "pvm/bc/enums.hpp"
+#include "pvm/bc/types.hpp"
 #include "pvm/interpreter/string.hpp"
 
 //! Type used as a placeholder in dispatcher so instructions can detect

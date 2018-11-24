@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pvm/bytecode/types.hpp"
+#include "pvm/bc/types.hpp"
 
 // TODO: might be UB to do Instr(somevalue) when somevalue is not a legal value
 // of the enum. Clang emits a warning in disasm's switch because of the default

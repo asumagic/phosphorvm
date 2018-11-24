@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "pvm/bytecode/types.hpp"
+#include "pvm/bc/types.hpp"
 #include "pvm/unpack/reader.hpp"
 
 constexpr auto string_ascii = [] (auto& target) {

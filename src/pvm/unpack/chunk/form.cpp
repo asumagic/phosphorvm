@@ -1,7 +1,7 @@
 #include "pvm/unpack/chunk/form.hpp"
 
 #include <fmt/color.h>
-#include "pvm/bytecode/names.hpp"
+#include "pvm/bc/names.hpp"
 
 // TODO: perform this lazily
 void Form::finalize_bytecode()

@@ -1,4 +1,4 @@
-#include "pvm/bytecode/names.hpp"
+#include "pvm/bc/names.hpp"
 
 const std::unordered_map<std::string_view, SpecialVar> special_var_names {
 	{"argument0",           SpecialVar::argument0},

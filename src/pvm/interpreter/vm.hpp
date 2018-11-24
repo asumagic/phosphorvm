@@ -1,7 +1,7 @@
 #pragma once
 
-#include "pvm/bytecode/enums.hpp"
-#include "pvm/bytecode/types.hpp"
+#include "pvm/bc/enums.hpp"
+#include "pvm/bc/types.hpp"
 #include "pvm/config.hpp"
 #include "pvm/interpreter/contextstack.hpp"
 #include "pvm/interpreter/framestack.hpp"
