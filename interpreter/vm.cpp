@@ -11,6 +11,7 @@
 #include "../util/compilersupport.hpp"
 #include "../util/nametype.hpp"
 #include "variableoperand.hpp"
+#include "vmstate.hpp"
 
 std::size_t VM::argument_offset(ArgId arg_id) const
 {
@@ -83,10 +84,7 @@ void VM::execute(const Script& script)
 
 	for (;;)
 	{
-		const auto block = reader.current_block();
-		const auto opcode = Instr(block >> 24);
-		const auto t1 = DataType((block >> 16) & 0xF);
-		const auto t2 = DataType((block >> 20) & 0xF);
+		VMState state{reader};
 
 		if constexpr (check(debug::vm_verbose_instructions))
 		{
@@ -99,7 +97,7 @@ void VM::execute(const Script& script)
 				"{:80}\n",
 				disasm.disassemble_block(&script.data[reader.offset()], &script).as_plain_string(),
 				reader.offset(),
-				enum_value(opcode)
+				enum_value(state.opcode)
 			);
 		}
 
@@ -135,8 +133,8 @@ void VM::execute(const Script& script)
 						);
 					}
 					handler(a, b);
-				}, t2);
-			}, t1);
+				}, state.t2);
+			}, state.t1);
 		};
 
 		//! Executes 'handler' as an arithmetic instruction.
@@ -215,7 +213,7 @@ void VM::execute(const Script& script)
 		//! Jumps to another instruction with an offset defined by the current
 		//! block.
 		auto branch = [&]() FORCE_INLINE {
-			s16 offset = block & 0xFFFF;
+			s16 offset = state.block & 0xFFFF;
 
 			if constexpr (check(debug::vm_verbose_instructions))
 			{
@@ -230,7 +228,7 @@ void VM::execute(const Script& script)
 			reader.relative_jump(offset - 1);
 		};
 
-		switch (opcode)
+		switch (state.opcode)
 		{
 		case Instr::opconv:
 			pop_dispatch([&](auto src) FORCE_INLINE {
@@ -247,8 +245,8 @@ void VM::execute(const Script& script)
 					{
 						maybe_unreachable("Unimplemented conversion types");
 					}
-				}, std::array{t2});
-			}, t1);
+				}, std::array{state.t2});
+			}, state.t1);
 			break;
 
 		case Instr::opmul: {
@@ -334,7 +332,7 @@ void VM::execute(const Script& script)
 		} break;
 
 		case Instr::opcmp: {
-			auto func = CompFunc((block >> 8) & 0xFF);
+			auto func = CompFunc((state.block >> 8) & 0xFF);
 			op_pop2([&](auto a, auto b) {
 				auto va = value(a);
 				auto vb = value(b);
@@ -361,7 +359,7 @@ void VM::execute(const Script& script)
 
 		case Instr::oppop: {
 			pop_dispatch([&](auto v) {
-				auto inst_type = InstType(s16(block & 0xFFFF));
+				auto inst_type = InstType(s16(state.block & 0xFFFF));
 				auto reference = reader.next_block();
 
 				write_variable(
@@ -370,7 +368,7 @@ void VM::execute(const Script& script)
 					VarType(reference >> 24),
 					value(v)
 				);
-			}, t2);
+			}, state.t2);
 		} break;
 
 		// case Instr::oppushi16: // TODO
@@ -400,7 +398,7 @@ void VM::execute(const Script& script)
 		// case Instr::opexit: // TODO
 
 		case Instr::oppopz: {
-			pop_dispatch([]([[maybe_unused]] auto v){}, t1);
+			pop_dispatch([]([[maybe_unused]] auto v){}, state.t1);
 		} break;
 
 		case Instr::opb: branch(); break;
@@ -415,9 +413,9 @@ void VM::execute(const Script& script)
 			dispatcher([&](auto v) {
 				if constexpr (std::is_arithmetic_v<decltype(v)>)
 				{
-					if (t1 == DataType::i16)
+					if (state.t1 == DataType::i16)
 					{
-						stack.push(s32(block & 0xFFFF));
+						stack.push(s32(state.block & 0xFFFF));
 					}
 					else
 					{
@@ -433,7 +431,7 @@ void VM::execute(const Script& script)
 				}
 				else if constexpr (std::is_same_v<decltype(v), VariablePlaceholder>)
 				{
-					auto inst_type = InstType(s16(block & 0xFFFF));
+					auto inst_type = InstType(s16(state.block & 0xFFFF));
 					auto reference = reader.next_block();
 
 					switch (inst_type)
@@ -453,7 +451,7 @@ void VM::execute(const Script& script)
 				{
 					maybe_unreachable("Type not implemented for pushcst");
 				}
-			}, std::array{t1});
+			}, std::array{state.t1});
 		} break;
 
 		case Instr::oppushloc: {
@@ -471,11 +469,11 @@ void VM::execute(const Script& script)
 			break;
 
 		case Instr::oppushi16:
-			stack.push<s32>(s16(block & 0xFFFF));
+			stack.push<s32>(s16(state.block & 0xFFFF));
 			break;
 
 		case Instr::opcall: {
-			std::size_t argument_count = block & 0xFFFF;
+			std::size_t argument_count = state.block & 0xFFFF;
 			auto& func = form.func.definitions[reader.next_block()];
 			call(func, argument_count);
 		} break;
@@ -483,7 +481,7 @@ void VM::execute(const Script& script)
 		// case Instr::opbreak: // TODO
 
 		default:
-			fmt::print(fmt::color::red, "Unhandled op ${:02x}\n", u8(opcode));
+			fmt::print(fmt::color::red, "Unhandled op ${:02x}\n", u8(state.opcode));
 			maybe_unreachable("Reached unhandled operation in VM");
 		}
 
