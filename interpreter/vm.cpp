@@ -231,6 +231,7 @@ void VM::execute(const Script& script)
 		switch (state.opcode)
 		{
 		case Instr::opconv:
+		{
 			pop_dispatch([&](auto src) FORCE_INLINE {
 				dispatcher([&](auto dst) FORCE_INLINE {
 					if constexpr (std::is_same_v<decltype(dst), VariablePlaceholder>)
@@ -247,9 +248,12 @@ void VM::execute(const Script& script)
 					}
 				}, std::array{state.t2});
 			}, state.t1);
-			break;
 
-		case Instr::opmul: {
+			break;
+		}
+
+		case Instr::opmul:
+		{
 			op_arithmetic2([&](auto a, auto b) {
 				if constexpr (std::is_integral_v<decltype(a)>
 						   && std::is_same_v<decltype(b), StringReference>)
@@ -265,14 +269,17 @@ void VM::execute(const Script& script)
 				maybe_unreachable("Multiply op should be impossible");
 			});
 
-		} break;
+			break;
+		}
 
 		case Instr::opdiv: {
 			op_arithmetic_numeric2([&](auto a, auto b) {
 				// TODO: what to do on /0?
 				return a / b;
 			});
-		} break;
+
+			break;
+		}
 
 		// case Instr::oprem: // TODO
 		// case Instr::opmod: // TODO
@@ -290,48 +297,75 @@ void VM::execute(const Script& script)
 					return a + b;
 				}
 			});
-		} break;
 
-		case Instr::opsub: {
+			break;
+		}
+
+		case Instr::opsub:
+		{
 			op_arithmetic_numeric2([&](auto a, auto b) {
 				return a - b;
 			});
-		} break;
+
+			break;
+		}
 
 		case Instr::opand:
-			op_arithmetic_integral2([&](auto a, auto b) { return a & b; });
+		{
+			op_arithmetic_integral2([&](auto a, auto b) {
+				return a & b;
+			});
+
 			break;
+		}
 
 		case Instr::opor:
-			op_arithmetic_integral2([&](auto a, auto b) { return a | b; });
+		{
+			op_arithmetic_integral2([&](auto a, auto b) {
+				return a | b;
+			});
+
 			break;
+		}
 
 		case Instr::opxor:
-			op_arithmetic_integral2([&](auto a, auto b) { return a ^ b; });
+		{
+			op_arithmetic_integral2([&](auto a, auto b) {
+				return a ^ b;
+			});
+
 			break;
+		}
 
 		// case Instr::opneg: // TODO
 		// case Instr::opnot: // TODO
 
-		case Instr::opshl: {
+		case Instr::opshl:
+		{
 			op_arithmetic2([&](auto a, auto b) {
 				if constexpr (are<std::is_integral>(a, b))
 				{
 					return a << b;
 				}
 			});
-		} break;
 
-		case Instr::opshr: {
+			break;
+		}
+
+		case Instr::opshr:
+		{
 			op_arithmetic2([&](auto a, auto b) {
 				if constexpr (are<std::is_integral>(a, b))
 				{
 					return a >> b;
 				}
 			});
-		} break;
 
-		case Instr::opcmp: {
+			break;
+		}
+
+		case Instr::opcmp:
+		{
 			auto func = CompFunc((state.block >> 8) & 0xFF);
 			op_pop2([&](auto a, auto b) {
 				auto va = value(a);
@@ -355,9 +389,12 @@ void VM::execute(const Script& script)
 					maybe_unreachable("Comparison should be impossible");
 				}
 			});
-		} break;
 
-		case Instr::oppop: {
+			break;
+		}
+
+		case Instr::oppop:
+		{
 			pop_dispatch([&](auto v) {
 				auto inst_type = InstType(s16(state.block & 0xFFFF));
 				auto reference = reader.next_block();
@@ -369,12 +406,15 @@ void VM::execute(const Script& script)
 					value(v)
 				);
 			}, state.t2);
-		} break;
+
+			break;
+		}
 
 		// case Instr::oppushi16: // TODO
 		// case Instr::opdup: // TODO
 
-		case Instr::opret: {
+		case Instr::opret:
+		{
 			std::move(
 				stack.raw.begin() + stack.offset - Variable::stack_variable_size,
 				stack.raw.begin() + stack.offset,
@@ -393,17 +433,40 @@ void VM::execute(const Script& script)
 			}
 
 			return;
-		} break;
+		}
 
 		// case Instr::opexit: // TODO
 
-		case Instr::oppopz: {
+		case Instr::oppopz:
+		{
 			pop_dispatch([]([[maybe_unused]] auto v){}, state.t1);
-		} break;
+			break;
+		}
 
-		case Instr::opb: branch(); break;
-		case Instr::opbt: if (compare_flag) { branch(); } break;
-		case Instr::opbf: if (!compare_flag) { branch(); } break;
+		case Instr::opb:
+		{
+			branch();
+			break;
+		}
+
+		case Instr::opbt:
+		{
+			if (compare_flag)
+			{
+				branch();
+			}
+
+			break;
+		}
+
+		case Instr::opbf:
+		{
+			if (!compare_flag)
+			{
+				branch();
+			}
+			break;
+		}
 
 		// case Instr::oppushenv: // TODO
 		// case Instr::oppopenv: // TODO
@@ -452,37 +515,49 @@ void VM::execute(const Script& script)
 					maybe_unreachable("Type not implemented for pushcst");
 				}
 			}, std::array{state.t1});
-		} break;
+			break;
+		}
 
-		case Instr::oppushloc: {
+		case Instr::oppushloc:
+		{
 			auto reference = reader.next_block();
 			stack.push_raw(
 				&stack.raw[local_offset(local_id_from_reference(reference))],
 				Variable::stack_variable_size
 			);
-		} break;
+			break;
+		}
 
 		//case Instr::oppushglb:
 
 		case Instr::oppushspc:
+		{
 			read_special(SpecialVar(reader.next_block() & 0x00FFFFFF));
 			break;
+		}
 
 		case Instr::oppushi16:
+		{
 			stack.push<s32>(s16(state.block & 0xFFFF));
 			break;
+		}
 
-		case Instr::opcall: {
+		case Instr::opcall:
+		{
 			std::size_t argument_count = state.block & 0xFFFF;
 			auto& func = form.func.definitions[reader.next_block()];
 			call(func, argument_count);
-		} break;
+			break;
+		}
 
 		// case Instr::opbreak: // TODO
 
 		default:
+		{
 			fmt::print(fmt::color::red, "Unhandled op ${:02x}\n", u8(state.opcode));
 			maybe_unreachable("Reached unhandled operation in VM");
+			break;
+		}
 		}
 
 		reader.next_block();
