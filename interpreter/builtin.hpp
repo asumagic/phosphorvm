@@ -6,7 +6,7 @@
 
 class VM;
 
-using GenericBuiltin = int(VM&);
+using GenericBuiltin = void(VM&);
 
 struct Builtin
 {

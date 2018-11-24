@@ -2,7 +2,7 @@
 
 #include "../interpreter/builtins/bind.hpp"
 
-int show_message(VM& vm);
+void show_message(VM& vm);
 
 inline void bind_debug(Bindings& bindings)
 {

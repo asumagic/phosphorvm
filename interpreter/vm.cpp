@@ -52,7 +52,7 @@ void VM::call(const FunctionDefinition& func, std::size_t argument_count)
 
 	if (func.is_builtin)
 	{
-		stack.push<s32>(func.associated_builtin(*this));
+		func.associated_builtin(*this);
 	}
 	else
 	{
