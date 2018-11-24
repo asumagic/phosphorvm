@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pvm/config.hpp"
-#include "pvm/interpreter/frame.hpp"
+#include "pvm/vm/frame.hpp"
 #include <array>
 #include <stdexcept>
 

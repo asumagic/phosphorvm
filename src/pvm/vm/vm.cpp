@@ -5,10 +5,10 @@
 #include <utility>
 #include <type_traits>
 #include "pvm/bc/disasm.hpp"
-#include "pvm/interpreter/blockreader.hpp"
-#include "pvm/interpreter/traits.hpp"
-#include "pvm/interpreter/variableoperand.hpp"
-#include "pvm/interpreter/vmstate.hpp"
+#include "pvm/vm/blockreader.hpp"
+#include "pvm/vm/traits.hpp"
+#include "pvm/vm/variableoperand.hpp"
+#include "pvm/vm/vmstate.hpp"
 #include "pvm/util/cast.hpp"
 #include "pvm/util/compilersupport.hpp"
 #include "pvm/util/nametype.hpp"

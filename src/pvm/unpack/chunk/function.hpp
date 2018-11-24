@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pvm/interpreter/builtin.hpp"
+#include "pvm/vm/builtin.hpp"
 #include "pvm/unpack/chunk/code.hpp"
 #include "pvm/unpack/chunk/common.hpp"
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pvm/interpreter/blockreader.hpp"
+#include "pvm/vm/blockreader.hpp"
 #include "pvm/bc/enums.hpp"
 #include "pvm/bc/types.hpp"
 

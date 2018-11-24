@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <type_traits>
 #include "pvm/config.hpp"
-#include "pvm/interpreter/traits/datatype.hpp"
+#include "pvm/vm/traits/datatype.hpp"
 #include "pvm/util/errormanagement.hpp"
 #include "pvm/util/nametype.hpp"
 

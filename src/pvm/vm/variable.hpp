@@ -2,7 +2,7 @@
 
 #include "pvm/bc/enums.hpp"
 #include "pvm/bc/types.hpp"
-#include "pvm/interpreter/string.hpp"
+#include "pvm/vm/string.hpp"
 
 //! Type used as a placeholder in dispatcher so instructions can detect
 //! variables through type information. This may be passed to the 'f' parameter

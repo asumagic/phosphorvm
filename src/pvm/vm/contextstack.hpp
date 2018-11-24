@@ -2,7 +2,7 @@
 
 #include <array>
 #include "pvm/config.hpp"
-#include "pvm/interpreter/context.hpp"
+#include "pvm/vm/context.hpp"
 
 // TODO: should this be merged with framestack if there is more context to keep
 // than just the instance id etc?

@@ -3,8 +3,8 @@ add_executable(
 
 	"bc/disasm.cpp"
 	"bc/names.cpp"
-	"interpreter/builtins/bind.cpp"
-	"interpreter/vm.cpp"
+	"vm/builtins/bind.cpp"
+	"vm/vm.cpp"
 	"std/debug.cpp"
 	"unpack/chunk/form.cpp"
 	"unpack/mmap.cpp"

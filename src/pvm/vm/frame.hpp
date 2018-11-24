@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_map>
-#include "pvm/interpreter/variable.hpp"
+#include "pvm/vm/variable.hpp"
 
 struct Frame
 {

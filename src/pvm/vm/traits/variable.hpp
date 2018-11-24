@@ -1,8 +1,8 @@
 #pragma once
 
 #include <type_traits>
-#include "pvm/interpreter/traits/common.hpp"
-#include "pvm/interpreter/variableoperand.hpp"
+#include "pvm/vm/traits/common.hpp"
+#include "pvm/vm/variableoperand.hpp"
 
 //! Returns true when T is a VariableOperand.
 //! A value can be optionally passed to automatically deduce T.

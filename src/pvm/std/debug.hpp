@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pvm/interpreter/builtins/bind.hpp"
+#include "pvm/vm/builtins/bind.hpp"
 
 void show_message(VM& vm);
 

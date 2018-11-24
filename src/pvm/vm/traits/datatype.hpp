@@ -2,8 +2,8 @@
 
 #include "pvm/bc/enums.hpp"
 #include "pvm/bc/types.hpp"
-#include "pvm/interpreter/string.hpp"
-#include "pvm/interpreter/traits/common.hpp"
+#include "pvm/vm/string.hpp"
+#include "pvm/vm/traits/common.hpp"
 
 template<class T>
 class data_type_for

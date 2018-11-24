@@ -1,4 +1,4 @@
-#include "pvm/interpreter/vm.hpp"
+#include "pvm/vm/vm.hpp"
 #include "pvm/std/debug.hpp"
 
 void show_message(VM& vm)

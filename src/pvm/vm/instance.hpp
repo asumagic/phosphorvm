@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pvm/interpreter/variable.hpp"
+#include "pvm/vm/variable.hpp"
 #include <unordered_map>
 
 class Instance

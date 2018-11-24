@@ -1,4 +1,4 @@
-#include "pvm/interpreter/builtins/bind.hpp"
+#include "pvm/vm/builtins/bind.hpp"
 
 #include <fmt/core.h>
 #include <fmt/color.h>
