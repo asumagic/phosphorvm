@@ -15,6 +15,10 @@ constexpr bool
 	//! processing, etc.).
 	verbose_postprocess = true,
 
+	//! Provide information for every C++ function <-> FunctionDefinition
+	//! binding done
+	verbose_bindings = true,
+
 	//! Disassembles the bytecode program.
 	disassemble = true,
 

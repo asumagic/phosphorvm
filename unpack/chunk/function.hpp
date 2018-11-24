@@ -13,7 +13,7 @@ struct FunctionDefinition
 
 	bool is_builtin;
 	Script* associated_script;
-	Builtin associated_builtin;
+	GenericBuiltin associated_builtin;
 
 	void debug_print() const
 	{

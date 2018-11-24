@@ -6,6 +6,7 @@
 #include "traits/variable.hpp"
 #include "variableoperand.hpp"
 #include "../config.hpp"
+#include "../std/everything.hpp"
 #include "../unpack/chunk/form.hpp"
 #include "../util/compilersupport.hpp"
 #include "../util/errormanagement.hpp"
@@ -29,6 +30,8 @@ class VM
 	MainStack stack;
 	FrameStack frames;
 	ContextStack contexts;
+
+	Bindings bindings;
 
 	std::size_t argument_offset(ArgId arg_id = 0) const;
 	std::size_t local_offset(VarId var_id = 0) const;
@@ -78,8 +81,11 @@ public:
 };
 
 inline VM::VM(const Form& p_form) :
-	form{p_form}
+	form{p_form},
+	bindings{p_form.func}
 {
+	bind_everything(bindings);
+
 	if constexpr (check(debug::vm_debug_stack))
 	{
 		std::fill(stack.raw.begin(), stack.raw.end(), 0xAB);

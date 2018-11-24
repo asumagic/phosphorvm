@@ -1,10 +1,15 @@
 #pragma once
 
+#include <string_view>
 #include "../bytecode/types.hpp"
 #include "../bytecode/enums.hpp"
 
 class VM;
 
-using Builtin = int(*)(VM&);
+using GenericBuiltin = int(VM&);
 
-int show_message(VM&);
+struct Builtin
+{
+	GenericBuiltin* func;
+	std::string_view name;
+};
