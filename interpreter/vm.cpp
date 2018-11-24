@@ -31,17 +31,16 @@ VarId VM::local_id_from_reference(u32 reference) const
 
 void VM::print_stack_frame()
 {
+	std::vector<u8> frame(
+		&stack.raw[frames.top().stack_offset],
+		&stack.raw[stack.offset]
+	);
+
 	fmt::print(
 		fmt::color::gray,
 		"Stack frame data ({:5} bytes): {:02x}\n",
 		stack.offset - frames.top().stack_offset,
-		fmt::join(
-			std::vector<u8>(
-				&stack.raw[frames.top().stack_offset],
-				&stack.raw[stack.offset]
-			),
-			""
-		)
+		fmt::join(frame, "")
 	);
 }
 
