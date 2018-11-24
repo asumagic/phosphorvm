@@ -20,26 +20,28 @@ public:
 	const Block& relative_jump(s32 offset);
 
 	std::size_t offset() const;
+
+	bool out_of_bounds() const;
 };
 
-BlockReader::BlockReader(const Script& script) :
+inline BlockReader::BlockReader(const Script& script) :
 	_main_block{script.data.data()},
 	_offset{0},
 	_end{script.data.size()}
 {}
 
-const Block& BlockReader::current_block() const
+inline const Block& BlockReader::current_block() const
 {
 	return _main_block[_offset];
 }
 
-const Block& BlockReader::next_block()
+inline const Block& BlockReader::next_block()
 {
 	++_offset;
 
 	if constexpr (check(debug::vm_safer))
 	{
-		if (_offset >= _end)
+		if (out_of_bounds())
 		{
 			throw std::logic_error{"VM unexpectedly reached end of program"};
 		}
@@ -48,14 +50,19 @@ const Block& BlockReader::next_block()
 	return current_block();
 }
 
-const Block& BlockReader::relative_jump(s32 offset)
+inline const Block& BlockReader::relative_jump(s32 offset)
 {
 	_offset += offset;
 
 	return current_block();
 }
 
-std::size_t BlockReader::offset() const
+inline std::size_t BlockReader::offset() const
 {
 	return _offset;
+}
+
+inline bool BlockReader::out_of_bounds() const
+{
+	return _offset >= _end;
 }
