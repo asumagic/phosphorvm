@@ -13,4 +13,17 @@ struct Frame
 
 	//! Quantity of parameters passed to the function, as read from opcall.
 	u16 argument_count = 0;
+
+	std::size_t argument_offset(ArgId arg_id = 0) const;
+	std::size_t local_offset(VarId var_id = 0) const;
 };
+
+inline std::size_t Frame::argument_offset(ArgId arg_id) const
+{
+	return stack_offset + arg_id * Variable::stack_variable_size;
+}
+
+inline std::size_t Frame::local_offset(VarId var_id) const
+{
+	return argument_offset(argument_count) + var_id * Variable::stack_variable_size;
+}

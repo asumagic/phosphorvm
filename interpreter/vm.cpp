@@ -13,17 +13,6 @@
 #include "variableoperand.hpp"
 #include "vmstate.hpp"
 
-std::size_t VM::argument_offset(ArgId arg_id) const
-{
-	return frames.top().stack_offset + arg_id * Variable::stack_variable_size;
-}
-
-std::size_t VM::local_offset(VarId var_id) const
-{
-	auto first_local_offset = argument_offset(frames.top().argument_count);
-	return first_local_offset + var_id * Variable::stack_variable_size;
-}
-
 VarId VM::local_id_from_reference(u32 reference) const
 {
 	return form.vari.definitions[reference & 0x00FFFFFF].unknown - 1;
@@ -500,7 +489,7 @@ void VM::execute(const Script& script)
 					{
 					case InstType::local:
 						stack.push_raw(
-							&stack.raw[local_offset(local_id_from_reference(reference))],
+							&stack.raw[frames.top().local_offset(local_id_from_reference(reference))],
 							Variable::stack_variable_size
 						);
 						break;
@@ -521,7 +510,7 @@ void VM::execute(const Script& script)
 		{
 			auto reference = reader.next_block();
 			stack.push_raw(
-				&stack.raw[local_offset(local_id_from_reference(reference))],
+				&stack.raw[frames.top().local_offset(local_id_from_reference(reference))],
 				Variable::stack_variable_size
 			);
 			break;
@@ -573,7 +562,7 @@ void VM::read_special(SpecialVar var)
 	if (unsigned(var) <= 16)
 	{
 		stack.push_raw(
-			&stack.raw[argument_offset(unsigned(var))],
+			&stack.raw[frames.top().argument_offset(unsigned(var))],
 			Variable::stack_variable_size
 		);
 
