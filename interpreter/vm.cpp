@@ -41,7 +41,7 @@ void VM::print_stack_frame()
 			),
 			""
 		)
-			);
+	);
 }
 
 void VM::call(const FunctionDefinition& func, std::size_t argument_count)
@@ -52,7 +52,7 @@ void VM::call(const FunctionDefinition& func, std::size_t argument_count)
 
 	if (func.is_builtin)
 	{
-		maybe_unreachable("Builtins are not implemented yet");
+		stack.push<s32>(func.associated_builtin(*this));
 	}
 	else
 	{

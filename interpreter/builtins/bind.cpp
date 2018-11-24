@@ -43,6 +43,8 @@ std::size_t Bindings::push(Builtin builtin)
 		}
 
 		_builtins[index] = builtin.func;
+
+		const_cast<FunctionDefinition&>(_funcs.definitions[index]).associated_builtin = builtin.func;
 	}
 	else
 	{
