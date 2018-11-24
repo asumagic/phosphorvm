@@ -13,8 +13,9 @@ add_executable(
 )
 
 target_include_directories(
-	phosphorvm
+	${PROJECT_NAME}
 	PRIVATE
+
 	"${PROJECT_SRC_DIR}/src/phosphorvm"
 )
 
@@ -22,7 +23,10 @@ set(RELEASE_OPTIONS
 	"-O3"
 )
 
-target_compile_options(${PROJECT_NAME} PUBLIC
+target_compile_options(
+	${PROJECT_NAME}
+	PRIVATE
+
 	"-std=c++1z"
 	"-Wall"
 	"-Wextra"
@@ -31,6 +35,8 @@ target_compile_options(${PROJECT_NAME} PUBLIC
 	$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>
 )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(
+	${PROJECT_NAME}
+
 	fmt
 )
