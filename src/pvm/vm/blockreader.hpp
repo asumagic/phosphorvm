@@ -4,6 +4,7 @@
 #include "pvm/bc/types.hpp"
 #include "pvm/config.hpp"
 #include "pvm/unpack/chunk/code.hpp"
+#include "pvm/util/errormanagement.hpp"
 
 class BlockReader
 {
@@ -37,15 +38,13 @@ inline const Block& BlockReader::current_block() const
 
 inline const Block& BlockReader::next_block()
 {
-	++_offset;
-
-	if constexpr (check(debug::vm_safer))
+	// TODO: fix this check
+	if (out_of_bounds())
 	{
-		if (out_of_bounds())
-		{
-			throw std::logic_error{"VM unexpectedly reached end of program"};
-		}
+		maybe_unreachable("VM unexpectedly reached end of program");
 	}
+
+	++_offset;
 
 	return current_block();
 }
