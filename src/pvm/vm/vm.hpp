@@ -53,7 +53,13 @@ public:
 
 	//! Executes 'handler' as an instruction that pops two parameters.
 	template<class T>
-	auto op_pop2(VMState& state, T handler);
+	void op_pop2(VMState& state, T handler);
+
+	//! Executes 'handler' as an arithmetic instruction.
+	//! When either of the parameters is of variable type, the resulting
+	//! type is always a stack variable.
+	template<class T>
+	void op_arithmetic2(VMState& state, T handler);
 
 	void read_special(SpecialVar var);
 
@@ -144,7 +150,7 @@ auto VM::pop_dispatch(VMState& state, T handler, DataType type)
 
 template<class T>
 FORCE_INLINE
-auto VM::op_pop2(VMState& state, T handler)
+void VM::op_pop2(VMState& state, T handler)
 {
 	// Parameters are correctly reversed here
 	return pop_dispatch(state, [&](auto b) {
@@ -159,9 +165,57 @@ auto VM::op_pop2(VMState& state, T handler)
 				);
 			}
 
-			return handler(a, b);
+			handler(a, b);
 		}, state.t2);
 	}, state.t1);
+}
+
+template<class T>
+FORCE_INLINE
+void VM::op_arithmetic2(VMState& state, T handler)
+{
+	op_pop2(state, [&](auto a, auto b) {
+		using ReturnType = decltype(handler(value(a), value(b)));
+
+		if constexpr (!std::is_void_v<ReturnType>)
+		{
+			if constexpr (is_var(a) || is_var(b))
+			{
+				if constexpr (check(debug::vm_verbose_instructions))
+				{
+					fmt::print(
+						fmt::color::yellow_green,
+						"    -> Variable<{}>\n",
+						type_name<ReturnType>()
+					);
+				}
+
+				auto va = value(a);
+				auto vb = value(b);
+				push_stack_variable(handler(va, vb));
+			}
+			else
+			{
+				if constexpr (check(debug::vm_verbose_instructions))
+				{
+					fmt::print(
+						fmt::color::yellow_green,
+						"    -> {}\n",
+						type_name<ReturnType>()
+					);
+				}
+
+				stack.push(handler(a, b));
+			}
+		}
+		else
+		{
+			maybe_unreachable(
+				"Provided function does not handle arithmetic between"
+				"the two provided types"
+			);
+		}
+	});
 }
 
 template<class T>

@@ -88,58 +88,10 @@ void VM::execute(const Script& script)
 			);
 		}
 
-		//! Executes 'handler' as an arithmetic instruction.
-		//! When either of the parameters is of variable type, the resulting
-		//! type is always a stack variable.
-		auto op_arithmetic2 = [&](auto handler) FORCE_INLINE {
-			op_pop2(state, [&](auto a, auto b) {
-				using ReturnType = decltype(handler(value(a), value(b)));
-
-				if constexpr (!std::is_void_v<ReturnType>)
-				{
-					if constexpr (is_var(a) || is_var(b))
-					{
-						if constexpr (check(debug::vm_verbose_instructions))
-						{
-							fmt::print(
-								fmt::color::yellow_green,
-								"    -> Variable<{}>\n",
-								type_name<ReturnType>()
-							);
-						}
-
-						auto va = value(a);
-						auto vb = value(b);
-						push_stack_variable(handler(va, vb));
-					}
-					else
-					{
-						if constexpr (check(debug::vm_verbose_instructions))
-						{
-							fmt::print(
-								fmt::color::yellow_green,
-								"    -> {}\n",
-								type_name<ReturnType>()
-							);
-						}
-
-						stack.push(handler(a, b));
-					}
-				}
-				else
-				{
-					maybe_unreachable(
-						"Provided function does not handle arithmetic between"
-						"the two provided types"
-					);
-				}
-			});
-		};
-
 		//! Executes 'handler' as an arithmetic instruction, but filters
 		//! non-numeric parameters.
 		auto op_arithmetic_numeric2 = [&](auto handler) FORCE_INLINE {
-			op_arithmetic2([&](auto a, auto b) {
+			op_arithmetic2(state, [&](auto a, auto b) {
 				if constexpr (are<std::is_arithmetic>(a, b))
 				{
 					auto va = value(a);
@@ -153,7 +105,7 @@ void VM::execute(const Script& script)
 		//! non-integral parameters.
 		//! @see op_arithmetic2
 		auto op_arithmetic_integral2 = [&](auto handler) FORCE_INLINE {
-			op_arithmetic2([&](auto a, auto b) {
+			op_arithmetic2(state, [&](auto a, auto b) {
 				if constexpr (are<std::is_integral>(a, b))
 				{
 					return handler(a, b);
@@ -205,7 +157,7 @@ void VM::execute(const Script& script)
 
 		case Instr::opmul:
 		{
-			op_arithmetic2([&](auto a, auto b) {
+			op_arithmetic2(state, [&](auto a, auto b) {
 				if constexpr (std::is_integral_v<decltype(a)>
 						   && std::is_same_v<decltype(b), StringReference>)
 				{
@@ -236,7 +188,7 @@ void VM::execute(const Script& script)
 		// case Instr::opmod: // TODO
 
 		case Instr::opadd: {
-			op_arithmetic2([&](auto a, auto b) {
+			op_arithmetic2(state, [&](auto a, auto b) {
 				if constexpr (std::is_same_v<decltype(a), StringReference>
 						   && std::is_same_v<decltype(b), StringReference>)
 				{
@@ -293,7 +245,7 @@ void VM::execute(const Script& script)
 
 		case Instr::opshl:
 		{
-			op_arithmetic2([&](auto a, auto b) {
+			op_arithmetic2(state, [&](auto a, auto b) {
 				if constexpr (are<std::is_integral>(a, b))
 				{
 					return a << b;
@@ -305,7 +257,7 @@ void VM::execute(const Script& script)
 
 		case Instr::opshr:
 		{
-			op_arithmetic2([&](auto a, auto b) {
+			op_arithmetic2(state, [&](auto a, auto b) {
 				if constexpr (are<std::is_integral>(a, b))
 				{
 					return a >> b;
