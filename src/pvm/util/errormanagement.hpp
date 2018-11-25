@@ -6,7 +6,7 @@
 //! Call to designate a normally unreachable spot.
 //! With debug_mode set, throws an exception. Otherwise, uses
 //! __builtin_unreachble (effectively becoming an optimization).
-[[noreturn]]
+[[noreturn, gnu::cold, gnu::always_inline]]
 inline void maybe_unreachable(
 	const char* error = "VM state should never be reached"
 ) {
