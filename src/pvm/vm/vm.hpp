@@ -102,7 +102,7 @@ public:
 
 	void call(const FunctionDefinition& func, std::size_t argument_count = 0);
 
-	void execute(const Script& script);
+	void run(const Script& script);
 };
 
 inline VM::VM(const Form& p_form) :

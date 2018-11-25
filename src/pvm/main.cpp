@@ -29,7 +29,7 @@ int main()
 		{
 			VM vm{main_form};
 			vm.push_stack_variable(s32(35));
-			vm.execute(script);
+			vm.run(script);
 
 			fmt::print("FINAL STACK: \n");
 			vm.print_stack_frame();
@@ -40,7 +40,7 @@ int main()
 			VM vm{main_form};
 
 			//try {
-				vm.execute(script);
+				vm.run(script);
 			//} catch (...) {
 			//	fmt::print("oops\n");
 			//}

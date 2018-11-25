@@ -46,13 +46,13 @@ void VM::call(const FunctionDefinition& func, std::size_t argument_count)
 	{
 		Script& called_script = *func.associated_script;
 		stack.skip(-called_script.local_count * Variable::stack_variable_size);
-		execute(called_script);
+		run(called_script);
 	}
 
 	frames.pop();
 }
 
-void VM::execute(const Script& script)
+void VM::run(const Script& script)
 {
 	if constexpr (check(debug::vm_verbose_calls))
 	{
