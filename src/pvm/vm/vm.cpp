@@ -8,7 +8,6 @@
 #include "pvm/vm/blockreader.hpp"
 #include "pvm/vm/traits.hpp"
 #include "pvm/vm/variableoperand.hpp"
-#include "pvm/vm/vmstate.hpp"
 #include "pvm/util/cast.hpp"
 #include "pvm/util/compilersupport.hpp"
 #include "pvm/util/nametype.hpp"
@@ -89,28 +88,11 @@ void VM::execute(const Script& script)
 			);
 		}
 
-		//! Calls a handler providing it a value of the given type popped from
-		//! the stack.
-		//! When encountering variables, will provide a VariableReference<T>
-		//! with T being the variable type as read on the stack.
-		auto pop_dispatch = [&](auto handler, DataType type) FORCE_INLINE {
-			if (type == DataType::var)
-			{
-				return dispatcher([&](auto v) {
-					return handler(read_variable_parameter<decltype(v)>());
-				}, std::array{stack.pop<DataType>()});
-			}
-
-			return dispatcher([&](auto v) {
-				handler(stack.pop<decltype(v)>());
-			}, std::array{type});
-		};
-
 		//! Executes 'handler' as an instruction that pops two parameters.
 		auto op_pop2 = [&](auto handler) FORCE_INLINE {
 			// Parameters are correctly reversed here
-			pop_dispatch([&](auto b) {
-				pop_dispatch([&](auto a) {
+			pop_dispatch(state, [&](auto b) {
+				pop_dispatch(state, [&](auto a) {
 					if constexpr (check(debug::vm_verbose_instructions))
 					{
 						fmt::print(
@@ -220,7 +202,7 @@ void VM::execute(const Script& script)
 		{
 		case Instr::opconv:
 		{
-			pop_dispatch([&](auto src) FORCE_INLINE {
+			pop_dispatch(state, [&](auto src) FORCE_INLINE {
 				dispatcher([&](auto dst) FORCE_INLINE {
 					if constexpr (std::is_same_v<decltype(dst), VariablePlaceholder>)
 					{
@@ -383,7 +365,7 @@ void VM::execute(const Script& script)
 
 		case Instr::oppop:
 		{
-			pop_dispatch([&](auto v) {
+			pop_dispatch(state, [&](auto v) {
 				auto inst_type = InstType(s16(state.block & 0xFFFFu));
 				auto reference = reader.next_block();
 
@@ -427,7 +409,7 @@ void VM::execute(const Script& script)
 
 		case Instr::oppopz:
 		{
-			pop_dispatch([]([[maybe_unused]] auto v){}, state.t1);
+			pop_dispatch(state, []([[maybe_unused]] auto v){}, state.t1);
 			break;
 		}
 

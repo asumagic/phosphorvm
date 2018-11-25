@@ -8,6 +8,7 @@
 #include "pvm/vm/mainstack.hpp"
 #include "pvm/vm/traits/variable.hpp"
 #include "pvm/vm/variableoperand.hpp"
+#include "pvm/vm/vmstate.hpp"
 #include "pvm/std/everything.hpp"
 #include "pvm/unpack/chunk/form.hpp"
 #include "pvm/util/compilersupport.hpp"
@@ -42,6 +43,13 @@ public:
 	// TODO: make this usable to implement builtins sanely
 	template<std::size_t Left, class F, class... Ts>
 	void dispatcher(F f, std::array<DataType, Left> types);
+
+	//! Calls a handler providing it a value of the given type popped from
+	//! the stack.
+	//! When encountering variables, will provide a VariableReference<T>
+	//! with T being the variable type as read on the stack.
+	template<class T>
+	void pop_dispatch(VMState& state, T handler, DataType type);
 
 	void read_special(SpecialVar var);
 
@@ -113,6 +121,22 @@ void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types)
 		}
 	}
 }
+
+template<class T>
+FORCE_INLINE
+void VM::pop_dispatch(VMState& state, T handler, DataType type)
+{
+	if (type == DataType::var)
+	{
+		return dispatcher([&](auto v) {
+			return handler(read_variable_parameter<decltype(v)>());
+		}, std::array{stack.pop<DataType>()});
+	}
+
+	return dispatcher([&](auto v) {
+		return handler(stack.pop<decltype(v)>());
+	}, std::array{type});
+};
 
 template<class T>
 FORCE_INLINE
