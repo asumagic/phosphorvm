@@ -88,30 +88,11 @@ void VM::execute(const Script& script)
 			);
 		}
 
-		//! Executes 'handler' as an instruction that pops two parameters.
-		auto op_pop2 = [&](auto handler) FORCE_INLINE {
-			// Parameters are correctly reversed here
-			pop_dispatch(state, [&](auto b) {
-				pop_dispatch(state, [&](auto a) {
-					if constexpr (check(debug::vm_verbose_instructions))
-					{
-						fmt::print(
-							fmt::color::yellow_green,
-							"    f(pop<{}>(), pop<{}>())\n",
-							type_name<decltype(a)>(),
-							type_name<decltype(b)>()
-						);
-					}
-					handler(a, b);
-				}, state.t2);
-			}, state.t1);
-		};
-
 		//! Executes 'handler' as an arithmetic instruction.
 		//! When either of the parameters is of variable type, the resulting
 		//! type is always a stack variable.
 		auto op_arithmetic2 = [&](auto handler) FORCE_INLINE {
-			op_pop2([&](auto a, auto b) {
+			op_pop2(state, [&](auto a, auto b) {
 				using ReturnType = decltype(handler(value(a), value(b)));
 
 				if constexpr (!std::is_void_v<ReturnType>)
@@ -337,7 +318,7 @@ void VM::execute(const Script& script)
 		case Instr::opcmp:
 		{
 			auto func = CompFunc((state.block >> 8u) & 0xFFu);
-			op_pop2([&](auto a, auto b) {
+			op_pop2(state, [&](auto a, auto b) {
 				auto va = value(a);
 				auto vb = value(b);
 

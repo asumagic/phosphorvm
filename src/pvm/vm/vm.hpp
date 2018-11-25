@@ -49,7 +49,11 @@ public:
 	//! When encountering variables, will provide a VariableReference<T>
 	//! with T being the variable type as read on the stack.
 	template<class T>
-	void pop_dispatch(VMState& state, T handler, DataType type);
+	auto pop_dispatch(VMState& state, T handler, DataType type);
+
+	//! Executes 'handler' as an instruction that pops two parameters.
+	template<class T>
+	auto op_pop2(VMState& state, T handler);
 
 	void read_special(SpecialVar var);
 
@@ -124,7 +128,7 @@ void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types)
 
 template<class T>
 FORCE_INLINE
-void VM::pop_dispatch(VMState& state, T handler, DataType type)
+auto VM::pop_dispatch(VMState& state, T handler, DataType type)
 {
 	if (type == DataType::var)
 	{
@@ -137,6 +141,28 @@ void VM::pop_dispatch(VMState& state, T handler, DataType type)
 		return handler(stack.pop<decltype(v)>());
 	}, std::array{type});
 };
+
+template<class T>
+FORCE_INLINE
+auto VM::op_pop2(VMState& state, T handler)
+{
+	// Parameters are correctly reversed here
+	return pop_dispatch(state, [&](auto b) {
+		return pop_dispatch(state, [&](auto a) {
+			if constexpr (check(debug::vm_verbose_instructions))
+			{
+				fmt::print(
+					fmt::color::yellow_green,
+					"    f(pop<{}>(), pop<{}>())\n",
+					type_name<decltype(a)>(),
+					type_name<decltype(b)>()
+				);
+			}
+
+			return handler(a, b);
+		}, state.t2);
+	}, state.t1);
+}
 
 template<class T>
 FORCE_INLINE
