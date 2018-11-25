@@ -61,6 +61,18 @@ public:
 	template<class T>
 	void op_arithmetic2(VMState& state, T handler);
 
+	//! Executes 'handler' as an arithmetic instruction, but filters
+	//! non-numeric parameters.
+	//! @see op_arithmetic2
+	template<class T>
+	void op_arithmetic_numeric2(VMState& state, T handler);
+
+	//! Executes 'handler' as an arithmetic instruction, but filters
+	//! non-integral parameters.
+	//! @see op_arithmetic2
+	template<class T>
+	void op_arithmetic_integral2(VMState& state, T handler);
+
 	void read_special(SpecialVar var);
 
 	template<class T>
@@ -153,8 +165,8 @@ FORCE_INLINE
 void VM::op_pop2(VMState& state, T handler)
 {
 	// Parameters are correctly reversed here
-	return pop_dispatch( [&](auto b) {
-		return pop_dispatch( [&](auto a) {
+	return pop_dispatch([&](auto b) {
+		return pop_dispatch([&](auto a) {
 			if constexpr (check(debug::vm_verbose_instructions))
 			{
 				fmt::print(
@@ -214,6 +226,34 @@ void VM::op_arithmetic2(VMState& state, T handler)
 				"Provided function does not handle arithmetic between"
 				"the two provided types"
 			);
+		}
+	});
+}
+
+template<class T>
+FORCE_INLINE
+void VM::op_arithmetic_numeric2(VMState& state, T handler)
+{
+	op_arithmetic2(state, [&](auto a, auto b) {
+		if constexpr (are<std::is_arithmetic>(a, b))
+		{
+			auto va = value(a);
+			auto vb = value(b);
+			return handler(va, vb);
+		}
+	});
+}
+
+template<class T>
+FORCE_INLINE
+void VM::op_arithmetic_integral2(VMState& state, T handler)
+{
+	op_arithmetic2(state, [&](auto a, auto b) {
+		if constexpr (are<std::is_integral>(a, b))
+		{
+			auto va = value(a);
+			auto vb = value(b);
+			return handler(va, vb);
 		}
 	});
 }

@@ -88,31 +88,6 @@ void VM::execute(const Script& script)
 			);
 		}
 
-		//! Executes 'handler' as an arithmetic instruction, but filters
-		//! non-numeric parameters.
-		auto op_arithmetic_numeric2 = [&](auto handler) FORCE_INLINE {
-			op_arithmetic2(state, [&](auto a, auto b) {
-				if constexpr (are<std::is_arithmetic>(a, b))
-				{
-					auto va = value(a);
-					auto vb = value(b);
-					return handler(va, vb);
-				}
-			});
-		};
-
-		//! Executes 'handler' as an arithmetic instruction, but filters
-		//! non-integral parameters.
-		//! @see op_arithmetic2
-		auto op_arithmetic_integral2 = [&](auto handler) FORCE_INLINE {
-			op_arithmetic2(state, [&](auto a, auto b) {
-				if constexpr (are<std::is_integral>(a, b))
-				{
-					return handler(a, b);
-				}
-			});
-		};
-
 		//! Jumps to another instruction with an offset defined by the current
 		//! block.
 		auto branch = [&]() FORCE_INLINE {
@@ -135,7 +110,7 @@ void VM::execute(const Script& script)
 		{
 		case Instr::opconv:
 		{
-			pop_dispatch( [&](auto src) FORCE_INLINE {
+			pop_dispatch([&](auto src) FORCE_INLINE {
 				dispatcher([&](auto dst) FORCE_INLINE {
 					if constexpr (std::is_same_v<decltype(dst), VariablePlaceholder>)
 					{
@@ -176,7 +151,7 @@ void VM::execute(const Script& script)
 		}
 
 		case Instr::opdiv: {
-			op_arithmetic_numeric2([&](auto a, auto b) {
+			op_arithmetic_numeric2(state, [&](auto a, auto b) {
 				// TODO: what to do on /0?
 				return a / b;
 			});
@@ -206,7 +181,7 @@ void VM::execute(const Script& script)
 
 		case Instr::opsub:
 		{
-			op_arithmetic_numeric2([&](auto a, auto b) {
+			op_arithmetic_numeric2(state, [&](auto a, auto b) {
 				return a - b;
 			});
 
@@ -215,7 +190,7 @@ void VM::execute(const Script& script)
 
 		case Instr::opand:
 		{
-			op_arithmetic_integral2([&](auto a, auto b) {
+			op_arithmetic_integral2(state, [&](auto a, auto b) {
 				return a & b;
 			});
 
@@ -224,7 +199,7 @@ void VM::execute(const Script& script)
 
 		case Instr::opor:
 		{
-			op_arithmetic_integral2([&](auto a, auto b) {
+			op_arithmetic_integral2(state, [&](auto a, auto b) {
 				return a | b;
 			});
 
@@ -233,7 +208,7 @@ void VM::execute(const Script& script)
 
 		case Instr::opxor:
 		{
-			op_arithmetic_integral2([&](auto a, auto b) {
+			op_arithmetic_integral2(state, [&](auto a, auto b) {
 				return a ^ b;
 			});
 
@@ -298,7 +273,7 @@ void VM::execute(const Script& script)
 
 		case Instr::oppop:
 		{
-			pop_dispatch( [&](auto v) {
+			pop_dispatch([&](auto v) {
 				auto inst_type = InstType(s16(state.block & 0xFFFFu));
 				auto reference = reader.next_block();
 
@@ -342,7 +317,7 @@ void VM::execute(const Script& script)
 
 		case Instr::oppopz:
 		{
-			pop_dispatch( []([[maybe_unused]] auto v){}, state.t1);
+			pop_dispatch([]([[maybe_unused]] auto v){}, state.t1);
 			break;
 		}
 
