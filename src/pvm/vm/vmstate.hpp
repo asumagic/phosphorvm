@@ -18,7 +18,7 @@ struct VMState
 inline VMState::VMState(BlockReader& reader) :
 	reader{&reader},
 	block{reader.current_block()},
-	opcode{Instr(block >> 24)},
-	t1{DataType((block >> 16) & 0xF)},
-	t2{DataType((block >> 20) & 0xF)}
+    opcode{Instr(block >> 24u)},
+    t1{DataType((block >> 16u) & 0xFu)},
+    t2{DataType((block >> 20u) & 0xFu)}
 {}

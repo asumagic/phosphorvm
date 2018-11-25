@@ -15,7 +15,7 @@
 
 VarId VM::local_id_from_reference(u32 reference) const
 {
-	return form.vari.definitions[reference & 0x00FFFFFF].unknown - 1;
+	return form.vari.definitions[reference & 0x00FFFFFFu].unknown - 1;
 }
 
 void VM::print_stack_frame()
@@ -201,7 +201,7 @@ void VM::execute(const Script& script)
 		//! Jumps to another instruction with an offset defined by the current
 		//! block.
 		auto branch = [&]() FORCE_INLINE {
-			s16 offset = state.block & 0xFFFF;
+			s16 offset = state.block & 0xFFFFu;
 
 			if constexpr (check(debug::vm_verbose_instructions))
 			{
@@ -354,7 +354,7 @@ void VM::execute(const Script& script)
 
 		case Instr::opcmp:
 		{
-			auto func = CompFunc((state.block >> 8) & 0xFF);
+			auto func = CompFunc((state.block >> 8u) & 0xFFu);
 			op_pop2([&](auto a, auto b) {
 				auto va = value(a);
 				auto vb = value(b);
@@ -384,13 +384,13 @@ void VM::execute(const Script& script)
 		case Instr::oppop:
 		{
 			pop_dispatch([&](auto v) {
-				auto inst_type = InstType(s16(state.block & 0xFFFF));
+				auto inst_type = InstType(s16(state.block & 0xFFFFu));
 				auto reference = reader.next_block();
 
 				write_variable(
 					inst_type,
-					reference & 0xFFFFFF,
-					VarType(reference >> 24),
+					reference & 0xFFFFFFu,
+					VarType(reference >> 24u),
 					value(v)
 				);
 			}, state.t2);
@@ -466,7 +466,7 @@ void VM::execute(const Script& script)
 				{
 					if (state.t1 == DataType::i16)
 					{
-						stack.push(s32(state.block & 0xFFFF));
+						stack.push(s32(state.block & 0xFFFFu));
 					}
 					else
 					{
@@ -482,7 +482,7 @@ void VM::execute(const Script& script)
 				}
 				else if constexpr (std::is_same_v<decltype(v), VariablePlaceholder>)
 				{
-					auto inst_type = InstType(s16(state.block & 0xFFFF));
+					auto inst_type = InstType(s16(state.block & 0xFFFFu));
 					auto reference = reader.next_block();
 
 					switch (inst_type)
@@ -520,19 +520,19 @@ void VM::execute(const Script& script)
 
 		case Instr::oppushspc:
 		{
-			read_special(SpecialVar(reader.next_block() & 0x00FFFFFF));
+			read_special(SpecialVar(reader.next_block() & 0x00FFFFFFu));
 			break;
 		}
 
 		case Instr::oppushi16:
 		{
-			stack.push<s32>(s16(state.block & 0xFFFF));
+			stack.push<s32>(s16(state.block & 0xFFFFu));
 			break;
 		}
 
 		case Instr::opcall:
 		{
-			std::size_t argument_count = state.block & 0xFFFF;
+			std::size_t argument_count = state.block & 0xFFFFu;
 			auto& func = form.func.definitions[reader.next_block()];
 			call(func, argument_count);
 			break;
