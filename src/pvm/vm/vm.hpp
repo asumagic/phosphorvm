@@ -49,7 +49,7 @@ public:
 	//! When encountering variables, will provide a VariableReference<T>
 	//! with T being the variable type as read on the stack.
 	template<class T>
-	auto pop_dispatch(VMState& state, T handler, DataType type);
+	auto pop_dispatch(T handler, DataType type);
 
 	//! Executes 'handler' as an instruction that pops two parameters.
 	template<class T>
@@ -134,7 +134,7 @@ void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types)
 
 template<class T>
 FORCE_INLINE
-auto VM::pop_dispatch(VMState& state, T handler, DataType type)
+auto VM::pop_dispatch(T handler, DataType type)
 {
 	if (type == DataType::var)
 	{
@@ -153,8 +153,8 @@ FORCE_INLINE
 void VM::op_pop2(VMState& state, T handler)
 {
 	// Parameters are correctly reversed here
-	return pop_dispatch(state, [&](auto b) {
-		return pop_dispatch(state, [&](auto a) {
+	return pop_dispatch( [&](auto b) {
+		return pop_dispatch( [&](auto a) {
 			if constexpr (check(debug::vm_verbose_instructions))
 			{
 				fmt::print(

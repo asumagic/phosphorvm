@@ -135,7 +135,7 @@ void VM::execute(const Script& script)
 		{
 		case Instr::opconv:
 		{
-			pop_dispatch(state, [&](auto src) FORCE_INLINE {
+			pop_dispatch( [&](auto src) FORCE_INLINE {
 				dispatcher([&](auto dst) FORCE_INLINE {
 					if constexpr (std::is_same_v<decltype(dst), VariablePlaceholder>)
 					{
@@ -298,7 +298,7 @@ void VM::execute(const Script& script)
 
 		case Instr::oppop:
 		{
-			pop_dispatch(state, [&](auto v) {
+			pop_dispatch( [&](auto v) {
 				auto inst_type = InstType(s16(state.block & 0xFFFFu));
 				auto reference = reader.next_block();
 
@@ -342,7 +342,7 @@ void VM::execute(const Script& script)
 
 		case Instr::oppopz:
 		{
-			pop_dispatch(state, []([[maybe_unused]] auto v){}, state.t1);
+			pop_dispatch( []([[maybe_unused]] auto v){}, state.t1);
 			break;
 		}
 
