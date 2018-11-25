@@ -40,7 +40,7 @@ constexpr bool
 	//!   exception.
 	//! - Checking the boundaries for the block reader.
 	//! - Checking stack limits (main stack, call stack, ...).
-	vm_safer = false;
+	vm_safer = true;
 }
 
 constexpr bool check(const bool flag)
