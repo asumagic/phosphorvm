@@ -42,7 +42,7 @@ public:
 	//! will call f(0.0f, 0.0);
 	// TODO: make this usable to implement builtins sanely
 	template<std::size_t Left, class F, class... Ts>
-	void dispatcher(F f, std::array<DataType, Left> types) const;
+	auto dispatcher(F f, std::array<DataType, Left> types) const;
 
 	//! Calls a handler providing it a value of the given type popped from
 	//! the stack.
@@ -119,11 +119,11 @@ inline VM::VM(const Form& p_form) :
 
 template<std::size_t Left, class F, class... Ts>
 FORCE_INLINE
-void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types) const
+auto VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types) const
 {
 	if constexpr (Left == 0)
 	{
-		f(Ts{}...);
+		return f(Ts{}...);
 	}
 	else
 	{
@@ -132,14 +132,14 @@ void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types) cons
 
 		switch(types.front())
 		{
-		case DataType::f64: DISPATCH_NEXT(f64) break;
-		case DataType::f32: DISPATCH_NEXT(f32) break;
-		case DataType::i64: DISPATCH_NEXT(s64) break;
-		case DataType::i32: DISPATCH_NEXT(s32) break;
-		case DataType::i16: DISPATCH_NEXT(s16) break;
-		case DataType::str: DISPATCH_NEXT(StringReference) break;
-		case DataType::var: DISPATCH_NEXT(VariablePlaceholder) break;
-		default: maybe_unreachable();
+		case DataType::f64: return DISPATCH_NEXT(f64)
+		case DataType::f32: return DISPATCH_NEXT(f32)
+		case DataType::i64: return DISPATCH_NEXT(s64)
+		case DataType::i32: return DISPATCH_NEXT(s32)
+		case DataType::i16: return DISPATCH_NEXT(s16)
+		case DataType::str: return DISPATCH_NEXT(StringReference)
+		case DataType::var: return DISPATCH_NEXT(VariablePlaceholder)
+		default: maybe_unreachable("Unsupported DataType in dispatcher");
 		}
 	}
 }
