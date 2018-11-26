@@ -42,7 +42,7 @@ public:
 	//! will call f(0.0f, 0.0);
 	// TODO: make this usable to implement builtins sanely
 	template<std::size_t Left, class F, class... Ts>
-	void dispatcher(F f, std::array<DataType, Left> types);
+	void dispatcher(F f, std::array<DataType, Left> types) const;
 
 	//! Calls a handler providing it a value of the given type popped from
 	//! the stack.
@@ -119,7 +119,7 @@ inline VM::VM(const Form& p_form) :
 
 template<std::size_t Left, class F, class... Ts>
 FORCE_INLINE
-void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types)
+void VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types) const
 {
 	if constexpr (Left == 0)
 	{
