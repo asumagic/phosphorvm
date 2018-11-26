@@ -15,14 +15,13 @@ class BlockReader
 public:
 	BlockReader(const Script& script);
 
-	const Block& current_block() const;
+	[[nodiscard]] const Block& current_block() const;
 
 	const Block& next_block();
 	const Block& relative_jump(s32 offset);
 
-	std::size_t offset() const;
-
-	bool out_of_bounds() const;
+	[[nodiscard]] std::size_t offset() const;
+	[[nodiscard]] bool out_of_bounds() const;
 };
 
 inline BlockReader::BlockReader(const Script& script) :

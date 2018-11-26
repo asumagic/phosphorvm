@@ -43,7 +43,7 @@ constexpr bool
 	vm_safer = true;
 }
 
-constexpr bool check(const bool flag)
+[[nodiscard]] constexpr bool check(const bool flag)
 {
 	return debug::debug_everything || flag;
 }

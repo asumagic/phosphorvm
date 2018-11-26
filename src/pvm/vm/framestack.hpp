@@ -11,10 +11,10 @@ struct FrameStack
 
 	std::array<Frame, max_call_depth> frames;
 
-	Frame& push();
+	[[nodiscard]] Frame& push();
 	void pop();
-	Frame& top();
-	const Frame& top() const;
+	[[nodiscard]] Frame& top();
+	[[nodiscard]] const Frame& top() const;
 };
 
 inline Frame& FrameStack::push()

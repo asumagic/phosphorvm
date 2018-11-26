@@ -8,13 +8,13 @@
 //! - are<std::is_arithmetic, A, B, C>()
 //! - are<std::is_arithmetic>(a, b, c);
 template<template<class> class TT, class... Ts>
-constexpr bool are()
+[[nodiscard]] constexpr bool are()
 {
 	return (TT<Ts>::value && ...);
 }
 
 template<template<class> class TT, class... Ts>
-constexpr bool are(const Ts&...)
+[[nodiscard]] constexpr bool are(const Ts&...)
 {
 	return are<TT, Ts...>();
 }

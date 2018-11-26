@@ -35,7 +35,7 @@ class VM
 	VarId local_id_from_reference(u32 reference) const;
 
 public:
-	VM(const Form& p_form);
+	explicit VM(const Form& p_form);
 
 	//! Calls a function 'f' with parameter types corresponding to the given
 	//! 'types'. e.g. dispatcher(f, std::array{DataType::f32, DataType::f64})
@@ -82,7 +82,7 @@ public:
 	void push_stack_variable(const T& value);
 
 	template<class T>
-	VariableOperand<T> read_variable_parameter(
+	[[nodiscard]] VariableOperand<T> read_variable_parameter(
 		InstType inst_type = InstType::stack_top_or_global,
 		VarId var_id = 0
 	);
@@ -96,7 +96,7 @@ public:
 	);
 
 	template<class T>
-	auto value(T& value);
+	[[nodiscard]] auto value(T& value);
 
 	void print_stack_frame();
 

@@ -10,6 +10,6 @@ struct ContextStack
 {
 	std::array<Context, max_context_depth> contexts;
 
-	Context& push();
+	[[nodiscard]] Context& push();
 	void pop();
 };
