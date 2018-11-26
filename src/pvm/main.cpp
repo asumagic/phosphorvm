@@ -1,8 +1,9 @@
 #include <fmt/core.h>
 #include "pvm/bc/disasm.hpp"
-#include "pvm/vm/vm.hpp"
+#include "pvm/std/everything.hpp"
 #include "pvm/unpack/decode.hpp"
 #include "pvm/unpack/mmap.hpp"
+#include "pvm/vm/vm.hpp"
 
 int main()
 {
@@ -17,6 +18,8 @@ int main()
 	Form main_form;
 	Reader reader{file.data(), file.data() + file.size()};
 	reader >> main_form;
+
+	bind_everything(main_form.func);
 
 	for (auto& script : main_form.code.elements)
 	{

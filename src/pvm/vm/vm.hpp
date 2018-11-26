@@ -9,8 +9,8 @@
 #include "pvm/vm/traits/variable.hpp"
 #include "pvm/vm/variableoperand.hpp"
 #include "pvm/vm/vmstate.hpp"
-#include "pvm/std/everything.hpp"
 #include "pvm/unpack/chunk/form.hpp"
+#include "pvm/unpack/chunk/function.hpp"
 #include "pvm/util/compilersupport.hpp"
 #include "pvm/util/errormanagement.hpp"
 
@@ -29,8 +29,6 @@ class VM
 	MainStack stack;
 	FrameStack frames;
 	ContextStack contexts;
-
-	Bindings bindings;
 
 	VarId local_id_from_reference(u32 reference) const;
 
@@ -106,11 +104,8 @@ public:
 };
 
 inline VM::VM(const Form& p_form) :
-	form{p_form},
-	bindings{p_form.func}
+	form{p_form}
 {
-	bind_everything(bindings);
-
 	if constexpr (check(debug::vm_debug_stack))
 	{
 		std::fill(stack.raw.begin(), stack.raw.end(), 0xAB);
@@ -121,7 +116,7 @@ template<std::size_t Left, class F, class... Ts>
 FORCE_INLINE
 auto VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types) const
 {
-	if constexpr (Left == 0)
+	if constexpr (types.empty())
 	{
 		return f(Ts{}...);
 	}
@@ -278,7 +273,7 @@ void VM::push_stack_variable(const T& value)
 
 template<class T>
 FORCE_INLINE
-VariableOperand<T> VM::read_variable_parameter(InstType inst_type, VarId var_id)
+VariableOperand<T> VM::read_variable_parameter(InstType inst_type, VarId /*var_id*/)
 {
 	switch (inst_type)
 	{

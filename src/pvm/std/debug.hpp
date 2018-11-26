@@ -4,12 +4,7 @@
 
 void show_message(VM& vm);
 
-inline void bind_debug(Bindings& bindings)
+inline void bind_debug(Func& func)
 {
-	for (Builtin builtin : {
-		Builtin{show_message, "show_message"}
-	})
-	{
-		bindings.push(builtin);
-	}
+	bind<show_message>(func, "show_message");
 }
