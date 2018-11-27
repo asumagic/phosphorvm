@@ -3,36 +3,31 @@
 #include "pvm/bc/enums.hpp"
 #include "pvm/bc/types.hpp"
 #include "pvm/config.hpp"
+#include "pvm/unpack/chunk/form.hpp"
+#include "pvm/unpack/chunk/function.hpp"
+#include "pvm/util/compilersupport.hpp"
+#include "pvm/util/errormanagement.hpp"
 #include "pvm/vm/contextstack.hpp"
 #include "pvm/vm/framestack.hpp"
 #include "pvm/vm/mainstack.hpp"
 #include "pvm/vm/traits/variable.hpp"
 #include "pvm/vm/variableoperand.hpp"
 #include "pvm/vm/vmstate.hpp"
-#include "pvm/unpack/chunk/form.hpp"
-#include "pvm/unpack/chunk/function.hpp"
-#include "pvm/util/compilersupport.hpp"
-#include "pvm/util/errormanagement.hpp"
 
-#define DISPATCH_NEXT(appended_type) \
-	dispatcher< \
-		Left - 1, \
-		F, \
-		Ts..., \
-		appended_type \
-	>(f, new_array);
+#define DISPATCH_NEXT(appended_type)                                           \
+	dispatcher<Left - 1, F, Ts..., appended_type>(f, new_array)
 
 class VM
 {
 	const Form& form;
 
-	MainStack stack;
-	FrameStack frames;
+	MainStack    stack;
+	FrameStack   frames;
 	ContextStack contexts;
 
 	VarId local_id_from_reference(u32 reference) const;
 
-public:
+	public:
 	explicit VM(const Form& p_form);
 
 	//! Calls a function 'f' with parameter types corresponding to the given
@@ -81,17 +76,11 @@ public:
 
 	template<class T>
 	[[nodiscard]] VariableOperand<T> read_variable_parameter(
-		InstType inst_type = InstType::stack_top_or_global,
-		VarId var_id = 0
-	);
+		InstType inst_type = InstType::stack_top_or_global, VarId var_id = 0);
 
 	template<class T>
-	void write_variable(
-		InstType inst_type,
-		VarId var_id,
-		VarType var_type,
-		T value
-	);
+	void
+	write_variable(InstType inst_type, VarId var_id, VarType var_type, T value);
 
 	template<class T>
 	[[nodiscard]] auto value(T& value);
@@ -103,8 +92,7 @@ public:
 	void run(const Script& script);
 };
 
-inline VM::VM(const Form& p_form) :
-	form{p_form}
+inline VM::VM(const Form& p_form) : form{p_form}
 {
 	if constexpr (check(debug::vm_debug_stack))
 	{
@@ -113,8 +101,8 @@ inline VM::VM(const Form& p_form) :
 }
 
 template<std::size_t Left, class F, class... Ts>
-FORCE_INLINE
-auto VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types) const
+FORCE_INLINE auto
+VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types) const
 {
 	if constexpr (types.empty())
 	{
@@ -125,61 +113,63 @@ auto VM::dispatcher(F f, [[maybe_unused]] std::array<DataType, Left> types) cons
 		std::array<DataType, Left - 1> new_array;
 		std::copy(types.begin() + 1, types.end(), new_array.begin());
 
-		switch(types.front())
+		switch (types.front())
 		{
-		case DataType::f64: return DISPATCH_NEXT(f64)
-		case DataType::f32: return DISPATCH_NEXT(f32)
-		case DataType::i64: return DISPATCH_NEXT(s64)
-		case DataType::i32: return DISPATCH_NEXT(s32)
-		case DataType::i16: return DISPATCH_NEXT(s16)
-		case DataType::str: return DISPATCH_NEXT(StringReference)
-		case DataType::var: return DISPATCH_NEXT(VariablePlaceholder)
+		case DataType::f64: return DISPATCH_NEXT(f64);
+		case DataType::f32: return DISPATCH_NEXT(f32);
+		case DataType::i64: return DISPATCH_NEXT(s64);
+		case DataType::i32: return DISPATCH_NEXT(s32);
+		case DataType::i16: return DISPATCH_NEXT(s16);
+		case DataType::str: return DISPATCH_NEXT(StringReference);
+		case DataType::var: return DISPATCH_NEXT(VariablePlaceholder);
 		default: maybe_unreachable("Unsupported DataType in dispatcher");
 		}
 	}
 }
 
 template<class T>
-FORCE_INLINE
-auto VM::pop_dispatch(T handler, DataType type)
+FORCE_INLINE auto VM::pop_dispatch(T handler, DataType type)
 {
 	if (type == DataType::var)
 	{
-		return dispatcher([&](auto v) {
-			return handler(read_variable_parameter<decltype(v)>());
-		}, std::array{stack.pop<DataType>()});
+		return dispatcher(
+			[&](auto v) {
+				return handler(read_variable_parameter<decltype(v)>());
+			},
+			std::array{stack.pop<DataType>()});
 	}
 
-	return dispatcher([&](auto v) {
-		return handler(stack.pop<decltype(v)>());
-	}, std::array{type});
+	return dispatcher(
+		[&](auto v) { return handler(stack.pop<decltype(v)>()); },
+		std::array{type});
 };
 
 template<class T>
-FORCE_INLINE
-void VM::op_pop2(VMState& state, T handler)
+FORCE_INLINE void VM::op_pop2(VMState& state, T handler)
 {
 	// Parameters are correctly reversed here
-	return pop_dispatch([&](auto b) {
-		return pop_dispatch([&](auto a) {
-			if constexpr (check(debug::vm_verbose_instructions))
-			{
-				fmt::print(
-					fmt::color::yellow_green,
-					"    f(pop<{}>(), pop<{}>())\n",
-					type_name<decltype(a)>(),
-					type_name<decltype(b)>()
-				);
-			}
+	return pop_dispatch(
+		[&](auto b) {
+			return pop_dispatch(
+				[&](auto a) {
+					if constexpr (check(debug::vm_verbose_instructions))
+					{
+						fmt::print(
+							fmt::color::yellow_green,
+							"    f(pop<{}>(), pop<{}>())\n",
+							type_name<decltype(a)>(),
+							type_name<decltype(b)>());
+					}
 
-			handler(a, b);
-		}, state.t2);
-	}, state.t1);
+					handler(a, b);
+				},
+				state.t2);
+		},
+		state.t1);
 }
 
 template<class T>
-FORCE_INLINE
-void VM::op_arithmetic2(VMState& state, T handler)
+FORCE_INLINE void VM::op_arithmetic2(VMState& state, T handler)
 {
 	op_pop2(state, [&](auto a, auto b) {
 		using ReturnType = decltype(handler(value(a), value(b)));
@@ -193,8 +183,7 @@ void VM::op_arithmetic2(VMState& state, T handler)
 					fmt::print(
 						fmt::color::yellow_green,
 						"    -> Variable<{}>\n",
-						type_name<ReturnType>()
-					);
+						type_name<ReturnType>());
 				}
 
 				auto va = value(a);
@@ -208,8 +197,7 @@ void VM::op_arithmetic2(VMState& state, T handler)
 					fmt::print(
 						fmt::color::yellow_green,
 						"    -> {}\n",
-						type_name<ReturnType>()
-					);
+						type_name<ReturnType>());
 				}
 
 				stack.push(handler(a, b));
@@ -219,15 +207,13 @@ void VM::op_arithmetic2(VMState& state, T handler)
 		{
 			maybe_unreachable(
 				"Provided function does not handle arithmetic between"
-				"the two provided types"
-			);
+				"the two provided types");
 		}
 	});
 }
 
 template<class T>
-FORCE_INLINE
-void VM::op_arithmetic_numeric2(VMState& state, T handler)
+FORCE_INLINE void VM::op_arithmetic_numeric2(VMState& state, T handler)
 {
 	op_arithmetic2(state, [&](auto a, auto b) {
 		if constexpr (are<std::is_arithmetic>(a, b))
@@ -240,8 +226,7 @@ void VM::op_arithmetic_numeric2(VMState& state, T handler)
 }
 
 template<class T>
-FORCE_INLINE
-void VM::op_arithmetic_integral2(VMState& state, T handler)
+FORCE_INLINE void VM::op_arithmetic_integral2(VMState& state, T handler)
 {
 	op_arithmetic2(state, [&](auto a, auto b) {
 		if constexpr (are<std::is_integral>(a, b))
@@ -254,8 +239,8 @@ void VM::op_arithmetic_integral2(VMState& state, T handler)
 }
 
 template<class T>
-FORCE_INLINE
-void VM::push_stack_variable(const T& value, MainStackReader& reader)
+FORCE_INLINE void
+VM::push_stack_variable(const T& value, MainStackReader& reader)
 {
 	auto padding_bytes = sizeof(s64) - sizeof(T);
 
@@ -265,15 +250,14 @@ void VM::push_stack_variable(const T& value, MainStackReader& reader)
 }
 
 template<class T>
-FORCE_INLINE
-void VM::push_stack_variable(const T& value)
+FORCE_INLINE void VM::push_stack_variable(const T& value)
 {
 	push_stack_variable(value, stack);
 }
 
 template<class T>
-FORCE_INLINE
-VariableOperand<T> VM::read_variable_parameter(InstType inst_type, VarId /*var_id*/)
+FORCE_INLINE VariableOperand<T>
+			 VM::read_variable_parameter(InstType inst_type, VarId /*var_id*/)
 {
 	switch (inst_type)
 	{
@@ -287,25 +271,23 @@ VariableOperand<T> VM::read_variable_parameter(InstType inst_type, VarId /*var_i
 }
 
 template<class T>
-FORCE_INLINE
-void VM::write_variable(
-	InstType inst_type,
-	VarId var_id,
-	VarType var_type,
-	T value
-)
+FORCE_INLINE void
+VM::write_variable(InstType inst_type, VarId var_id, VarType var_type, T value)
 {
 	switch (inst_type)
 	{
 	case InstType::stack_top_or_global:
 		maybe_unreachable("Impossible to write_variable with this inst_type");
 
-	case InstType::local: {
-		auto local_offset = frames.top().local_offset(local_id_from_reference(var_id));
+	case InstType::local:
+	{
+		auto local_offset
+			= frames.top().local_offset(local_id_from_reference(var_id));
 		MainStackReader reader = stack.temporary_reader(local_offset);
 
 		push_stack_variable(value, reader);
-	} break;
+	}
+	break;
 
 	default:
 		maybe_unreachable("Unimplemented write_variable for this inst_type");
@@ -313,8 +295,7 @@ void VM::write_variable(
 }
 
 template<class T>
-FORCE_INLINE
-auto VM::value(T& value)
+FORCE_INLINE auto VM::value(T& value)
 {
 	if constexpr (is_var<T>())
 	{
