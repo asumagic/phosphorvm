@@ -31,6 +31,7 @@ target_compile_options(
 	"-Wextra"
 	"-Wpedantic"
 	"-Wno-missing-braces"
+	"-g"
 	$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>
 )
 
