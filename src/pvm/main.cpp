@@ -15,7 +15,7 @@ int main()
 		return 1;
 	}
 
-	Form main_form;
+	Form   main_form;
 	Reader reader{file.data(), file.data() + file.size()};
 	reader >> main_form;
 
@@ -28,22 +28,22 @@ int main()
 			Disassembler{main_form}(script);
 		}
 
-		/*if (script.name == "gml_Script_script_fibo")
+		if (script.name == "gml_Script_script_fibo")
 		{
 			VM vm{main_form};
-			vm.push_stack_variable(s32(35));
+			vm.push_stack_variable(s32(37));
 			vm.run(script);
 
 			fmt::print("FINAL STACK: \n");
 			vm.print_stack_frame();
-		}*/
+		}
 
 		if (script.name == "gml_Object_object1_Create_0")
 		{
 			VM vm{main_form};
 
-			//try {
-				vm.run(script);
+			// try {
+			vm.run(script);
 			//} catch (...) {
 			//	fmt::print("oops\n");
 			//}
