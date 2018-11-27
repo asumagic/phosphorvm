@@ -1,12 +1,12 @@
 #pragma once
 
+#include "pvm/unpack/chunk/function.hpp"
+#include "pvm/vm/builtin.hpp"
+#include "pvm/vm/builtins/bindwrapper.hpp"
 #include <algorithm>
 #include <fmt/core.h>
 #include <string_view>
 #include <type_traits>
-#include "pvm/unpack/chunk/function.hpp"
-#include "pvm/vm/builtin.hpp"
-#include "pvm/vm/builtins/bindwrapper.hpp"
 
 template<auto BindFunc>
 void bind(Func& func_chunk, std::string_view name)
@@ -14,18 +14,14 @@ void bind(Func& func_chunk, std::string_view name)
 	auto func_it = std::find_if(
 		func_chunk.definitions.begin(),
 		func_chunk.definitions.end(),
-		[name](FunctionDefinition& def) {
-			return def.name == name;
-		}
-	);
+		[name](FunctionDefinition& def) { return def.name == name; });
 
 	if constexpr (check(debug::verbose_postprocess))
 	{
 		fmt::print(
 			"Binding function '{}', id {}",
 			name,
-			std::distance(func_chunk.definitions.begin(), func_it)
-		);
+			std::distance(func_chunk.definitions.begin(), func_it));
 	}
 
 	if constexpr (std::is_same_v<decltype(BindFunc), GenericBuiltin*>)

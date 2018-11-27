@@ -1,5 +1,5 @@
-#include "pvm/vm/vm.hpp"
 #include "pvm/std/debug.hpp"
+#include "pvm/vm/vm.hpp"
 
 void show_message(VM& vm)
 {

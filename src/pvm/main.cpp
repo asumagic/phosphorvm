@@ -1,9 +1,9 @@
-#include <fmt/core.h>
 #include "pvm/bc/disasm.hpp"
 #include "pvm/std/everything.hpp"
 #include "pvm/unpack/decode.hpp"
 #include "pvm/unpack/mmap.hpp"
 #include "pvm/vm/vm.hpp"
+#include <fmt/core.h>
 
 int main()
 {
