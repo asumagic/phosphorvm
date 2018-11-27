@@ -9,6 +9,7 @@
 #include "pvm/vm/variableoperand.hpp"
 #include <fmt/color.h>
 #include <fmt/core.h>
+#include <stdexcept>
 #include <type_traits>
 #include <utility>
 
@@ -472,4 +473,9 @@ void VM::read_special(SpecialVar var)
 
 		return;
 	}
+}
+
+void VM::type_error()
+{
+	throw std::runtime_error{"Type check error!\n"};
 }

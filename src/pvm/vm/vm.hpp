@@ -42,7 +42,7 @@ class VM
 	//! When encountering variables, will provide a VariableReference<T>
 	//! with T being the variable type as read on the stack.
 	template<class T>
-	auto pop_dispatch(T handler, DataType type);
+	auto pop_dispatch(T handler, DataType type = DataType::var);
 
 	//! Executes 'handler' as an instruction that pops two parameters.
 	template<class T>
@@ -84,6 +84,8 @@ class VM
 
 	template<class T>
 	[[nodiscard]] auto value(T& value);
+
+	void type_error();
 
 	void print_stack_frame();
 
