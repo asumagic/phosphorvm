@@ -33,23 +33,12 @@ int main()
 			VM vm{main_form};
 			vm.push_stack_variable(s32(37));
 			vm.run(script);
-
-			fmt::print("FINAL STACK: \n");
-			vm.print_stack_frame();
 		}
 
 		if (script.name == "gml_Object_object1_Create_0")
 		{
 			VM vm{main_form};
-
-			// try {
 			vm.run(script);
-			//} catch (...) {
-			//	fmt::print("oops\n");
-			//}
-
-			fmt::print("FINAL STACK: \n");
-			vm.print_stack_frame();
 		}
 	}
 }
