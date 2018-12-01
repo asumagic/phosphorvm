@@ -26,7 +26,7 @@ class VM
 	FrameStack   frames;
 	ContextStack contexts;
 
-	InstanceManager manager;
+	InstanceManager instances;
 
 	VarId local_id_from_reference(u32 reference) const;
 
@@ -139,13 +139,21 @@ FORCE_INLINE auto VM::pop_dispatch(T handler, DataType type)
 	{
 		return dispatcher(
 			[&](auto v) {
-				return handler(read_variable_parameter<decltype(v)>());
+				if constexpr (!std::is_same_v<decltype(v), VariablePlaceholder>)
+				{
+					return handler(read_variable_parameter<decltype(v)>());
+				}
 			},
 			std::array{stack.pop<DataType>()});
 	}
 
 	return dispatcher(
-		[&](auto v) { return handler(stack.pop<decltype(v)>()); },
+		[&](auto v) {
+			if constexpr (!std::is_same_v<decltype(v), VariablePlaceholder>)
+			{
+				return handler(stack.pop<decltype(v)>());
+			}
+		},
 		std::array{type});
 };
 
@@ -283,6 +291,10 @@ VM::write_variable(InstType inst_type, VarId var_id, VarType var_type, T value)
 	{
 	case InstType::stack_top_or_global:
 		maybe_unreachable("Impossible to write_variable with this inst_type");
+
+	case InstType::global:
+		instances.global().variable(var_id).data = value;
+		break;
 
 	case InstType::local:
 	{

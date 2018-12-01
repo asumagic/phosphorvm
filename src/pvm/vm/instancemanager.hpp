@@ -7,6 +7,7 @@
 class InstanceManager
 {
 	std::unordered_map<InstId, Instance> _instances;
+	Instance&                            _global;
 
 	public:
 	InstanceManager();

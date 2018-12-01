@@ -360,6 +360,7 @@ void VM::run(const Script& script)
 			// case Instr::oppopenv: // TODO
 
 		case Instr::oppushcst:
+		case Instr::oppushglb: // TODO: separate
 		{
 			dispatcher(
 			    [&](auto v) {
@@ -397,6 +398,18 @@ void VM::run(const Script& script)
 						        Variable::stack_variable_size);
 						    break;
 
+						case InstType::global:
+						{
+							Variable& global_variable
+								= instances.global().variable(
+									reference & 0x00FFFFFF);
+
+							std::visit(
+								[&](auto value) { push_stack_variable(value); },
+								global_variable.data);
+							break;
+						}
+
 					    default:
 						    maybe_unreachable(
 						        "InstType not implemented for pushcst");
@@ -420,8 +433,6 @@ void VM::run(const Script& script)
 			    Variable::stack_variable_size);
 			break;
 		}
-
-			// case Instr::oppushglb:
 
 		case Instr::oppushspc:
 		{

@@ -2,15 +2,11 @@
 
 #include "pvm/bc/enums.hpp"
 
-InstanceManager::InstanceManager()
-{
-	for (InstType special_id : {InstType::global})
-	{
-		_instances.emplace(s32(special_id), Instance{});
-	}
-}
+InstanceManager::InstanceManager() :
+	_global{_instances.emplace(s32(InstType::global), Instance{}).first->second}
+{}
 
 Instance& InstanceManager::global()
 {
-	return _instances[s32(InstType::global)];
+	return _global;
 }
