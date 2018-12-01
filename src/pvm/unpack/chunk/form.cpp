@@ -3,7 +3,6 @@
 #include "pvm/bc/names.hpp"
 #include <fmt/color.h>
 
-// TODO: perform this lazily
 void Form::finalize_bytecode()
 {
 	// Caution! The process order is generally important.
