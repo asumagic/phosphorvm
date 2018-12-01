@@ -9,6 +9,7 @@
 #include "pvm/util/errormanagement.hpp"
 #include "pvm/vm/contextstack.hpp"
 #include "pvm/vm/framestack.hpp"
+#include "pvm/vm/instancemanager.hpp"
 #include "pvm/vm/mainstack.hpp"
 #include "pvm/vm/traits/variable.hpp"
 #include "pvm/vm/variableoperand.hpp"
@@ -24,6 +25,8 @@ class VM
 	MainStack    stack;
 	FrameStack   frames;
 	ContextStack contexts;
+
+	InstanceManager manager;
 
 	VarId local_id_from_reference(u32 reference) const;
 

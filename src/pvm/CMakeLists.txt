@@ -4,6 +4,7 @@ add_executable(
 	"bc/disasm.cpp"
 	"bc/names.cpp"
 	"vm/vm.cpp"
+	"vm/instancemanager.cpp"
 	"std/debug.cpp"
 	"unpack/chunk/form.cpp"
 	"unpack/mmap.cpp"
