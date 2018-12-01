@@ -6,7 +6,8 @@ namespace debug
 {
 constexpr bool
 	//! Override, which enables all flag checks.
-	debug_everything = false,
+	debug_everything
+	= false,
 
 	//! Provides a lot of information on the unpacked data.win file.
 	verbose_unpack = true,
@@ -48,7 +49,5 @@ constexpr bool
 	return debug::debug_everything || flag;
 }
 
-constexpr std::size_t
-	max_stack_depth = 1024 * 32, // 32KiB
-	max_context_depth = 16,
-	max_call_depth = 256;
+constexpr std::size_t max_stack_depth = 1024 * 32, // 32KiB
+	max_context_depth = 16, max_call_depth = 256;
