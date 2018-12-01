@@ -10,4 +10,5 @@ struct ContextStack
 
 	[[nodiscard]] Context& push();
 	void                   pop();
+	[[nodiscard]] Context& top();
 };

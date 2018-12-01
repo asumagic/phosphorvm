@@ -69,6 +69,9 @@ class VM
 	template<class T>
 	void op_arithmetic_integral2(VMState& state, T handler);
 
+	template<class Func>
+	void for_each_instance(Func f);
+
 	void read_special(SpecialVar var);
 
 	template<class T>
@@ -249,6 +252,16 @@ FORCE_INLINE void VM::op_arithmetic_integral2(VMState& state, T handler)
 			return handler(va, vb);
 		}
 	});
+}
+
+template<class Func>
+FORCE_INLINE void VM::for_each_instance(Func f)
+{
+	Context& context = contexts.top();
+	if (context.cached_instance != nullptr)
+	{
+		f(*context.cached_instance);
+	}
 }
 
 template<class T>
